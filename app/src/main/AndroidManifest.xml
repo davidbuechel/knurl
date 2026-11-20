@@ -3,6 +3,11 @@
 
     <!-- Sync and sign-in with Firebase. Training works offline; Firestore queues writes. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Notifications (asked only when needed), rest alarm, reminders after a restart. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:name=".KnurlApp"
@@ -15,6 +20,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.Knurl.Starting"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -22,6 +28,36 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".core.workout.RestOverReceiver" android:exported="false" />
+        <receiver android:name=".core.notifications.ReminderReceiver" android:exported="false" />
+        <receiver android:name=".core.notifications.BootReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".core.notifications.KnurlMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/brand_cobalt" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="news" />
+        <!-- No crash reports until the person opts in (AppPreferences.crashReports). -->
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="false" />
 
         <!-- Lets AppCompat store the in-app language choice and apply it before the first screen. -->
         <service

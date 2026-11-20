@@ -1,24 +1,54 @@
 package de.knurl
 
+import android.app.Activity
 import android.app.Application
+import android.os.Bundle
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.FirebaseFirestore
+import de.knurl.core.notifications.Notifications
+import de.knurl.core.notifications.PushRegistration
+import de.knurl.core.notifications.ReminderScheduler
+import de.knurl.core.notifications.WorkoutNotifier
 import de.knurl.core.settings.AppPreferences
+import de.knurl.core.workout.RestTimer
 import de.knurl.data.firebase.AuthRepository
 import de.knurl.data.firebase.FirestoreTrainingStore
 import de.knurl.data.repository.TrainingRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 class KnurlApp : Application() {
     lateinit var container: AppContainer
         private set
 
+    /** True while any screen of the app is visible; background-only notifications check it. */
+    @Volatile
+    var inForeground = false
+        private set
+
     override fun onCreate() {
         super.onCreate()
+        Notifications.createChannels(this)
         container = AppContainer(this)
         container.preferences.applyTheme()
+        registerActivityLifecycleCallbacks(ForegroundTracker())
+    }
+
+    private inner class ForegroundTracker : ActivityLifecycleCallbacks {
+        private var started = 0
+        override fun onActivityStarted(activity: Activity) { started++; inForeground = true }
+        override fun onActivityStopped(activity: Activity) { started--; inForeground = started > 0 }
+        override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = Unit
+        override fun onActivityResumed(activity: Activity) = Unit
+        override fun onActivityPaused(activity: Activity) = Unit
+        override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
+        override fun onActivityDestroyed(activity: Activity) = Unit
     }
 }
 
@@ -28,13 +58,32 @@ class AppContainer(val app: Application) {
 
     val preferences = AppPreferences(app)
 
+    private val firestore = FirebaseFirestore.getInstance()
+
     val auth = AuthRepository(FirebaseAuth.getInstance(), scope)
 
     val training = TrainingRepository(
         // Firestore keeps a persistent local cache by default: reads work offline, writes are queued.
-        store = FirestoreTrainingStore(FirebaseFirestore.getInstance()),
+        store = FirestoreTrainingStore(firestore),
         uid = auth.uid,
         scope = scope,
         german = { Locale.getDefault().language == "de" },
     )
+
+    val restTimer = RestTimer(app)
+
+    val push = PushRegistration(auth, preferences, firestore, scope)
+
+    init {
+        WorkoutNotifier(app, training, restTimer, scope)
+        // Reminders follow the account's notification settings.
+        scope.launch {
+            training.data.filterNotNull().map { it.settings.notifications }.distinctUntilChanged()
+                .collect { ReminderScheduler.schedule(app, it) }
+        }
+        // Crash reports only with consent (manifest default: off).
+        scope.launch {
+            preferences.crashReports.collect { FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = it }
+        }
+    }
 }

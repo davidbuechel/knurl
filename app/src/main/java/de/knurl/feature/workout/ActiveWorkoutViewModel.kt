@@ -2,6 +2,7 @@ package de.knurl.feature.workout
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import de.knurl.core.workout.RestTimer
 import de.knurl.data.repository.TrainingRepository
 import de.knurl.domain.addSet
 import de.knurl.domain.changeWeight
@@ -15,7 +16,6 @@ import de.knurl.domain.removeExercise
 import de.knurl.domain.removeSet
 import de.knurl.domain.updateSet
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -43,10 +43,9 @@ data class ActiveWorkoutState(
 
 class ActiveWorkoutViewModel(
     private val training: TrainingRepository,
+    private val rest: RestTimer,
     private val now: () -> Long = System::currentTimeMillis,
 ) : ViewModel() {
-
-    private val restEndsAtMs = MutableStateFlow<Long?>(null)
     private val ticker = flow {
         while (true) {
             emit(now())
@@ -54,7 +53,7 @@ class ActiveWorkoutViewModel(
         }
     }
 
-    val state: StateFlow<ActiveWorkoutState?> = combine(training.data.filterNotNull(), restEndsAtMs, ticker) { data, restEnd, nowMs ->
+    val state: StateFlow<ActiveWorkoutState?> = combine(training.data.filterNotNull(), rest.endsAtMs, ticker) { data, restEnd, nowMs ->
         val workout = data.active
         ActiveWorkoutState(
             workout = workout,
@@ -94,7 +93,7 @@ class ActiveWorkoutViewModel(
         val item = workout.exercises.getOrNull(exercise) ?: return
         val nowDone = item.sets.getOrNull(set)?.done?.not() ?: return
         training.updateActive { w -> w.updateSet(exercise, set) { it.copy(done = nowDone) } }
-        restEndsAtMs.value = if (nowDone) now() + item.restSec * 1000L else null
+        if (nowDone) rest.start(item.restSec) else rest.stop()
     }
 
     /** Working → warm-up → drop set → working. */
@@ -114,15 +113,20 @@ class ActiveWorkoutViewModel(
 
     fun removeExercise(exercise: Int) = training.updateActive { it.removeExercise(exercise) }
 
-    fun addRest(seconds: Int) {
-        restEndsAtMs.value = restEndsAtMs.value?.plus(seconds * 1000L)
+    fun addRest(seconds: Int) = rest.add(seconds)
+
+    fun skipRest() = rest.stop()
+
+    /** Called once when the countdown reaches zero on screen. */
+    fun restFinished() = rest.clearIfOver()
+
+    fun finish() {
+        rest.stop()
+        training.finishActive()
     }
 
-    fun skipRest() {
-        restEndsAtMs.value = null
+    fun discard() {
+        rest.stop()
+        training.discardActive()
     }
-
-    fun finish() = training.finishActive()
-
-    fun discard() = training.discardActive()
 }

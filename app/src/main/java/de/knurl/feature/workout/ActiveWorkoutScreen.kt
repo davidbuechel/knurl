@@ -1,5 +1,13 @@
 package de.knurl.feature.workout
 
+import android.Manifest
+import android.media.AudioManager
+import android.media.ToneGenerator
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -47,6 +55,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -55,6 +64,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.knurl.R
+import de.knurl.core.notifications.Notifications
 import de.knurl.feature.common.stepKg
 import de.knurl.feature.common.weightText
 import de.knurl.feature.common.LocalWeightUnit
@@ -79,10 +89,12 @@ private data class Typing(val exercise: Int, val set: Int, val weight: Boolean)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActiveWorkoutScreen(go: Navigator) {
-    val vm = knurlViewModel { ActiveWorkoutViewModel(it.training) }
+    val vm = knurlViewModel { ActiveWorkoutViewModel(it.training, it.restTimer) }
     val state by vm.state.collectAsStateWithLifecycle()
     val unit = LocalWeightUnit.current
     KeepScreenOn()
+    AskForNotificationsOnce()
+    RestOverFeedback(state?.restLeftSec, onDone = vm::restFinished)
     var confirmFinish by rememberSaveable { mutableStateOf(false) }
     var confirmDiscard by rememberSaveable { mutableStateOf(false) }
     var menuOpen by rememberSaveable { mutableStateOf(false) }
@@ -348,5 +360,36 @@ private fun KeepScreenOn() {
     DisposableEffect(wanted) {
         view.keepScreenOn = wanted
         onDispose { view.keepScreenOn = false }
+    }
+}
+
+/** In the app, the end of rest is a vibration and/or a short tone (Settings); the alarm covers the background. */
+@Composable
+private fun RestOverFeedback(restLeftSec: Long?, onDone: () -> Unit) {
+    val prefs = appContainer().preferences
+    val context = LocalContext.current
+    LaunchedEffect(restLeftSec == 0L) {
+        if (restLeftSec != 0L) return@LaunchedEffect
+        if (prefs.restVibrate.value) {
+            context.getSystemService(Vibrator::class.java)?.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 250, 120, 250), -1))
+        }
+        if (prefs.restSound.value) {
+            ToneGenerator(AudioManager.STREAM_NOTIFICATION, 80).startTone(ToneGenerator.TONE_PROP_BEEP2, 400)
+        }
+        onDone()
+    }
+}
+
+/** The rest timer and the workout notification need the permission: ask once, the first time a workout runs. */
+@Composable
+private fun AskForNotificationsOnce() {
+    val prefs = appContainer().preferences
+    val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !prefs.notificationsAsked && !Notifications.permissionGranted(context)) {
+            prefs.notificationsAsked = true
+            launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 }

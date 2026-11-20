@@ -1,5 +1,6 @@
 package de.knurl
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
@@ -23,7 +24,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import de.knurl.core.notifications.Notifications
 import de.knurl.core.settings.ThemeMode
+import kotlinx.coroutines.flow.MutableStateFlow
 import de.knurl.data.firebase.AuthState
 import de.knurl.ui.brand.KnurlAppIcon
 import de.knurl.ui.navigation.KnurlNavHost
@@ -31,7 +34,17 @@ import de.knurl.ui.theme.KnurlTheme
 
 /** AppCompatActivity, so the in-app language and night mode apply (core/settings/AppPreferences). */
 class MainActivity : AppCompatActivity() {
+
+    /** Where a tapped notification wants to go; the nav host consumes it. */
+    private val target = MutableStateFlow<String?>(null)
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        target.value = intent.getStringExtra(Notifications.EXTRA_TARGET)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (savedInstanceState == null) target.value = intent.getStringExtra(Notifications.EXTRA_TARGET)
         val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
         val container = (application as KnurlApp).container
@@ -50,7 +63,10 @@ class MainActivity : AppCompatActivity() {
             KnurlTheme(darkTheme = dark) {
                 val auth by container.auth.state.collectAsStateWithLifecycle()
                 if (auth == AuthState.Offline) FirstStartOffline(onRetry = container.auth::ensureSignedIn)
-                else KnurlNavHost()
+                else {
+                    val pending by target.collectAsStateWithLifecycle()
+                    KnurlNavHost(pendingTarget = pending, onTargetHandled = { target.value = null })
+                }
             }
         }
     }

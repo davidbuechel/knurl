@@ -241,4 +241,20 @@
     <string name="account_notice_deleted">Konto gelöscht</string>
     <string name="account_notice_exported">Export gespeichert</string>
     <string name="account_notice_google_failed">Google-Anmeldung ist auf diesem Handy nicht verfügbar. Nutze stattdessen E-Mail.</string>
+
+    <!-- Notifications -->
+    <string name="rest_over_title">Pause vorbei</string>
+    <string name="rest_over_body">Zeit für den nächsten Satz.</string>
+    <string name="workout_notification_sets">%1$d von %2$d Sätzen erledigt</string>
+    <string name="workout_notification_rest">Pause · %1$d von %2$d Sätzen erledigt</string>
+    <string name="reminder_training_title">Trainingstag</string>
+    <string name="reminder_training_body">%1$d von %2$d Einheiten diese Woche. Bereit für die nächste?</string>
+    <string name="reminder_streak_title">Noch eins für deine Serie</string>
+    <string name="reminder_streak_body">Bisher %1$d Wochen in Folge. Ein Training am Wochenende hält sie am Laufen.</string>
+    <string name="reminder_weekly_title">Deine Woche</string>
+    <string name="reminder_weekly_body">%1$d Einheiten · %2$s · %3$d Rekorde</string>
+    <string name="notify_blocked">Benachrichtigungen sind blockiert</string>
+    <string name="notify_blocked_hint">Erlaube sie in den Android-Einstellungen, damit Knurl dich erinnern kann</string>
+    <string name="notify_exact">Pausen-Alarm auf die Sekunde</string>
+    <string name="notify_exact_hint">Erlaube genaue Alarme, damit der Pausen-Alarm nie zu spät kommt</string>
 </resources>

@@ -1,5 +1,13 @@
 package de.knurl.feature.settings
 
+import android.Manifest
+import android.app.AlarmManager
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings as AndroidSettings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -8,7 +16,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Article
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.outlined.Alarm
 import androidx.compose.material.icons.outlined.Gavel
+import androidx.compose.material.icons.outlined.NotificationsOff
 import androidx.compose.material.icons.outlined.Policy
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,6 +35,7 @@ import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -36,6 +47,8 @@ import de.knurl.BuildConfig
 import de.knurl.R
 import de.knurl.core.settings.AppLanguage
 import de.knurl.core.settings.ThemeMode
+import de.knurl.core.notifications.Notifications
+import de.knurl.data.NotificationSettings
 import de.knurl.data.Settings
 import de.knurl.data.WeightUnit
 import de.knurl.feature.common.Formatting
@@ -145,21 +158,40 @@ fun SettingsScreen(go: Navigator) {
 private fun NotificationSection(s: Settings, vm: SettingsViewModel, onDays: () -> Unit, onTime: () -> Unit) {
     val n = s.notifications
     val context = LocalContext.current
+    var granted by remember { mutableStateOf(Notifications.permissionGranted(context)) }
+    val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted = it }
+    // Switching a notification on asks for the permission first, if Android needs it.
+    fun enable(change: (NotificationSettings) -> NotificationSettings) {
+        vm.updateNotifications(change)
+        if (!granted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) permission.launch(Manifest.permission.POST_NOTIFICATIONS)
+    }
+    fun toggle(on: Boolean, change: (NotificationSettings) -> NotificationSettings) = if (on) enable(change) else vm.updateNotifications(change)
+    val alarms = context.getSystemService(AlarmManager::class.java)
     SettingsSection(stringResource(R.string.settings_section_notifications)) {
-        ToggleRow(stringResource(R.string.notify_rest), stringResource(R.string.notify_rest_hint), n.restTimer) { on -> vm.updateNotifications { it.copy(restTimer = on) } }
-        ToggleRow(stringResource(R.string.notify_running), stringResource(R.string.notify_running_hint), n.workoutRunning) { on -> vm.updateNotifications { it.copy(workoutRunning = on) } }
+        if (!granted) {
+            LinkRow(Icons.Outlined.NotificationsOff, stringResource(R.string.notify_blocked), stringResource(R.string.notify_blocked_hint), tint = MaterialTheme.colorScheme.error) {
+                context.startActivity(Intent(AndroidSettings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(AndroidSettings.EXTRA_APP_PACKAGE, context.packageName))
+            }
+        }
+        ToggleRow(stringResource(R.string.notify_rest), stringResource(R.string.notify_rest_hint), n.restTimer) { on -> toggle(on) { it.copy(restTimer = on) } }
+        if (n.restTimer && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarms.canScheduleExactAlarms()) {
+            LinkRow(Icons.Outlined.Alarm, stringResource(R.string.notify_exact), stringResource(R.string.notify_exact_hint)) {
+                context.startActivity(Intent(AndroidSettings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + context.packageName)))
+            }
+        }
+        ToggleRow(stringResource(R.string.notify_running), stringResource(R.string.notify_running_hint), n.workoutRunning) { on -> toggle(on) { it.copy(workoutRunning = on) } }
         RowDivider()
-        ToggleRow(stringResource(R.string.notify_reminders), stringResource(R.string.notify_reminders_hint), n.reminders) { on -> vm.updateNotifications { it.copy(reminders = on) } }
+        ToggleRow(stringResource(R.string.notify_reminders), stringResource(R.string.notify_reminders_hint), n.reminders) { on -> toggle(on) { it.copy(reminders = on) } }
         if (n.reminders) {
             ValueRow(stringResource(R.string.notify_reminder_days), n.reminderDays.sorted().joinToString(", ") { dayName(it, context) }, onClick = onDays)
             ValueRow(stringResource(R.string.notify_reminder_time), Formatting.timeOfDay(n.reminderMinutes), onClick = onTime)
         }
         RowDivider()
-        ToggleRow(stringResource(R.string.notify_streak), stringResource(R.string.notify_streak_hint), n.streak) { on -> vm.updateNotifications { it.copy(streak = on) } }
-        ToggleRow(stringResource(R.string.notify_weekly), stringResource(R.string.notify_weekly_hint), n.weeklyReview) { on -> vm.updateNotifications { it.copy(weeklyReview = on) } }
+        ToggleRow(stringResource(R.string.notify_streak), stringResource(R.string.notify_streak_hint), n.streak) { on -> toggle(on) { it.copy(streak = on) } }
+        ToggleRow(stringResource(R.string.notify_weekly), stringResource(R.string.notify_weekly_hint), n.weeklyReview) { on -> toggle(on) { it.copy(weeklyReview = on) } }
         RowDivider()
-        ToggleRow(stringResource(R.string.notify_account), stringResource(R.string.notify_account_hint), n.account) { on -> vm.updateNotifications { it.copy(account = on) } }
-        ToggleRow(stringResource(R.string.notify_news), stringResource(R.string.notify_news_hint), n.news) { on -> vm.updateNotifications { it.copy(news = on) } }
+        ToggleRow(stringResource(R.string.notify_account), stringResource(R.string.notify_account_hint), n.account) { on -> toggle(on) { it.copy(account = on) } }
+        ToggleRow(stringResource(R.string.notify_news), stringResource(R.string.notify_news_hint), n.news) { on -> toggle(on) { it.copy(news = on) } }
     }
 }
 

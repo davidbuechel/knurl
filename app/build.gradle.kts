@@ -6,6 +6,8 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
     // Reads app/google-services.json (git-ignored; get it with `firebase apps:sdkconfig`, see docs/firebase.md).
     id("com.google.gms.google-services")
+    // Crash reports, collection off until the person opts in (AppPreferences.crashReports).
+    id("com.google.firebase.crashlytics")
 }
 
 // Upload key for Google Play: keystore.properties + keystore/ (both git-ignored).
@@ -75,6 +77,8 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.messaging)
+    implementation(libs.firebase.crashlytics)
     implementation(libs.kotlinx.coroutines.play.services)
     // Google sign-in through Credential Manager (feature/account/GoogleSignIn.kt).
     implementation(libs.androidx.credentials)

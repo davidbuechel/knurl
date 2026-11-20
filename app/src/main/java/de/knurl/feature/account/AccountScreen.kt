@@ -62,7 +62,7 @@ private enum class Confirm { SIGN_IN_ELSEWHERE, SIGN_OUT, DELETE }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountScreen(go: Navigator) {
-    val vm = knurlViewModel { AccountViewModel(it.auth, it.training) }
+    val vm = knurlViewModel { AccountViewModel(it.auth, it.training, it.push) }
     val state by vm.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()

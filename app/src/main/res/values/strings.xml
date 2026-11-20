@@ -243,4 +243,20 @@
     <string name="account_notice_deleted">Account deleted</string>
     <string name="account_notice_exported">Export saved</string>
     <string name="account_notice_google_failed">Google sign-in isn\'t available on this phone. Use e-mail instead.</string>
+
+    <!-- Notifications -->
+    <string name="rest_over_title">Rest is over</string>
+    <string name="rest_over_body">Time for the next set.</string>
+    <string name="workout_notification_sets">%1$d of %2$d sets done</string>
+    <string name="workout_notification_rest">Rest · %1$d of %2$d sets done</string>
+    <string name="reminder_training_title">Training day</string>
+    <string name="reminder_training_body">%1$d of %2$d workouts this week. Ready for the next one?</string>
+    <string name="reminder_streak_title">One more for your streak</string>
+    <string name="reminder_streak_body">%1$d weeks in a row so far. One workout this weekend keeps it going.</string>
+    <string name="reminder_weekly_title">Your week</string>
+    <string name="reminder_weekly_body">%1$d workouts · %2$s · %3$d records</string>
+    <string name="notify_blocked">Notifications are blocked</string>
+    <string name="notify_blocked_hint">Allow them in Android\'s settings so Knurl can remind you</string>
+    <string name="notify_exact">Rest alarm to the second</string>
+    <string name="notify_exact_hint">Allow exact alarms so the rest alarm is never late</string>
 </resources>

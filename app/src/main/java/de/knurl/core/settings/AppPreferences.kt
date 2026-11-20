@@ -75,6 +75,11 @@ class AppPreferences(context: Context) {
 
     fun setCrashReports(on: Boolean) = putBoolean(KEY_CRASH_REPORTS, on, _crashReports)
 
+    /** Whether we already asked for the notification permission (once; after that only from Settings). */
+    var notificationsAsked: Boolean
+        get() = prefs.getBoolean(KEY_NOTIFICATIONS_ASKED, false)
+        set(value) = prefs.edit { putBoolean(KEY_NOTIFICATIONS_ASKED, value) }
+
     /** A random id for this installation, used as the document id under users/{uid}/devices. */
     val installId: String
         get() = prefs.getString(KEY_INSTALL_ID, null) ?: java.util.UUID.randomUUID().toString().also {
@@ -96,5 +101,6 @@ class AppPreferences(context: Context) {
         const val KEY_REST_SOUND = "restSound"
         const val KEY_CRASH_REPORTS = "crashReports"
         const val KEY_INSTALL_ID = "installId"
+        const val KEY_NOTIFICATIONS_ASKED = "notificationsAsked"
     }
 }

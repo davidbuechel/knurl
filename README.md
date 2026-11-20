@@ -20,6 +20,9 @@ Kotlin + Jetpack Compose, Modelle und Rechnungen in Kotlin Multiplatform (`:shar
 - **Einstellungen:** Design (System/Hell/Dunkel), Sprache (System/Deutsch/Englisch), kg/lb, Stange, vorhandene
   Scheiben, Standardpause, Wochenziel, Bildschirm anlassen, Pausen-Vibration/-Ton, Benachrichtigungen einzeln,
   Absturzberichte (aus bis eingeschaltet), Impressum/Datenschutz (Platzhalter).
+- **Benachrichtigungen:** Pausen-Alarm im Hintergrund, laufendes Training auf dem Sperrbildschirm (mit Countdown),
+  Trainingserinnerung an gewählten Tagen, Serien-Erinnerung, Wochenrückblick, Push (FCM) für Konto und News.
+  Details: `docs/notifications.md`.
 
 Daten liegen in Firebase (Projekt `knurl-gym`, Frankfurt) unter dem eigenen Konto. Jede Installation startet
 mit einem anonymen Konto; Training funktioniert dank Firestore-Cache auch offline. Details: `docs/firebase.md`.

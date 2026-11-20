@@ -3,6 +3,7 @@ package de.knurl.feature.account
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.knurl.core.export.DataExport
+import de.knurl.core.notifications.PushRegistration
 import de.knurl.data.firebase.AccountError
 import de.knurl.data.firebase.AccountResult
 import de.knurl.data.firebase.AuthRepository
@@ -28,7 +29,11 @@ data class AccountUiState(
     val notice: AccountNotice?,
 )
 
-class AccountViewModel(private val auth: AuthRepository, private val training: TrainingRepository) : ViewModel() {
+class AccountViewModel(
+    private val auth: AuthRepository,
+    private val training: TrainingRepository,
+    private val push: PushRegistration,
+) : ViewModel() {
 
     private val busy = MutableStateFlow(false)
     private val error = MutableStateFlow<AccountError?>(null)
@@ -59,8 +64,11 @@ class AccountViewModel(private val auth: AuthRepository, private val training: T
     fun sendReset(email: String) = run(AccountNotice.RESET_SENT) { auth.sendPasswordReset(email) }
 
     fun signOut() {
-        auth.signOut()
-        _notice.value = AccountNotice.SIGNED_OUT
+        viewModelScope.launch {
+            push.unregister()
+            auth.signOut()
+            _notice.value = AccountNotice.SIGNED_OUT
+        }
     }
 
     /** Deletes the data first (it needs the account to pass the rules), then the sign-in. */

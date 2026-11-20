@@ -9,6 +9,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import de.knurl.core.notifications.Notifications
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.knurl.data.WeightUnit
@@ -60,9 +62,14 @@ private typealias TransitionEnter = AnimatedContentTransitionScope<NavBackStackE
 private typealias TransitionExit = AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition
 
 @Composable
-fun KnurlNavHost() {
+fun KnurlNavHost(pendingTarget: String? = null, onTargetHandled: () -> Unit = {}) {
     val nav = rememberNavController()
     val go = remember(nav) { Navigator(nav) }
+    // A tapped notification: the workout notifications lead to the running workout.
+    LaunchedEffect(pendingTarget) {
+        if (pendingTarget == Notifications.TARGET_WORKOUT) go.to(ActiveWorkoutRoute)
+        if (pendingTarget != null) onTargetHandled()
+    }
     val data by appContainer().training.data.collectAsStateWithLifecycle()
     CompositionLocalProvider(LocalWeightUnit provides (data?.settings?.unit ?: WeightUnit.KG)) {
         Destinations(nav, go)

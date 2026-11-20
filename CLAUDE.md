@@ -35,6 +35,8 @@ calculations in Kotlin Multiplatform (`:shared`). Firebase backend (Auth, Firest
   No stock spinners.
 - **Navigation through `Navigator`** (`go.to` / `go.back`); motion is set once in `ScreenMotion`.
   Screens add no transitions.
+- **Notifications:** every kind is a `Channel` with a switch in `NotificationSettings`; add both,
+  plus a row in `docs/notifications.md`. The rest timer is app-wide (`RestTimer`), never screen state.
 - **ViewModels via `knurlViewModel { ... }`**, dependencies from `AppContainer`.
 - **All formatting in `Formatting`** (locale-aware numbers, durations, dates). Weights on screen go
   through `weightText` / `setText` / `tonnageText` (feature/common/Units.kt), which follow the chosen
