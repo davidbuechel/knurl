@@ -5,20 +5,23 @@ Kotlin + Jetpack Compose, Modelle und Rechnungen in Kotlin Multiplatform (`:shar
 
 > „Knurl“ ist der Working Title. Zeichen: drei aufsteigende Hantelscheiben auf einem Stangenende; dieselbe Form ist die Ladeanimation.
 
-## Phase 1 (aktuell)
-- **Heute:** nächster Plan der Reihe nach, laufendes Training fortsetzen, Woche auf einen Blick, letzte Rekorde.
-- **Training:** Startpläne, eigene Pläne anlegen und bearbeiten (Übungen, Reihenfolge, Sätze, Wdh.-Bereich, Pause),
+## Funktionen
+- **Erster Start:** Onboarding mit Ziel, Erfahrung, Trainingstagen und Einheit; daraus Startpläne und Wochenziel.
+- **Heute:** nächster Plan der Reihe nach, laufendes Training fortsetzen, Woche auf einen Blick mit Volumen-Trend,
+  größte Steigerungen der letzten vier Wochen, letzte Rekorde.
+- **Training:** Pläne anlegen und bearbeiten (Übungen, Reihenfolge, Sätze, Wdh.-Bereich, Pause, Supersätze),
   duplizieren, verschieben, löschen mit Rückgängig. Freies Training oder jedes vergangene Training als Plan speichern.
-  Vergangene Trainings bearbeiten. Zusammenfassung nach dem Training mit Rekorden und Vergleich zum letzten Mal.
-- **Live-Workout:** Sätze mit Gewicht/Wdh.-Steppern (Antippen zum Eintippen), Aufwärm- und Drop-Sätze,
-  Abhaken mit Haptik, Pausentimer, „Zuletzt“-Werte, Progressionsvorschlag. Gewichtsänderungen laufen an
-  offene Folgesätze weiter.
-- **Übungen:** rund 500 Übungen für normale Gym-Gänger (inkl. HIIT/Hyrox) mit Fotos (Start/Ende) und Anleitung, Suche in beiden Sprachen mit Kürzeln,
-  Muskelnamen und Tippfehler-Toleranz, Filter nach Muskel, Gerät und Level, Favoriten und „Zuletzt trainiert“.
-  Detail: Bewegungsbilder, Muskeln, geschätztes 1RM mit Verlauf, Bestwerte, Scheibenrechner, alle Einheiten.
-  Details: `docs/exercises.md`.
-- **Fortschritt:** Einheiten, Volumen, Rekorde der Woche, harte Sätze pro Muskel mit Zielbereich 10–20,
-  Volumen der letzten 8 Wochen, Wochenserie.
+  Vergangene Trainings bearbeiten.
+- **Live-Workout:** eigene Zahlentastatur, automatisch weiter zum nächsten Satz, Supersätze im Wechsel, Aufwärm- und
+  Drop-Sätze, RIR optional, Pausenleiste, „Zuletzt“-Werte und Progressionsvorschlag.
+- **Zusammenfassung:** Rekord-Moment, Steigerung pro Übung gegenüber dem letzten Mal, Volumen-Vergleich, als Plan übernehmen.
+- **Übungen:** rund 500 Übungen für normale Gym-Gänger (inkl. HIIT/Hyrox) mit Fotos und Anleitung, Suche in beiden
+  Sprachen mit Kürzeln, Muskelnamen und Tippfehler-Toleranz, Filter, Favoriten, „Zuletzt trainiert“.
+  **Eigene Übungen** mit Muskeln, Gerät, Hinweisen und eigenem Foto (Galerie oder Kamera).
+  Detail: Bilder, e1RM-Verlauf (3M/6M/1J/Alles), Bestwerte pro Wiederholungszahl, Scheibenrechner. Details: `docs/exercises.md`.
+- **Statistik:** Woche/Monat/Jahr mit Vergleich zum Vorzeitraum bis zum selben Tag, Muskel-Heatmap (vorn/hinten),
+  harte Sätze pro Muskel mit Zielbereich 10–20, größte Steigerungen, Volumen-Verlauf, Wochenserie;
+  Körpergewicht und Trainingskalender als eigene Seiten.
 - **Profil und Konto:** anonymer Start, Konto sichern mit Google oder E-Mail (Daten bleiben), Anmelden, Abmelden,
   Konto löschen, Export als JSON und CSV.
 - **Einstellungen:** Design (System/Hell/Dunkel), Sprache (System/Deutsch/Englisch), kg/lb, Stange, vorhandene
@@ -32,9 +35,10 @@ Daten liegen in Firebase (Projekt `knurl-gym`, Frankfurt) unter dem eigenen Kont
 mit einem anonymen Konto; Training funktioniert dank Firestore-Cache auch offline. Details: `docs/firebase.md`.
 
 ## Fahrplan
-1. Loggen, offline ← *hier*
-2. Statistik vertiefen: eigene Pläne bearbeiten, eigene Übungen, Körpermaße, CSV-Export, kg/lb
-3. Optionales Konto mit Backup, Health Connect, Wear OS, iOS über `:shared`
+1. Loggen, offline, Konto, Benachrichtigungen ✓
+2. Redesign, Onboarding, Supersätze ✓
+3. Eigene Übungen ✓, Statistik ✓, Erfolge und Monatsrückblick, kcal-Schätzung, Health Connect ← *hier*
+4. Wear OS, iOS über `:shared`
 
 ## Setup
 - Ordner in Android Studio öffnen, oder bauen mit `./gradlew assembleDebug`.

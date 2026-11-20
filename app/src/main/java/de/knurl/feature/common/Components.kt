@@ -167,14 +167,14 @@ fun NumberInputDialog(
     )
 }
 
-/** Simple yes/no confirmation for anything that throws data away. */
+/** Yes/no confirmation. [destructive] (throwing data away) colours the confirm button red; saving or finishing does not. */
 @Composable
-fun ConfirmDialog(title: String, body: String, confirm: String, onDismiss: () -> Unit, onConfirm: () -> Unit) {
+fun ConfirmDialog(title: String, body: String, confirm: String, onDismiss: () -> Unit, onConfirm: () -> Unit, destructive: Boolean = true) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = { Text(body) },
-        confirmButton = { TextButton(onClick = onConfirm) { Text(confirm, color = MaterialTheme.colorScheme.error) } },
+        confirmButton = { TextButton(onClick = onConfirm) { Text(confirm, color = if (destructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } },
     )
 }

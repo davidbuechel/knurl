@@ -70,8 +70,6 @@
     <string name="discard_body">Nothing from this workout will be saved.</string>
 
     <!-- Progress -->
-    <string name="progress_this_week">This week</string>
-    <string name="progress_hard_sets">Hard sets per muscle</string>
     <string name="progress_hard_sets_hint">The shaded zone is 10 to 20 sets a week. Secondary muscles count as half a set.</string>
     <string name="progress_volume_weeks">Volume, last 8 weeks</string>
     <string name="progress_streak">Streak</string>
@@ -263,8 +261,6 @@
     <string name="summary_title">Well done</string>
     <string name="summary_duration">Duration</string>
     <string name="summary_sets">Sets</string>
-    <string name="summary_more_volume">%1$d%% more volume than last time</string>
-    <string name="summary_less_volume">%1$d%% less volume than last time</string>
     <string name="summary_records">New records</string>
     <string name="summary_routine">Routine</string>
     <string name="summary_save_hint">Want to repeat this workout? Keep it as a routine.</string>
@@ -413,10 +409,6 @@
     <string name="onboarding_reminders_hint">A nudge on your training days</string>
 
     <!-- Plurals from the audit -->
-    <plurals name="detail_gain">
-        <item quantity="one">+%1$s over %2$d workout</item>
-        <item quantity="other">+%1$s over %2$d workouts</item>
-    </plurals>
     <plurals name="finish_body_undone">
         <item quantity="one">%1$d set is not ticked off. Only ticked-off sets are saved.</item>
         <item quantity="other">%1$d sets are not ticked off. Only ticked-off sets are saved.</item>
@@ -474,4 +466,64 @@
 
     <!-- Own exercises -->
     <string name="custom_discard_body">Your changes to this exercise are not saved yet.</string>
+
+    <!-- Statistics -->
+    <string name="period_week">Week</string>
+    <string name="period_month">Month</string>
+    <string name="period_year">Year</string>
+    <string name="stat_days">Training days</string>
+    <string name="stat_time">Time</string>
+    <string name="stat_sets">Sets</string>
+    <string name="progress_overview">Overview</string>
+    <string name="progress_muscles">Muscles</string>
+    <string name="progress_muscles_hint">Hard sets per week on average. Tap a muscle.</string>
+    <string name="progress_muscle_selected">%1$s: %2$s sets a week</string>
+    <string name="load_none">None</string>
+    <string name="load_low">Under 10</string>
+    <string name="load_target">10–20</string>
+    <string name="load_high">Over 20</string>
+    <string name="progress_gains">Biggest gains</string>
+    <string name="progress_gains_28">Estimated 1RM, last 4 weeks against before</string>
+    <string name="progress_gains_90">Estimated 1RM, last 3 months against before</string>
+    <string name="progress_gains_365">Estimated 1RM, last 12 months against before</string>
+    <string name="progress_gains_empty">Train an exercise again after a few weeks and you will see here how far it came.</string>
+    <string name="progress_volume_months6">Volume, last 6 months</string>
+    <string name="progress_volume_months12">Volume, last 12 months</string>
+
+    <!-- Debug -->
+    <string name="debug_section">Developer</string>
+    <string name="debug_demo_data">Fill with demo training</string>
+    <string name="debug_demo_data_hint">16 weeks of workouts and body weight. Debug builds only.</string>
+
+    <!-- Exercise progress -->
+    <string name="range_3m">3M</string>
+    <string name="range_6m">6M</string>
+    <string name="range_1y">1Y</string>
+    <string name="range_all">All</string>
+    <string name="detail_change">%1$s (%2$s) in this time</string>
+    <string name="detail_rep_maxes">Best weight per rep count</string>
+    <plurals name="reps_count">
+        <item quantity="one">%1$d rep</item>
+        <item quantity="other">%1$d reps</item>
+    </plurals>
+
+    <!-- Progress -->
+    <string name="today_progress">Getting stronger</string>
+    <string name="today_all">All</string>
+    <string name="summary_gains">Better than last time</string>
+    <string name="summary_record_body">Your best estimated 1RM so far.</string>
+    <plurals name="reps_gain">
+        <item quantity="one">+%1$d rep</item>
+        <item quantity="other">+%1$d reps</item>
+    </plurals>
+    <plurals name="summary_record_title">
+        <item quantity="one">New record!</item>
+        <item quantity="other">%1$d new records!</item>
+    </plurals>
+
+    <!-- Progress -->
+    <string name="summary_gain_line">%1$s · last time %2$s</string>
+
+    <!-- Exercise progress -->
+    <string name="reps_range">%1$d–%2$d reps</string>
 </resources>

@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import de.knurl.ui.theme.Knurl
 
 /*
  * Knurl's building blocks. Rules: surfaces carry no border, only fill and space; no card inside a
@@ -158,7 +159,8 @@ fun SectionHeader(title: String, modifier: Modifier = Modifier, action: String? 
     }
 }
 
-data class Kpi(val value: String, val label: String)
+/** A key number; [change] is whole percent against the period before (null: nothing to compare). */
+data class Kpi(val value: String, val label: String, val change: Int? = null)
 
 /** Three key numbers side by side, each on its own quiet tile. */
 @Composable
@@ -171,6 +173,15 @@ fun KpiRow(items: List<Kpi>, modifier: Modifier = Modifier) {
             ) {
                 Text(kpi.value, style = MaterialTheme.typography.headlineMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(kpi.label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+                kpi.change?.let { change ->
+                    // Green only for "more"; less is grey, not red: a lighter week is not a failure.
+                    Text(
+                        when { change > 0 -> "▲ $change %"; change < 0 -> "▼ ${-change} %"; else -> "± 0 %" },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (change > 0) Knurl.colors.success else MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                    )
+                }
             }
         }
     }

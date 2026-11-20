@@ -28,7 +28,12 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlin.math.roundToInt
+import de.knurl.ui.theme.Knurl
+import de.knurl.ui.navigation.StatsRoute
+import de.knurl.feature.common.weightText
 import de.knurl.R
+import de.knurl.feature.common.estimateText
 import de.knurl.feature.common.Formatting
 import de.knurl.feature.common.HeroCard
 import de.knurl.feature.common.Kpi
@@ -132,10 +137,28 @@ fun TodayScreen(go: Navigator) {
             KpiRow(
                 listOf(
                     Kpi("${s.weekSessions}/${s.weeklyGoal}", stringResource(R.string.stat_sessions)),
-                    Kpi(tonnageText(s.weekVolumeKg), stringResource(R.string.stat_volume)),
+                    Kpi(tonnageText(s.weekVolumeKg), stringResource(R.string.stat_volume), s.weekVolumeChange?.takeIf { s.weekVolumeKg > 0 }),
                     Kpi("${s.streakWeeks}", pluralStringResource(R.plurals.streak_weeks_label, s.streakWeeks)),
                 ),
             )
+        }
+
+        if (s.gains.isNotEmpty()) {
+            item { SectionHeader(stringResource(R.string.today_progress), action = stringResource(R.string.today_all), onAction = { go.to(StatsRoute) }) }
+            item {
+                ListGroup {
+                    s.gains.forEachIndexed { i, row ->
+                        ListRow(
+                            title = row.exercise?.name(german) ?: row.improvement.exerciseId,
+                            subtitle = "${estimateText(row.improvement.fromKg)} → ${estimateText(row.improvement.toKg)}",
+                            leading = { row.exercise?.let { ExerciseThumbnail(it, Modifier.size(44.dp)) } },
+                            trailing = { Pill("+${row.improvement.percent.roundToInt()} %", color = Knurl.colors.success) },
+                            divider = i < s.gains.lastIndex,
+                            onClick = { go.to(ExerciseRoute(row.improvement.exerciseId)) },
+                        )
+                    }
+                }
+            }
         }
 
         item { SectionHeader(stringResource(R.string.today_recent_records)) }

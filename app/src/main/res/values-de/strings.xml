@@ -68,8 +68,6 @@
     <string name="discard_body">Von diesem Training wird nichts gespeichert.</string>
 
     <!-- Progress -->
-    <string name="progress_this_week">Diese Woche</string>
-    <string name="progress_hard_sets">Harte Sätze pro Muskel</string>
     <string name="progress_hard_sets_hint">Der hinterlegte Bereich sind 10 bis 20 Sätze pro Woche. Hilfsmuskeln zählen als halber Satz.</string>
     <string name="progress_volume_weeks">Volumen, letzte 8 Wochen</string>
     <string name="progress_streak">Serie</string>
@@ -261,8 +259,6 @@
     <string name="summary_title">Stark</string>
     <string name="summary_duration">Dauer</string>
     <string name="summary_sets">Sätze</string>
-    <string name="summary_more_volume">%1$d %% mehr Volumen als letztes Mal</string>
-    <string name="summary_less_volume">%1$d %% weniger Volumen als letztes Mal</string>
     <string name="summary_records">Neue Rekorde</string>
     <string name="summary_routine">Plan</string>
     <string name="summary_save_hint">Willst du dieses Training wiederholen? Speichere es als Plan.</string>
@@ -411,10 +407,6 @@
     <string name="onboarding_reminders_hint">Ein Schubs an deinen Trainingstagen</string>
 
     <!-- Plurals from the audit -->
-    <plurals name="detail_gain">
-        <item quantity="one">+%1$s in %2$d Training</item>
-        <item quantity="other">+%1$s in %2$d Trainings</item>
-    </plurals>
     <plurals name="finish_body_undone">
         <item quantity="one">%1$d Satz ist nicht abgehakt. Gespeichert werden nur abgehakte Sätze.</item>
         <item quantity="other">%1$d Sätze sind nicht abgehakt. Gespeichert werden nur abgehakte Sätze.</item>
@@ -472,4 +464,64 @@
 
     <!-- Own exercises -->
     <string name="custom_discard_body">Deine Änderungen an dieser Übung sind noch nicht gespeichert.</string>
+
+    <!-- Statistics -->
+    <string name="period_week">Woche</string>
+    <string name="period_month">Monat</string>
+    <string name="period_year">Jahr</string>
+    <string name="stat_days">Trainingstage</string>
+    <string name="stat_time">Zeit</string>
+    <string name="stat_sets">Sätze</string>
+    <string name="progress_overview">Überblick</string>
+    <string name="progress_muscles">Muskeln</string>
+    <string name="progress_muscles_hint">Harte Sätze pro Woche im Schnitt. Tippe auf einen Muskel.</string>
+    <string name="progress_muscle_selected">%1$s: %2$s Sätze pro Woche</string>
+    <string name="load_none">Keine</string>
+    <string name="load_low">Unter 10</string>
+    <string name="load_target">10–20</string>
+    <string name="load_high">Über 20</string>
+    <string name="progress_gains">Größte Steigerung</string>
+    <string name="progress_gains_28">Geschätztes 1RM, letzte 4 Wochen gegenüber davor</string>
+    <string name="progress_gains_90">Geschätztes 1RM, letzte 3 Monate gegenüber davor</string>
+    <string name="progress_gains_365">Geschätztes 1RM, letzte 12 Monate gegenüber davor</string>
+    <string name="progress_gains_empty">Trainiere eine Übung nach ein paar Wochen wieder, dann siehst du hier, wie weit sie gekommen ist.</string>
+    <string name="progress_volume_months6">Volumen, letzte 6 Monate</string>
+    <string name="progress_volume_months12">Volumen, letzte 12 Monate</string>
+
+    <!-- Debug -->
+    <string name="debug_section">Entwicklung</string>
+    <string name="debug_demo_data">Mit Demo-Training füllen</string>
+    <string name="debug_demo_data_hint">16 Wochen Trainings und Körpergewicht. Nur in Debug-Builds.</string>
+
+    <!-- Exercise progress -->
+    <string name="range_3m">3M</string>
+    <string name="range_6m">6M</string>
+    <string name="range_1y">1J</string>
+    <string name="range_all">Alles</string>
+    <string name="detail_change">%1$s (%2$s) in diesem Zeitraum</string>
+    <string name="detail_rep_maxes">Bestes Gewicht pro Wiederholungszahl</string>
+    <plurals name="reps_count">
+        <item quantity="one">%1$d Wiederholung</item>
+        <item quantity="other">%1$d Wiederholungen</item>
+    </plurals>
+
+    <!-- Progress -->
+    <string name="today_progress">Du wirst stärker</string>
+    <string name="today_all">Alle</string>
+    <string name="summary_gains">Besser als letztes Mal</string>
+    <string name="summary_record_body">Dein bisher bestes geschätztes 1RM.</string>
+    <plurals name="reps_gain">
+        <item quantity="one">+%1$d Wdh.</item>
+        <item quantity="other">+%1$d Wdh.</item>
+    </plurals>
+    <plurals name="summary_record_title">
+        <item quantity="one">Neuer Rekord!</item>
+        <item quantity="other">%1$d neue Rekorde!</item>
+    </plurals>
+
+    <!-- Progress -->
+    <string name="summary_gain_line">%1$s · letztes Mal %2$s</string>
+
+    <!-- Exercise progress -->
+    <string name="reps_range">%1$d–%2$d Wiederholungen</string>
 </resources>

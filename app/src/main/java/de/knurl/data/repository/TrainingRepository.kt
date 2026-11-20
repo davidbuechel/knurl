@@ -215,8 +215,8 @@ class TrainingRepository(
         current?.saveSettings(settings)
     }
 
-    fun addBodyWeight(weightKg: Double) {
-        current?.saveBodyWeight(BodyWeight(newId(), now(), weightKg))
+    fun addBodyWeight(weightKg: Double, atMs: Long = now()) {
+        current?.saveBodyWeight(BodyWeight(newId(), atMs, weightKg))
     }
 
     fun deleteBodyWeight(id: String) {

@@ -4,7 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.knurl.data.TrainingData
 import de.knurl.data.repository.TrainingRepository
+import de.knurl.domain.calc.Change
 import de.knurl.domain.calc.Estimates
+import de.knurl.domain.calc.Improvement
+import de.knurl.domain.calc.Period
+import de.knurl.domain.calc.Periods
+import de.knurl.domain.calc.Progress
 import de.knurl.domain.calc.History
 import de.knurl.domain.calc.PersonalRecord
 import de.knurl.domain.calc.Volume
@@ -35,6 +40,8 @@ data class NextUp(
 
 data class RecordRow(val record: PersonalRecord, val exercise: Exercise?)
 
+data class GainRow(val improvement: Improvement, val exercise: Exercise?)
+
 data class TodayState(
     val active: Workout?,
     val next: NextUp?,
@@ -44,6 +51,10 @@ data class TodayState(
     val weekSessions: Int,
     val weeklyGoal: Int,
     val weekVolumeKg: Double,
+    /** Volume this week against last week up to the same day, in percent. */
+    val weekVolumeChange: Int?,
+    /** Biggest gains of the last four weeks. */
+    val gains: List<GainRow>,
     val streakWeeks: Int,
     val recentRecords: List<RecordRow>,
     val hour: Int,
@@ -74,6 +85,8 @@ class TodayViewModel(private val training: TrainingRepository) : ViewModel() {
             weekSessions = week.size,
             weeklyGoal = data.settings.weeklyGoal,
             weekVolumeKg = week.sumOf(Volume::of),
+            weekVolumeChange = Change(week.sumOf(Volume::of), Periods.inRange(data.workouts, Periods.previousSoFar(Period.WEEK, today), zone).sumOf(Volume::of)).percent,
+            gains = Progress.topImprovers(data.workouts, nowMs, days = 28).map { GainRow(it, training.exercise(it.exerciseId)) },
             streakWeeks = Weeks.streak(data.workouts, today, zone, data.settings.weeklyGoal),
             recentRecords = History.records(data.workouts).takeLast(4).reversed().map { RecordRow(it, training.exercise(it.exerciseId)) },
             hour = java.time.LocalTime.now().hour,

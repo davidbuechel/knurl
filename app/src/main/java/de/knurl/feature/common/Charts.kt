@@ -86,3 +86,48 @@ fun WeeklyBars(values: List<Double>, modifier: Modifier = Modifier) {
         drawLine(base, Offset(0f, size.height), Offset(size.width, size.height), 1.dp.toPx())
     }
 }
+
+/** A tiny line without axes, for a row in a list. */
+@Composable
+fun Sparkline(values: List<Double>, modifier: Modifier = Modifier) {
+    if (values.size < 2) return
+    val line = MaterialTheme.colorScheme.primary
+    val low = values.min()
+    val range = (values.max() - low).takeIf { it > 0 } ?: 1.0
+    Canvas(modifier) {
+        val pad = 3.dp.toPx()
+        fun x(i: Int) = pad + i * (size.width - 2 * pad) / (values.size - 1)
+        fun y(v: Double) = (size.height - pad - (v - low) / range * (size.height - 2 * pad)).toFloat()
+        val path = Path().apply { values.forEachIndexed { i, v -> if (i == 0) moveTo(x(i), y(v)) else lineTo(x(i), y(v)) } }
+        drawPath(path, line, style = Stroke(width = 2.dp.toPx(), join = StrokeJoin.Round))
+        drawCircle(line, radius = 3.dp.toPx(), center = Offset(x(values.lastIndex), y(values.last())))
+    }
+}
+
+/** Bars from zero with a label under each, the last one emphasised (weeks, months). */
+@Composable
+fun LabeledBars(values: List<Double>, labels: List<String>, modifier: Modifier = Modifier) {
+    if (values.isEmpty()) return
+    val labelStyle = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+    val measurer = rememberTextMeasurer()
+    val current = MaterialTheme.colorScheme.primary
+    val past = MaterialTheme.colorScheme.primaryContainer
+    val base = MaterialTheme.colorScheme.outlineVariant
+    val max = values.max().takeIf { it > 0 } ?: 1.0
+    Canvas(modifier.fillMaxWidth().height(120.dp)) {
+        val labelHeight = 18.dp.toPx()
+        val chart = size.height - labelHeight
+        val gap = 6.dp.toPx()
+        val width = (size.width - gap * (values.size - 1)) / values.size
+        values.forEachIndexed { i, v ->
+            val h = (v / max * (chart - 2.dp.toPx())).toFloat().coerceAtLeast(2.dp.toPx())
+            val left = i * (width + gap)
+            drawRoundRect(if (i == values.lastIndex) current else past, Offset(left, chart - h), Size(width, h), CornerRadius(4.dp.toPx()))
+            labels.getOrNull(i)?.let { label ->
+                val text = measurer.measure(label, labelStyle)
+                drawText(text, topLeft = Offset(left + (width - text.size.width) / 2, chart + 4.dp.toPx()))
+            }
+        }
+        drawLine(base, Offset(0f, chart), Offset(size.width, chart), 1.dp.toPx())
+    }
+}

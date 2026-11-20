@@ -31,7 +31,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.material.icons.outlined.Edit
 import de.knurl.ui.navigation.CustomExerciseRoute
+import kotlin.math.roundToInt
+import de.knurl.domain.calc.Progress
+import de.knurl.feature.common.SectionHeader
+import de.knurl.feature.common.setText
 import de.knurl.R
+import de.knurl.feature.common.estimateText
 import de.knurl.feature.common.SegmentedTabs
 import de.knurl.feature.common.Pill
 import de.knurl.feature.common.ListRow
@@ -72,6 +77,7 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
     val unit = LocalWeightUnit.current
     val german = isGerman()
     var tab by rememberSaveable { mutableStateOf(DetailTab.HOW_TO) }
+    var range by rememberSaveable { mutableStateOf(ChartRange.M6) }
 
     Scaffold(
         topBar = {
@@ -160,15 +166,25 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
                     item {
                         KnurlCard {
                             SectionLabel(stringResource(R.string.detail_e1rm))
-                            if (s.bestOneRepMaxKg == null) {
+                            if (s.series.isEmpty()) {
                                 Text(stringResource(R.string.detail_no_data), color = MaterialTheme.colorScheme.onSurfaceVariant)
                             } else {
-                                Text(weightText(Math.round(s.bestOneRepMaxKg * 2) / 2.0), style = MaterialTheme.typography.displaySmall)
-                                val gain = s.bestOneRepMaxKg - (s.firstOneRepMaxKg ?: s.bestOneRepMaxKg)
-                                if (gain > 0) {
-                                    Text(pluralStringResource(R.plurals.detail_gain, s.sessions.size, weightText(Math.round(gain * 2) / 2.0), s.sessions.size), color = Knurl.colors.success, style = MaterialTheme.typography.labelLarge)
+                                SegmentedTabs(ChartRange.entries, range, { stringResource(it.label) }, { range = it })
+                                val since = range.days?.let { System.currentTimeMillis() - it * Progress.DAY_MS }
+                                val shown = Progress.window(s.series, since).ifEmpty { s.series.takeLast(1) }
+                                Text(estimateText(shown.maxOf { it.value }), style = MaterialTheme.typography.displaySmall)
+                                Progress.change(s.exercise.id, s.series, since)?.takeIf { it.deltaKg > 0 }?.let { change ->
+                                    Text(
+                                        stringResource(
+                                            R.string.detail_change,
+                                            "+" + estimateText(change.deltaKg),
+                                            "+${change.percent.roundToInt()} %",
+                                        ),
+                                        color = Knurl.colors.success,
+                                        style = MaterialTheme.typography.labelLarge,
+                                    )
                                 }
-                                TrendChart(s.sessions.mapNotNull { it.bestOneRepMax }.takeLast(12), format = { Formatting.weightNumber(it, unit) })
+                                TrendChart(shown.map { Formatting.toUnit(it.value, unit) }, format = { Formatting.kg(it) })
                             }
                         }
                     }
@@ -193,11 +209,28 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
                     item {
                         KpiRow(
                             listOf(
-                                Kpi(s.bestOneRepMaxKg?.let { weightText(Math.round(it * 2) / 2.0) } ?: "–", stringResource(R.string.detail_e1rm)),
+                                Kpi(s.bestOneRepMaxKg?.let { estimateText(it) } ?: "–", stringResource(R.string.detail_e1rm)),
                                 Kpi(s.heaviestKg?.let { weightText(it) } ?: "–", stringResource(R.string.detail_heaviest_label)),
                                 Kpi(s.bestVolumeKg?.let { tonnageText(it) } ?: "–", stringResource(R.string.detail_best_volume_label)),
                             ),
                         )
+                    }
+                    if (s.repMaxes.isNotEmpty()) {
+                        item { SectionHeader(stringResource(R.string.detail_rep_maxes)) }
+                        item {
+                            ListGroup {
+                                // Rep counts with the same best set collapse into one row ("1–5 reps").
+                                val rows = s.repMaxes.entries.groupBy { it.value }.map { (set, entries) -> Triple(entries.first().key, entries.last().key, set) }
+                                rows.forEachIndexed { i, (from, to, set) ->
+                                    ListRow(
+                                        if (from == to) pluralStringResource(R.plurals.reps_count, from, from) else stringResource(R.string.reps_range, from, to),
+                                        subtitle = if (set.reps > to) setText(set.weightKg, set.reps) else null,
+                                        trailing = { Text(weightText(set.weightKg), style = MaterialTheme.typography.titleSmall) },
+                                        divider = i < rows.lastIndex,
+                                    )
+                                }
+                            }
+                        }
                     }
                     s.plates?.let { load ->
                         item {
@@ -230,3 +263,8 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
 }
 
 private enum class DetailTab { HOW_TO, HISTORY, RECORDS }
+
+/** The time span the 1RM chart shows. */
+private enum class ChartRange(val days: Int?, val label: Int) {
+    M3(91, R.string.range_3m), M6(182, R.string.range_6m), Y1(365, R.string.range_1y), ALL(null, R.string.range_all),
+}

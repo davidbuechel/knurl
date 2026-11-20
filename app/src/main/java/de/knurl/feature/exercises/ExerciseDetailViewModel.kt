@@ -9,6 +9,9 @@ import de.knurl.feature.common.Formatting
 import de.knurl.domain.calc.ExerciseSession
 import de.knurl.domain.calc.History
 import de.knurl.domain.calc.PlateCalculator
+import de.knurl.domain.calc.Progress
+import de.knurl.domain.calc.SeriesPoint
+import de.knurl.domain.model.SetEntry
 import de.knurl.domain.model.Exercise
 import de.knurl.domain.model.Equipment
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +25,6 @@ data class ExerciseDetailState(
     val exercise: Exercise,
     val sessions: List<ExerciseSession>,
     val bestOneRepMaxKg: Double?,
-    val firstOneRepMaxKg: Double?,
     val heaviestKg: Double?,
     val bestVolumeKg: Double?,
     val plateTargetKg: Double,
@@ -32,6 +34,9 @@ data class ExerciseDetailState(
     val barInUnit: Double,
     val barKg: Double,
     val favorite: Boolean,
+    /** Best estimated 1RM per session, oldest first. */
+    val series: List<SeriesPoint>,
+    val repMaxes: Map<Int, SetEntry>,
 )
 
 class ExerciseDetailViewModel(private val training: TrainingRepository, private val exerciseId: String) : ViewModel() {
@@ -50,7 +55,6 @@ class ExerciseDetailViewModel(private val training: TrainingRepository, private 
             exercise = exercise,
             sessions = sessions,
             bestOneRepMaxKg = oneRepMaxes.maxOrNull(),
-            firstOneRepMaxKg = oneRepMaxes.firstOrNull(),
             heaviestKg = heaviest,
             bestVolumeKg = sessions.maxOfOrNull { it.volumeKg },
             plateTargetKg = plateWeight,
@@ -59,6 +63,8 @@ class ExerciseDetailViewModel(private val training: TrainingRepository, private 
             barInUnit = inUnit(bar, data.settings.unit, roundTo = 1.0),
             barKg = bar,
             favorite = exerciseId in data.settings.favoriteExercises,
+            series = Progress.oneRepMaxSeries(exerciseId, data.workouts),
+            repMaxes = Progress.repMaxes(exerciseId, data.workouts),
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 

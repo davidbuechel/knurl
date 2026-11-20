@@ -50,6 +50,7 @@ import androidx.compose.material.icons.rounded.Add
 import de.knurl.ui.navigation.CustomExerciseRoute
 import androidx.compose.runtime.saveable.rememberSaveable
 import de.knurl.R
+import de.knurl.feature.common.estimateText
 import de.knurl.domain.model.Equipment
 import de.knurl.domain.model.ExerciseLevel
 import de.knurl.domain.model.Muscle
@@ -209,7 +210,7 @@ private fun ExerciseListRow(row: ExerciseRow, index: Int, count: Int, onClick: (
         trailing = {
             Column(horizontalAlignment = Alignment.End) {
                 if (row.favorite) Icon(Icons.Rounded.Star, contentDescription = stringResource(R.string.exercises_favorites), tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
-                row.bestOneRepMaxKg?.let { Text(stringResource(R.string.unit_e1rm, weightText(it)), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                row.bestOneRepMaxKg?.let { Text(stringResource(R.string.unit_e1rm, estimateText(it)), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             }
         },
         divider = index < count - 1,

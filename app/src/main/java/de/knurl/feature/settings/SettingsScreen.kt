@@ -57,6 +57,8 @@ import de.knurl.feature.common.SwitchRow
 import de.knurl.feature.common.ValueRow
 import de.knurl.ui.theme.Knurl
 import de.knurl.BuildConfig
+import de.knurl.core.debug.DemoData
+import de.knurl.feature.common.appContainer
 import de.knurl.R
 import de.knurl.core.settings.AppLanguage
 import de.knurl.core.settings.ThemeMode
@@ -158,6 +160,19 @@ fun SettingsScreen(go: Navigator) {
                     ListRow(stringResource(R.string.legal_imprint), leading = { IconTile(Icons.Outlined.Gavel, MaterialTheme.colorScheme.outline) }) { go.to(LegalRoute(LegalPage.IMPRINT)) }
                     ListRow(stringResource(R.string.legal_privacy), leading = { IconTile(Icons.Outlined.Policy, MaterialTheme.colorScheme.outline) }) { go.to(LegalRoute(LegalPage.PRIVACY)) }
                     ListRow(stringResource(R.string.legal_licenses), leading = { IconTile(Icons.AutoMirrored.Outlined.Article, MaterialTheme.colorScheme.outline) }, divider = false) { go.to(LegalRoute(LegalPage.LICENSES)) }
+                }
+            }
+
+            // Debug builds only: test data for statistics and achievements.
+            if (BuildConfig.DEBUG) {
+                item { SectionHeader(stringResource(R.string.debug_section)) }
+                item {
+                    val container = appContainer()
+                    ListGroup {
+                        ListRow(stringResource(R.string.debug_demo_data), subtitle = stringResource(R.string.debug_demo_data_hint), divider = false) {
+                            DemoData.fill(container.training)
+                        }
+                    }
                 }
             }
 

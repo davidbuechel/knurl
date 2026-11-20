@@ -29,7 +29,27 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.pluralStringResource
+import de.knurl.domain.calc.Change
+import de.knurl.domain.calc.Progress
+import de.knurl.domain.calc.SetDelta
+import de.knurl.feature.common.HeroCard
+import de.knurl.feature.common.Pill
+import de.knurl.ui.brand.KnurlProgress
 import de.knurl.R
+import de.knurl.domain.model.SetEntry
+import de.knurl.feature.common.estimateText
 import de.knurl.data.repository.TrainingRepository
 import de.knurl.domain.calc.History
 import de.knurl.domain.calc.PersonalRecord
@@ -71,7 +91,12 @@ data class SummaryState(
     /** The routine this workout came from, if it still exists. */
     val routine: Routine?,
     val savedAsRoutine: Boolean,
+    /** Exercises whose top set beat the previous session: heavier, or more reps at the same weight. */
+    val gains: List<Gain>,
 )
+
+/** One exercise that went up: today's top set against last time's. */
+data class Gain(val exerciseId: String, val delta: SetDelta, val now: SetEntry, val before: SetEntry)
 
 class SummaryViewModel(private val training: TrainingRepository, private val workoutId: String) : ViewModel() {
 
@@ -92,6 +117,12 @@ class SummaryViewModel(private val training: TrainingRepository, private val wor
             records = History.records(data.workouts).filter { it.workoutId == workout.id },
             routine = workout.routineId?.let { id -> data.routines.firstOrNull { it.id == id } },
             savedAsRoutine = saved,
+            gains = workout.exercises.mapNotNull { item ->
+                val before = History.sessions(item.exerciseId, data.workouts.filter { it.startedAtMs < workout.startedAtMs }).lastOrNull()?.sets
+                    ?: return@mapNotNull null
+                val delta = Progress.sinceLast(item.sets, before)?.takeIf { it.improved } ?: return@mapNotNull null
+                Gain(item.exerciseId, delta, Progress.topSet(item.sets)!!, Progress.topSet(before)!!)
+            }.distinctBy { it.exerciseId },
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
@@ -142,19 +173,35 @@ fun SummaryScreen(go: Navigator, workoutId: String) {
                     listOf(
                         Kpi(Formatting.duration(s.durationSec), stringResource(R.string.summary_duration)),
                         Kpi("${s.sets}", stringResource(R.string.summary_sets)),
-                        Kpi(tonnageText(s.volumeKg), stringResource(R.string.stat_volume)),
+                        Kpi(tonnageText(s.volumeKg), stringResource(R.string.stat_volume), s.previousVolumeKg?.let { Change(s.volumeKg, it).percent }),
                     ),
                 )
             }
-            s.previousVolumeKg?.takeIf { it > 0 }?.let { previous ->
+            if (s.records.isNotEmpty()) {
+                item { RecordMoment(s.records.size) }
+            }
+
+            if (s.gains.isNotEmpty()) {
+                item { SectionHeader(stringResource(R.string.summary_gains)) }
                 item {
-                    val change = ((s.volumeKg - previous) / previous * 100).toInt()
-                    Text(
-                        stringResource(if (change >= 0) R.string.summary_more_volume else R.string.summary_less_volume, kotlin.math.abs(change)),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = if (change >= 0) Knurl.colors.success else MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = 4.dp),
-                    )
+                    ListGroup {
+                        s.gains.forEachIndexed { i, gain ->
+                            val (exerciseId, delta) = gain
+                            ListRow(
+                                vm.exerciseName(exerciseId, german),
+                                subtitle = stringResource(R.string.summary_gain_line, setText(gain.now.weightKg, gain.now.reps), setText(gain.before.weightKg, gain.before.reps)),
+                                leading = { vm.exercise(exerciseId)?.let { ExerciseThumbnail(it, Modifier.size(44.dp)) } },
+                                trailing = {
+                                    Pill(
+                                        if (delta.weightKg > 0) "+" + weightText(delta.weightKg)
+                                        else pluralStringResource(R.plurals.reps_gain, delta.reps, delta.reps),
+                                        color = Knurl.colors.success,
+                                    )
+                                },
+                                divider = i < s.gains.lastIndex,
+                            )
+                        }
+                    }
                 }
             }
 
@@ -167,7 +214,7 @@ fun SummaryScreen(go: Navigator, workoutId: String) {
                                 vm.exerciseName(record.exerciseId, german),
                                 subtitle = setText(record.set.weightKg, record.set.reps),
                                 leading = { vm.exercise(record.exerciseId)?.let { ExerciseThumbnail(it, Modifier.size(44.dp)) } },
-                                trailing = { Text(stringResource(R.string.unit_e1rm, weightText(record.oneRepMaxKg)), style = MaterialTheme.typography.labelLarge) },
+                                trailing = { Text(stringResource(R.string.unit_e1rm, estimateText(record.oneRepMaxKg)), style = MaterialTheme.typography.labelLarge) },
                                 divider = i < s.records.lastIndex,
                             )
                         }
@@ -200,6 +247,31 @@ fun SummaryScreen(go: Navigator, workoutId: String) {
                 onDismiss = { naming = false },
                 onConfirm = { vm.saveAsRoutine(it); naming = false },
             )
+        }
+    }
+}
+
+/**
+ * A short moment for new records: the brand's plates pop in one after another, like a bar being
+ * loaded, once. Quiet enough for a gym, clear enough to feel.
+ */
+@Composable
+private fun RecordMoment(count: Int) {
+    val pop = remember { Animatable(0f) }
+    LaunchedEffect(Unit) { pop.animateTo(1f, spring(dampingRatio = 0.45f, stiffness = 260f)) }
+    HeroCard {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            Box(
+                Modifier.size(56.dp).graphicsLayer { scaleX = 0.4f + 0.6f * pop.value; scaleY = scaleX; rotationZ = (1 - pop.value) * -25f }
+                    .background(MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.16f), CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                KnurlProgress(pop.value.coerceIn(0f, 1f), Modifier.size(34.dp), color = MaterialTheme.colorScheme.onPrimary)
+            }
+            Column(Modifier.weight(1f)) {
+                Text(pluralStringResource(R.plurals.summary_record_title, count, count), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onPrimary)
+                Text(stringResource(R.string.summary_record_body), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f))
+            }
         }
     }
 }
