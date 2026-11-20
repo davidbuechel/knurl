@@ -1,5 +1,9 @@
 package de.knurl.data.repository
 
+import de.knurl.data.Settings
+import de.knurl.data.WeightUnit
+import de.knurl.domain.catalog.Experience
+import de.knurl.domain.catalog.Goal
 import de.knurl.domain.model.SetEntry
 import de.knurl.domain.updateSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -19,19 +23,26 @@ class TrainingRepositoryTest {
     private val store = InMemoryTrainingStore()
     private val uid = MutableStateFlow<String?>("alice")
 
-    private fun TestScope.repository() = TrainingRepository(
+    private fun TestScope.repository(onboarded: Boolean = true) = TrainingRepository(
         store = store,
         uid = uid,
         scope = backgroundScope,
         german = { true },
         now = { 1_000L },
         newId = { "w1" },
-    )
+    ).also { if (onboarded && it.data.value?.routines.isNullOrEmpty()) it.completeOnboarding(Goal.MUSCLE, Experience.BEGINNER, listOf(1, 3, 5), WeightUnit.KG, false) }
 
-    @Test fun newUserGetsStarterRoutines() = runTest(UnconfinedTestDispatcher()) {
-        val repo = repository()
-        assertEquals(4, repo.data.value!!.routines.size)
+    @Test fun newUserStartsEmptyAndOnboardingAddsRoutines() = runTest(UnconfinedTestDispatcher()) {
+        val repo = repository(onboarded = false)
         assertTrue(store.users.getValue("alice").profileCreated)
+        assertTrue(repo.needsOnboarding(repo.data.value!!))
+        repo.completeOnboarding(Goal.MUSCLE, Experience.BEGINNER, listOf(1, 3, 5), WeightUnit.KG, reminders = true)
+        val data = repo.data.value!!
+        assertEquals(2, data.routines.size)
+        assertEquals(3, data.settings.weeklyGoal)
+        assertEquals(listOf(1, 3, 5), data.settings.notifications.reminderDays)
+        assertTrue(data.settings.notifications.reminders)
+        assertTrue(!repo.needsOnboarding(data))
     }
 
     @Test fun editsToTheRunningWorkoutSurviveOtherChanges() = runTest(UnconfinedTestDispatcher()) {
@@ -64,7 +75,7 @@ class TrainingRepositoryTest {
         val repo = repository()
         repo.updateSettings { it.copy(weeklyGoal = 6) }
         uid.value = "bob"
-        assertEquals(3, repo.data.value!!.settings.weeklyGoal)
+        assertEquals(Settings().weeklyGoal, repo.data.value!!.settings.weeklyGoal)
         uid.value = null
         assertNull(repo.data.value)
     }

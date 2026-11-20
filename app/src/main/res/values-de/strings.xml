@@ -405,4 +405,29 @@
         <item quantity="one">%1$d Training</item>
         <item quantity="other">%1$d Trainings</item>
     </plurals>
+
+    <!-- Onboarding -->
+    <string name="onboarding_step">Schritt %1$d von %2$d</string>
+    <string name="onboarding_skip">Überspringen</string>
+    <string name="onboarding_start">Los geht’s</string>
+    <string name="onboarding_goal_title">Was ist dein Ziel?</string>
+    <string name="onboarding_goal_body">Danach richten wir Wiederholungen und Pausen aus. Du kannst später alles ändern.</string>
+    <string name="goal_muscle">Muskeln aufbauen</string>
+    <string name="goal_muscle_hint">Mittlere Gewichte, 6–15 Wdh, genug Volumen</string>
+    <string name="goal_strength">Stärker werden</string>
+    <string name="goal_strength_hint">Schwere Grundübungen, 3–6 Wdh, längere Pausen</string>
+    <string name="goal_fitness">Fit bleiben</string>
+    <string name="goal_fitness_hint">Leichtere Gewichte, mehr Wdh, kurze Pausen</string>
+    <string name="onboarding_experience_title">Wie lange trainierst du schon?</string>
+    <string name="onboarding_experience_body">Davon hängt ab, mit wie vielen Sätzen deine Pläne starten.</string>
+    <string name="experience_beginner_hint">Neu dabei oder nach langer Pause zurück</string>
+    <string name="experience_intermediate_hint">Seit einem Jahr oder länger regelmäßig</string>
+    <string name="experience_advanced_hint">Jahrelang strukturiert trainiert</string>
+    <string name="onboarding_days_title">An welchen Tagen trainierst du?</string>
+    <string name="onboarding_days_body">Wähl deine üblichen Tage. Wochenziel und Erinnerungen richten sich danach.</string>
+    <string name="onboarding_plan_preview">Dein Plan: %1$s</string>
+    <string name="plan_full_body">Ganzkörper A/B</string>
+    <string name="plan_upper_lower">Ober-/Unterkörper</string>
+    <string name="plan_ppl">Push/Pull/Beine</string>
+    <string name="onboarding_reminders_hint">Ein Schubs an deinen Trainingstagen</string>
 </resources>

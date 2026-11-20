@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.knurl.data.WeightUnit
 import de.knurl.feature.account.AccountScreen
+import de.knurl.feature.onboarding.OnboardingScreen
 import de.knurl.feature.routines.RoutineEditorScreen
 import de.knurl.feature.summary.SummaryScreen
 import de.knurl.feature.common.LocalWeightUnit
@@ -96,9 +97,12 @@ fun KnurlNavHost(pendingTarget: String? = null, onTargetHandled: () -> Unit = {}
         if (pendingTarget == Notifications.TARGET_WORKOUT) go.to(ActiveWorkoutRoute)
         if (pendingTarget != null) onTargetHandled()
     }
-    val data by appContainer().training.data.collectAsStateWithLifecycle()
+    val training = appContainer().training
+    val data by training.data.collectAsStateWithLifecycle()
     CompositionLocalProvider(LocalWeightUnit provides (data?.settings?.unit ?: WeightUnit.KG)) {
-        Destinations(nav, go)
+        // A new account answers three questions first (OnboardingScreen); everyone else goes straight in.
+        val current = data
+        if (current != null && training.needsOnboarding(current)) OnboardingScreen() else Destinations(nav, go)
     }
 }
 

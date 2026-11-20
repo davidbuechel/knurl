@@ -6,7 +6,10 @@ import de.knurl.data.TrainingData
 import de.knurl.domain.RoutineEditing
 import de.knurl.domain.WorkoutPlanning
 import de.knurl.domain.catalog.ExerciseCatalog
-import de.knurl.domain.catalog.StarterRoutines
+import de.knurl.domain.catalog.Experience
+import de.knurl.domain.catalog.Goal
+import de.knurl.domain.catalog.StarterPlan
+import de.knurl.data.WeightUnit
 import de.knurl.domain.model.BodyWeight
 import de.knurl.domain.model.Exercise
 import de.knurl.domain.model.RepRange
@@ -58,7 +61,8 @@ class TrainingRepository(
                 if (id == null) return@collectLatest
                 val userStore = store.open(id)
                 current = userStore
-                runCatching { userStore.ensureProfile(StarterRoutines.all(german()), Settings()) }
+                // Routines come from the onboarding answers (completeOnboarding), not here.
+                runCatching { userStore.ensureProfile(emptyList(), Settings()) }
                     .onFailure { Log.w(TAG, "Could not create profile yet", it) }
                 coroutineScope {
                     val firstActive = CompletableDeferred<Unit>()
@@ -182,6 +186,30 @@ class TrainingRepository(
 
     fun deleteBodyWeight(id: String) {
         current?.deleteBodyWeight(id)
+    }
+
+    /** True for a new account: nothing answered, no routines, no workouts. Older accounts never see it. */
+    fun needsOnboarding(data: TrainingData): Boolean =
+        !data.settings.onboardingDone && data.routines.isEmpty() && data.workouts.isEmpty()
+
+    /**
+     * Applies the first-start answers: starter routines for goal, experience and days, the weekly
+     * goal, unit and reminder days. Skipping uses 3 days, muscle, beginner.
+     */
+    fun completeOnboarding(goal: Goal, experience: Experience, days: List<Int>, unit: WeightUnit, reminders: Boolean) {
+        val count = days.size.coerceAtLeast(1)
+        if (_data.value?.routines.isNullOrEmpty()) StarterPlan.routines(goal, experience, count, german()).forEach(::saveRoutine)
+        updateSettings { s ->
+            s.copy(
+                onboardingDone = true,
+                goal = goal,
+                experience = experience,
+                weeklyGoal = count,
+                unit = unit,
+                barKg = if (unit == WeightUnit.LB) 45 / 2.20462262185 else s.barKg,
+                notifications = s.notifications.copy(reminders = reminders && days.isNotEmpty(), reminderDays = days.ifEmpty { s.notifications.reminderDays }),
+            )
+        }
     }
 
     /** Deletes all of this user's data on the server. False if it could not (e.g. offline). */

@@ -407,4 +407,29 @@
         <item quantity="one">%1$d workout</item>
         <item quantity="other">%1$d workouts</item>
     </plurals>
+
+    <!-- Onboarding -->
+    <string name="onboarding_step">Step %1$d of %2$d</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_start">Let’s go</string>
+    <string name="onboarding_goal_title">What’s your goal?</string>
+    <string name="onboarding_goal_body">We set reps and rest to match. You can change everything later.</string>
+    <string name="goal_muscle">Build muscle</string>
+    <string name="goal_muscle_hint">Moderate weights, 6–15 reps, enough volume</string>
+    <string name="goal_strength">Get stronger</string>
+    <string name="goal_strength_hint">Heavy basics, 3–6 reps, longer rests</string>
+    <string name="goal_fitness">Stay fit</string>
+    <string name="goal_fitness_hint">Lighter weights, more reps, short rests</string>
+    <string name="onboarding_experience_title">How long have you been training?</string>
+    <string name="onboarding_experience_body">Decides how many sets your routines start with.</string>
+    <string name="experience_beginner_hint">New or back after a long break</string>
+    <string name="experience_intermediate_hint">Training regularly for a year or more</string>
+    <string name="experience_advanced_hint">Years of structured training</string>
+    <string name="onboarding_days_title">Which days do you train?</string>
+    <string name="onboarding_days_body">Pick your usual days. Your weekly goal and reminders follow them.</string>
+    <string name="onboarding_plan_preview">Your plan: %1$s</string>
+    <string name="plan_full_body">Full body A/B</string>
+    <string name="plan_upper_lower">Upper/Lower</string>
+    <string name="plan_ppl">Push/Pull/Legs</string>
+    <string name="onboarding_reminders_hint">A nudge on your training days</string>
 </resources>

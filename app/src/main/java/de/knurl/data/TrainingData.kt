@@ -1,6 +1,8 @@
 package de.knurl.data
 
 import de.knurl.domain.calc.PlateCalculator
+import de.knurl.domain.catalog.Experience
+import de.knurl.domain.catalog.Goal
 import de.knurl.domain.model.BodyWeight
 import de.knurl.domain.model.Exercise
 import de.knurl.domain.model.Routine
@@ -36,6 +38,10 @@ data class Settings(
     val notifications: NotificationSettings = NotificationSettings(),
     /** Starred exercises, shown first in the library. */
     val favoriteExercises: List<String> = emptyList(),
+    /** First-start questions answered (or skipped); stored here so a new phone doesn't ask again. */
+    val onboardingDone: Boolean = false,
+    val goal: Goal? = null,
+    val experience: Experience? = null,
 )
 
 /** Each kind of notification can be switched off on its own; each is its own Android channel too. */
