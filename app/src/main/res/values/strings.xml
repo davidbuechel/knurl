@@ -355,4 +355,56 @@
     <string name="superset_link_next">Superset with next exercise</string>
     <string name="workout_all_done">All sets done · Finish workout</string>
     <string name="superset_unlink_next">Split from next exercise</string>
+
+    <!-- Today and training -->
+    <string name="greeting_morning">Good morning</string>
+    <string name="greeting_day">Hello</string>
+    <string name="greeting_evening">Good evening</string>
+    <string name="today_next_of">Up next · routine %1$d of %2$d</string>
+    <string name="minutes_about">about %1$d min</string>
+    <string name="last_today">last done today</string>
+    <string name="today_no_routine">Create your first routine</string>
+    <string name="action_start_empty">Start an empty workout</string>
+    <string name="record_short">PR</string>
+    <string name="record_count">%1$d PR</string>
+    <string name="routine_short">Routine</string>
+    <string name="routine_next">Up next</string>
+    <plurals name="exercises_count">
+        <item quantity="one">%1$d exercise</item>
+        <item quantity="other">%1$d exercises</item>
+    </plurals>
+    <plurals name="sets_count">
+        <item quantity="one">%1$d set</item>
+        <item quantity="other">%1$d sets</item>
+    </plurals>
+    <plurals name="last_days_ago">
+        <item quantity="one">last done %1$d day ago</item>
+        <item quantity="other">last done %1$d days ago</item>
+    </plurals>
+    <plurals name="streak_weeks_label">
+        <item quantity="one">week streak</item>
+        <item quantity="other">weeks streak</item>
+    </plurals>
+
+    <!-- Exercise detail -->
+    <string name="gallery_play">Play movement</string>
+    <string name="gallery_pause">Pause</string>
+    <string name="detail_no_instructions_title">No instructions yet</string>
+    <string name="detail_no_instructions_body">The photos show the start and end position.</string>
+    <string name="detail_heaviest_label">Heaviest set</string>
+    <string name="detail_best_volume_label">Best session</string>
+
+    <!-- Profile -->
+    <string name="profile_you">Your profile</string>
+    <string name="profile_since_value">Since %1$s</string>
+    <string name="profile_secure_hint">Keep your training on a new phone</string>
+    <string name="profile_progress">Progress</string>
+    <string name="profile_app">App</string>
+    <string name="stats_subtitle_short">Volume, muscles, streak</string>
+    <string name="profile_account_data">Account &amp; data</string>
+    <string name="profile_account_data_hint">Sign-in, export, delete</string>
+    <plurals name="workouts_count">
+        <item quantity="one">%1$d workout</item>
+        <item quantity="other">%1$d workouts</item>
+    </plurals>
 </resources>

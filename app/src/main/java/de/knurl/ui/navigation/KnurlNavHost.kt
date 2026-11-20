@@ -22,6 +22,8 @@ import de.knurl.feature.common.appContainer
 import de.knurl.feature.legal.LegalPage
 import de.knurl.feature.legal.LegalScreen
 import de.knurl.feature.settings.SettingsScreen
+import de.knurl.feature.progress.BodyWeightScreen
+import de.knurl.feature.progress.CalendarScreen
 import de.knurl.feature.progress.ProgressScreen
 import androidx.compose.runtime.remember
 import androidx.navigation.NavBackStackEntry
@@ -45,6 +47,8 @@ import kotlinx.serialization.Serializable
 @Serializable data class ExerciseRoute(val id: String)
 @Serializable data object SettingsRoute
 @Serializable data object StatsRoute
+@Serializable data object BodyWeightRoute
+@Serializable data object CalendarRoute
 @Serializable data object AccountRoute
 @Serializable data class LegalRoute(val page: LegalPage)
 
@@ -117,6 +121,8 @@ private fun Destinations(nav: NavHostController, go: Navigator) {
         composable<ExerciseRoute> { entry -> ExerciseDetailScreen(go, entry.toRoute<ExerciseRoute>().id) }
         composable<SettingsRoute> { SettingsScreen(go) }
         composable<StatsRoute> { ProgressScreen(go) }
+        composable<BodyWeightRoute> { BodyWeightScreen(go) }
+        composable<CalendarRoute> { CalendarScreen(go) }
         composable<AccountRoute> { AccountScreen(go) }
         composable<LegalRoute> { entry -> LegalScreen(go, entry.toRoute<LegalRoute>().page) }
     }

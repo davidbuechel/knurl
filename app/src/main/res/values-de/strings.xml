@@ -353,4 +353,56 @@
     <string name="superset_link_next">Supersatz mit nächster Übung</string>
     <string name="workout_all_done">Alle Sätze erledigt · Training beenden</string>
     <string name="superset_unlink_next">Von nächster Übung trennen</string>
+
+    <!-- Today and training -->
+    <string name="greeting_morning">Guten Morgen</string>
+    <string name="greeting_day">Hallo</string>
+    <string name="greeting_evening">Guten Abend</string>
+    <string name="today_next_of">Als Nächstes · Plan %1$d von %2$d</string>
+    <string name="minutes_about">ca. %1$d Min</string>
+    <string name="last_today">zuletzt heute</string>
+    <string name="today_no_routine">Leg deinen ersten Plan an</string>
+    <string name="action_start_empty">Leeres Training starten</string>
+    <string name="record_short">PR</string>
+    <string name="record_count">%1$d PR</string>
+    <string name="routine_short">Plan</string>
+    <string name="routine_next">Als Nächstes</string>
+    <plurals name="exercises_count">
+        <item quantity="one">%1$d Übung</item>
+        <item quantity="other">%1$d Übungen</item>
+    </plurals>
+    <plurals name="sets_count">
+        <item quantity="one">%1$d Satz</item>
+        <item quantity="other">%1$d Sätze</item>
+    </plurals>
+    <plurals name="last_days_ago">
+        <item quantity="one">zuletzt vor %1$d Tag</item>
+        <item quantity="other">zuletzt vor %1$d Tagen</item>
+    </plurals>
+    <plurals name="streak_weeks_label">
+        <item quantity="one">Woche Serie</item>
+        <item quantity="other">Wochen Serie</item>
+    </plurals>
+
+    <!-- Exercise detail -->
+    <string name="gallery_play">Bewegung abspielen</string>
+    <string name="gallery_pause">Pause</string>
+    <string name="detail_no_instructions_title">Noch keine Anleitung</string>
+    <string name="detail_no_instructions_body">Die Fotos zeigen Start- und Endposition.</string>
+    <string name="detail_heaviest_label">Schwerster Satz</string>
+    <string name="detail_best_volume_label">Beste Einheit</string>
+
+    <!-- Profile -->
+    <string name="profile_you">Dein Profil</string>
+    <string name="profile_since_value">Dabei seit %1$s</string>
+    <string name="profile_secure_hint">Damit dein Training auch auf einem neuen Handy da ist</string>
+    <string name="profile_progress">Fortschritt</string>
+    <string name="profile_app">App</string>
+    <string name="stats_subtitle_short">Volumen, Muskeln, Serie</string>
+    <string name="profile_account_data">Konto &amp; Daten</string>
+    <string name="profile_account_data_hint">Anmeldung, Export, Löschen</string>
+    <plurals name="workouts_count">
+        <item quantity="one">%1$d Training</item>
+        <item quantity="other">%1$d Trainings</item>
+    </plurals>
 </resources>

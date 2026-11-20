@@ -29,6 +29,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.knurl.R
+import de.knurl.feature.common.SegmentedTabs
+import de.knurl.feature.common.Pill
+import de.knurl.feature.common.ListRow
+import de.knurl.feature.common.ListGroup
+import de.knurl.feature.common.KpiRow
+import de.knurl.feature.common.Kpi
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.background
 import de.knurl.feature.common.tonnageText
 import de.knurl.feature.common.weightText
 import de.knurl.feature.common.LocalWeightUnit
@@ -54,6 +68,7 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
     val state by vm.state.collectAsStateWithLifecycle()
     val unit = LocalWeightUnit.current
     val german = isGerman()
+    var tab by rememberSaveable { mutableStateOf(DetailTab.HOW_TO) }
 
     Scaffold(
         topBar = {
@@ -82,101 +97,119 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = padding.calculateTopPadding() + 4.dp, bottom = padding.calculateBottomPadding() + 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            item { ExerciseMotion(s.exercise) }
+            item { ExerciseGallery(s.exercise) }
             item {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    AssistChip(onClick = {}, label = { Text(stringResource(s.exercise.primary.label())) })
-                    s.exercise.secondary.forEach { muscle -> AssistChip(onClick = {}, label = { Text(stringResource(muscle.label())) }) }
-                    AssistChip(onClick = {}, label = { Text(stringResource(s.exercise.equipment.label())) })
-                    AssistChip(onClick = {}, label = { Text(stringResource(s.exercise.level.label())) })
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Pill(stringResource(s.exercise.primary.label()))
+                    s.exercise.secondary.forEach { muscle -> Pill(stringResource(muscle.label()), color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    Pill(stringResource(s.exercise.equipment.label()), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Pill(stringResource(s.exercise.level.label()), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
-
             item {
-                KnurlCard {
-                    SectionLabel(stringResource(R.string.detail_e1rm))
-                    if (s.bestOneRepMaxKg == null) {
-                        Text(stringResource(R.string.detail_no_data), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    } else {
-                        Text(weightText(Math.round(s.bestOneRepMaxKg * 2) / 2.0), style = MaterialTheme.typography.displaySmall)
-                        val gain = s.bestOneRepMaxKg - (s.firstOneRepMaxKg ?: s.bestOneRepMaxKg)
-                        if (gain > 0) {
-                            Text(
-                                stringResource(R.string.detail_gain, weightText(Math.round(gain * 2) / 2.0), s.sessions.size),
-                                color = Knurl.colors.success,
-                                style = MaterialTheme.typography.labelLarge,
-                            )
+                SegmentedTabs(DetailTab.entries, tab, {
+                    stringResource(when (it) {
+                        DetailTab.HOW_TO -> R.string.detail_how_to
+                        DetailTab.HISTORY -> R.string.detail_history
+                        DetailTab.RECORDS -> R.string.detail_records
+                    })
+                }, { tab = it })
+            }
+
+            when (tab) {
+                DetailTab.HOW_TO -> {
+                    val steps = s.exercise.instructions(german)
+                    item {
+                        if (steps.isEmpty()) {
+                            BrandEmptyState(stringResource(R.string.detail_no_instructions_title), stringResource(R.string.detail_no_instructions_body))
+                        } else {
+                            ListGroup {
+                                if (german && s.exercise.instructionsDe.isEmpty()) {
+                                    Text(stringResource(R.string.detail_instructions_english), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(16.dp))
+                                }
+                                steps.forEachIndexed { index, step ->
+                                    Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                                        Box(Modifier.size(26.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primaryContainer), contentAlignment = Alignment.Center) {
+                                            Text("${index + 1}", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                                        }
+                                        Text(step, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                                    }
+                                }
+                            }
                         }
-                        TrendChart(s.sessions.mapNotNull { it.bestOneRepMax }.takeLast(12), format = { Formatting.weightNumber(it, unit) })
                     }
                 }
-            }
-
-            if (s.bestOneRepMaxKg != null) item {
-                KnurlCard {
-                    SectionLabel(stringResource(R.string.detail_records))
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        s.heaviestKg?.let { AssistChip(onClick = {}, label = { Text(stringResource(R.string.detail_heaviest, weightText(it))) }) }
-                        s.bestVolumeKg?.let { AssistChip(onClick = {}, label = { Text(stringResource(R.string.detail_best_volume, tonnageText(it))) }) }
+                DetailTab.HISTORY -> {
+                    item {
+                        KnurlCard {
+                            SectionLabel(stringResource(R.string.detail_e1rm))
+                            if (s.bestOneRepMaxKg == null) {
+                                Text(stringResource(R.string.detail_no_data), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            } else {
+                                Text(weightText(Math.round(s.bestOneRepMaxKg * 2) / 2.0), style = MaterialTheme.typography.displaySmall)
+                                val gain = s.bestOneRepMaxKg - (s.firstOneRepMaxKg ?: s.bestOneRepMaxKg)
+                                if (gain > 0) {
+                                    Text(stringResource(R.string.detail_gain, weightText(Math.round(gain * 2) / 2.0), s.sessions.size), color = Knurl.colors.success, style = MaterialTheme.typography.labelLarge)
+                                }
+                                TrendChart(s.sessions.mapNotNull { it.bestOneRepMax }.takeLast(12), format = { Formatting.weightNumber(it, unit) })
+                            }
+                        }
+                    }
+                    item {
+                        if (s.sessions.isEmpty()) {
+                            BrandEmptyState(stringResource(R.string.empty_exercise_title), stringResource(R.string.empty_exercise_body))
+                        } else {
+                            ListGroup {
+                                val sessions = s.sessions.reversed()
+                                sessions.forEachIndexed { i, session ->
+                                    ListRow(
+                                        title = Formatting.date(session.atMs),
+                                        subtitle = session.sets.joinToString("  ·  ") { Formatting.set(it.weightKg, it.reps, unit) },
+                                        divider = i < sessions.lastIndex,
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
-            }
-
-            s.plates?.let { load ->
-                item {
-                    KnurlCard {
-                        SectionLabel(stringResource(R.string.detail_plates, "${Formatting.kg(s.plateTargetInUnit)} ${Formatting.symbol(unit)}"))
-                        PlateBar(load.perSide, unit)
-                        Text(
-                            if (load.perSide.isEmpty()) stringResource(R.string.plates_empty_bar, "${Formatting.kg(s.barInUnit)} ${Formatting.symbol(unit)}")
-                            else stringResource(R.string.plates_per_side, load.perSide.joinToString(" + ") { Formatting.kg(it) }, "${Formatting.kg(s.barInUnit)} ${Formatting.symbol(unit)}"),
-                            style = MaterialTheme.typography.bodyMedium,
+                DetailTab.RECORDS -> {
+                    item {
+                        KpiRow(
+                            listOf(
+                                Kpi(s.bestOneRepMaxKg?.let { weightText(Math.round(it * 2) / 2.0) } ?: "–", stringResource(R.string.detail_e1rm)),
+                                Kpi(s.heaviestKg?.let { weightText(it) } ?: "–", stringResource(R.string.detail_heaviest_label)),
+                                Kpi(s.bestVolumeKg?.let { tonnageText(it) } ?: "–", stringResource(R.string.detail_best_volume_label)),
+                            ),
                         )
-                        if (!load.isExact) {
-                            Text(stringResource(R.string.plates_missing, "${Formatting.kg(load.missingKg)} ${Formatting.symbol(unit)}"), color = Knurl.colors.warning, style = MaterialTheme.typography.bodySmall)
-                        }
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                            val steps = if (unit == WeightUnit.LB) listOf(-5.0, 5.0, 20.0) else listOf(-2.5, 2.5, 10.0)
-                            steps.forEach { delta ->
-                                FilledTonalButton(onClick = { vm.changePlateTarget(Formatting.fromUnit(delta, unit)) }) {
-                                    Text((if (delta < 0) "−" else "+") + Formatting.kg(kotlin.math.abs(delta)))
+                    }
+                    s.plates?.let { load ->
+                        item {
+                            KnurlCard {
+                                SectionLabel(stringResource(R.string.detail_plates, "${Formatting.kg(s.plateTargetInUnit)} ${Formatting.symbol(unit)}"))
+                                PlateBar(load.perSide, unit)
+                                Text(
+                                    if (load.perSide.isEmpty()) stringResource(R.string.plates_empty_bar, "${Formatting.kg(s.barInUnit)} ${Formatting.symbol(unit)}")
+                                    else stringResource(R.string.plates_per_side, load.perSide.joinToString(" + ") { Formatting.kg(it) }, "${Formatting.kg(s.barInUnit)} ${Formatting.symbol(unit)}"),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                                if (!load.isExact) {
+                                    Text(stringResource(R.string.plates_missing, "${Formatting.kg(load.missingKg)} ${Formatting.symbol(unit)}"), color = Knurl.colors.warning, style = MaterialTheme.typography.bodySmall)
+                                }
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    val steps = if (unit == WeightUnit.LB) listOf(-5.0, 5.0, 20.0) else listOf(-2.5, 2.5, 10.0)
+                                    steps.forEach { delta ->
+                                        FilledTonalButton(onClick = { vm.changePlateTarget(Formatting.fromUnit(delta, unit)) }) {
+                                            Text((if (delta < 0) "−" else "+") + Formatting.kg(kotlin.math.abs(delta)))
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-
-            val steps = s.exercise.instructions(german)
-            if (steps.isNotEmpty()) item {
-                KnurlCard {
-                    SectionLabel(stringResource(R.string.detail_how_to))
-                    if (german && s.exercise.instructionsDe.isEmpty()) {
-                        Text(stringResource(R.string.detail_instructions_english), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    steps.forEachIndexed { index, step ->
-                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            Text("${index + 1}", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-                            Text(step, style = MaterialTheme.typography.bodyMedium)
-                        }
-                    }
-                }
-            }
-
-            item { SectionLabel(stringResource(R.string.detail_history), Modifier.padding(top = 8.dp)) }
-            if (s.sessions.isEmpty()) {
-                item { BrandEmptyState(stringResource(R.string.empty_exercise_title), stringResource(R.string.empty_exercise_body)) }
-            }
-            items(s.sessions.reversed(), key = { it.workoutId }) { session ->
-                KnurlCard {
-                    Text(Formatting.date(session.atMs), style = MaterialTheme.typography.titleSmall)
-                    Text(
-                        session.sets.joinToString("  ·  ") { Formatting.set(it.weightKg, it.reps, unit) },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
         }
     }
 }
+
+private enum class DetailTab { HOW_TO, HISTORY, RECORDS }
