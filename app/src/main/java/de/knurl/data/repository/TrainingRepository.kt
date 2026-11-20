@@ -137,6 +137,14 @@ class TrainingRepository(
         current?.saveSettings(settings)
     }
 
+    /** Deletes all of this user's data on the server. False if it could not (e.g. offline). */
+    suspend fun deleteAllData(): Boolean {
+        val store = current ?: return false
+        return runCatching { store.deleteEverything() }
+            .onFailure { Log.w(TAG, "Could not delete data", it) }
+            .isSuccess
+    }
+
     private fun setActive(workout: Workout?) {
         val data = _data.value ?: return
         active = workout

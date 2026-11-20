@@ -35,4 +35,7 @@ interface UserTrainingStore {
     fun saveRoutine(routine: Routine)
     fun deleteRoutine(id: String)
     fun saveSettings(settings: Settings)
+
+    /** Deletes every document of this user (account deletion). Needs the network. */
+    suspend fun deleteEverything()
 }

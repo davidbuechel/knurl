@@ -74,7 +74,7 @@ fun HomeScreen(go: Navigator) {
                     HomeTab.TRAINING -> TrainingScreen(go)
                     HomeTab.EXERCISES -> ExercisesScreen(go, pickForWorkout = false)
                     HomeTab.PROGRESS -> ProgressScreen()
-                    HomeTab.PROFILE -> ProfileScreen()
+                    HomeTab.PROFILE -> ProfileScreen(go)
                 }
             }
         }

@@ -98,6 +98,18 @@ private class FirestoreUserStore(private val user: DocumentReference) : UserTrai
             .logFailure("save settings")
     }
 
+    override suspend fun deleteEverything() {
+        // Firestore has no recursive delete on clients: remove every known subcollection, then the profile.
+        for (collection in listOf(workouts, routines, customExercises, user.collection("state"), user.collection("devices"))) {
+            collection.get().await().documents.chunked(400).forEach { chunk ->
+                val batch = user.firestore.batch()
+                chunk.forEach { batch.delete(it.reference) }
+                batch.commit().await()
+            }
+        }
+        user.delete().await()
+    }
+
     private fun settingsFlow(): Flow<Settings> = callbackFlow {
         val registration = user.addSnapshotListener { snapshot, error ->
             if (error != null) { Log.w(TAG, "settings", error); return@addSnapshotListener }

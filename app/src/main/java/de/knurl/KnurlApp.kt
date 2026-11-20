@@ -3,6 +3,7 @@ package de.knurl
 import android.app.Application
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import de.knurl.core.settings.AppPreferences
 import de.knurl.data.firebase.AuthRepository
 import de.knurl.data.firebase.FirestoreTrainingStore
 import de.knurl.data.repository.TrainingRepository
@@ -16,21 +17,24 @@ class KnurlApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        container = AppContainer()
+        container = AppContainer(this)
+        container.preferences.applyTheme()
     }
 }
 
 /** Builds the app's long-lived objects once. Screens reach them through their ViewModels. */
-class AppContainer {
-    private val appScope = CoroutineScope(SupervisorJob())
+class AppContainer(val app: Application) {
+    val scope = CoroutineScope(SupervisorJob())
 
-    val auth = AuthRepository(FirebaseAuth.getInstance(), appScope)
+    val preferences = AppPreferences(app)
+
+    val auth = AuthRepository(FirebaseAuth.getInstance(), scope)
 
     val training = TrainingRepository(
         // Firestore keeps a persistent local cache by default: reads work offline, writes are queued.
         store = FirestoreTrainingStore(FirebaseFirestore.getInstance()),
         uid = auth.uid,
-        scope = appScope,
+        scope = scope,
         german = { Locale.getDefault().language == "de" },
     )
 }

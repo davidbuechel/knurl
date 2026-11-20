@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.knurl.R
+import de.knurl.feature.common.weightText
 import de.knurl.domain.model.Muscle
 import de.knurl.feature.common.Formatting
 import de.knurl.feature.common.KnurlCard
@@ -97,7 +98,7 @@ fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean) {
                             Text(row.exercise.subtitle(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         row.bestOneRepMaxKg?.let {
-                            Text(stringResource(R.string.unit_e1rm, Formatting.kg(it)), style = MaterialTheme.typography.labelLarge)
+                            Text(stringResource(R.string.unit_e1rm, weightText(it)), style = MaterialTheme.typography.labelLarge)
                         }
                     }
                 }

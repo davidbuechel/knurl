@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.knurl.R
+import de.knurl.feature.common.tonnageText
 import de.knurl.domain.calc.HardSets
 import de.knurl.domain.model.Muscle
 import de.knurl.feature.common.Formatting
@@ -56,7 +57,7 @@ fun ProgressScreen() {
             KnurlCard {
                 Row(Modifier.fillMaxWidth()) {
                     StatTile("${s.sessions}", stringResource(R.string.stat_sessions))
-                    StatTile(Formatting.tonnage(s.volumeKg), stringResource(R.string.stat_volume))
+                    StatTile(tonnageText(s.volumeKg), stringResource(R.string.stat_volume))
                     StatTile("${s.records}", stringResource(R.string.stat_records))
                 }
             }

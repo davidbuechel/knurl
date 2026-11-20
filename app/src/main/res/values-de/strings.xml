@@ -27,7 +27,7 @@
     <string name="action_remove_exercise">Übung entfernen</string>
 
     <!-- Units -->
-    <string name="unit_kg_value">%1$s kg</string>
+    <string name="unit_kg_value">%1$s</string>
     <string name="unit_e1rm">1RM %1$s</string>
 
     <!-- Stats -->
@@ -54,20 +54,20 @@
     <string name="exercises_pick_title">Übung hinzufügen</string>
     <string name="detail_e1rm">Geschätztes 1RM</string>
     <string name="detail_no_data">Noch keine Sätze. Dein geschätztes Maximum erscheint nach dem ersten Training.</string>
-    <string name="detail_gain">+%1$s kg in %2$d Einheiten</string>
+    <string name="detail_gain">+%1$s in %2$d Einheiten</string>
     <string name="detail_records">Bestwerte</string>
-    <string name="detail_heaviest">Schwerster Satz %1$s kg</string>
+    <string name="detail_heaviest">Schwerster Satz %1$s</string>
     <string name="detail_best_volume">Beste Einheit %1$s</string>
-    <string name="detail_plates">Scheiben für %1$s kg</string>
+    <string name="detail_plates">Scheiben für %1$s</string>
     <string name="detail_history">Verlauf</string>
-    <string name="plates_per_side">Pro Seite: %1$s · Stange %2$s kg</string>
-    <string name="plates_empty_bar">Leere Stange (%1$s kg)</string>
-    <string name="plates_missing">%1$s kg lassen sich mit Standardscheiben nicht stecken</string>
+    <string name="plates_per_side">Pro Seite: %1$s · Stange %2$s</string>
+    <string name="plates_empty_bar">Leere Stange (%1$s)</string>
+    <string name="plates_missing">%1$s lassen sich mit Standardscheiben nicht stecken</string>
 
     <!-- Active workout -->
     <string name="workout_last_time">Zuletzt: %1$s</string>
-    <string name="workout_suggest_increase">Hoch auf %1$s kg: Letztes Mal hast du in jedem Satz das obere Ende geschafft</string>
-    <string name="workout_weight_kg">Gewicht (kg)</string>
+    <string name="workout_suggest_increase">Hoch auf %1$s: Letztes Mal hast du in jedem Satz das obere Ende geschafft</string>
+    <string name="workout_weight">Gewicht (%1$s)</string>
     <string name="workout_reps">Wiederholungen</string>
     <string name="set_warmup_short">A</string>
     <string name="set_drop_short">D</string>
@@ -99,9 +99,6 @@
     <string name="settings_default_rest">Standardpause</string>
     <string name="settings_default_rest_seconds">Standardpause (Sekunden)</string>
     <string name="settings_weekly_goal">Einheiten pro Woche</string>
-    <string name="settings_data">Deine Daten</string>
-    <string name="settings_data_local">Dein Training wird in deinem Konto gespeichert und funktioniert auch offline. Nichts wird getrackt.</string>
-    <string name="settings_data_count">Gespeicherte Trainings: %1$d</string>
     <string name="settings_version">Version %1$s</string>
 
     <!-- Empty states -->
@@ -142,4 +139,106 @@
     <string name="action_retry">Erneut versuchen</string>
     <string name="first_start_offline_title">Einmal kurz online, bitte</string>
     <string name="first_start_offline_body">Beim ersten Start richtet Knurl dein Konto ein, dafür braucht es einmal Internet. Danach funktioniert das Training auch offline.</string>
+
+    <!-- Settings and account -->
+    <string name="action_done">Fertig</string>
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_subtitle">Darstellung, Training, Benachrichtigungen, Datenschutz</string>
+    <string name="settings_section_display">Darstellung</string>
+    <string name="settings_theme">Design</string>
+    <string name="settings_theme_light">Hell</string>
+    <string name="settings_theme_dark">Dunkel</string>
+    <string name="settings_system">System</string>
+    <string name="settings_language">Sprache</string>
+    <string name="settings_language_de">Deutsch</string>
+    <string name="settings_language_en">English</string>
+    <string name="settings_unit">Einheit</string>
+    <string name="settings_bar_weight_in">Gewicht der Stange (%1$s)</string>
+    <string name="settings_plates">Scheiben in deinem Gym</string>
+    <string name="settings_plates_value">%1$d Größen</string>
+    <string name="settings_plates_hint">Für den Scheibenrechner</string>
+    <string name="settings_keep_screen_on">Bildschirm im Training anlassen</string>
+    <string name="settings_keep_screen_on_hint">Die Satzliste bleibt zwischen den Sätzen sichtbar</string>
+    <string name="settings_rest_vibrate">Vibration am Pausenende</string>
+    <string name="settings_rest_sound">Ton am Pausenende</string>
+    <string name="settings_section_notifications">Benachrichtigungen</string>
+    <string name="notify_rest">Pausentimer</string>
+    <string name="notify_rest_hint">Wenn die Pause vorbei ist und Knurl im Hintergrund läuft</string>
+    <string name="notify_running">Laufendes Training</string>
+    <string name="notify_running_hint">Dauer und Pause auf dem Sperrbildschirm</string>
+    <string name="notify_reminders">Trainingserinnerung</string>
+    <string name="notify_reminders_hint">An deinen Trainingstagen</string>
+    <string name="notify_reminder_days">Tage</string>
+    <string name="notify_reminder_time">Uhrzeit</string>
+    <string name="notify_streak">Serien-Erinnerung</string>
+    <string name="notify_streak_hint">Samstags, wenn ein Training deine Serie rettet</string>
+    <string name="notify_weekly">Wochenrückblick</string>
+    <string name="notify_weekly_hint">Sonntagabend: Einheiten, Volumen, Rekorde</string>
+    <string name="notify_account">Konto und Sicherheit</string>
+    <string name="notify_account_hint">Anmeldungen und wichtige Änderungen</string>
+    <string name="notify_news">Neuigkeiten</string>
+    <string name="notify_news_hint">Neue Funktionen, selten</string>
+    <string name="settings_section_privacy">Datenschutz</string>
+    <string name="settings_crash_reports">Absturzberichte senden</string>
+    <string name="settings_crash_reports_hint">Anonyme technische Details, wenn die App abstürzt. Aus, bis du es einschaltest.</string>
+    <string name="settings_section_legal">Rechtliches</string>
+    <string name="legal_imprint">Impressum</string>
+    <string name="legal_privacy">Datenschutzerklärung</string>
+    <string name="legal_licenses">Open-Source-Lizenzen</string>
+    <string name="legal_imprint_body">Das Impressum wird vor der Veröffentlichung von Knurl ergänzt.</string>
+    <string name="legal_privacy_body">Knurl speichert dein Training in deinem eigenen Konto bei Firebase (Google, Rechenzentrum Frankfurt). Nur du kannst es lesen. Nichts wird getrackt oder weitergegeben. Absturzberichte werden nur gesendet, wenn du sie einschaltest. Unter Profil → Konto verwalten kannst du alle Daten exportieren oder löschen. Die vollständige Datenschutzerklärung folgt vor der Veröffentlichung.</string>
+    <string name="legal_licenses_body">Archivo und Inter: SIL Open Font License 1.1. AndroidX, Jetpack Compose, Kotlin und Firebase SDKs: Apache License 2.0.</string>
+    <string name="profile_workouts">Trainings</string>
+    <string name="profile_total_volume">Volumen gesamt</string>
+    <string name="profile_since">Seit</string>
+    <string name="account_title">Konto</string>
+    <string name="account_anonymous">Noch nicht gesichert</string>
+    <string name="account_anonymous_hint">Dein Training ist gespeichert, aber nur in diesem Konto. Sichere es, damit du es auf einem neuen Handy behältst.</string>
+    <string name="account_linked">Konto gesichert</string>
+    <string name="account_linked_hint">Angemeldet. Dein Training ist gesichert und auf jedem Handy da.</string>
+    <string name="account_secure_cta">Konto sichern</string>
+    <string name="account_manage">Konto verwalten</string>
+    <string name="account_secure_title">Training behalten</string>
+    <string name="account_mode_secure">Sichern</string>
+    <string name="account_mode_sign_in">Anmelden</string>
+    <string name="account_secure_body">Verknüpfe Google oder eine E-Mail-Adresse mit diesem Konto. Alles, was du geloggt hast, bleibt.</string>
+    <string name="account_sign_in_body">Melde dich bei einem bestehenden Knurl-Konto an. Du siehst dann das Training dieses Kontos.</string>
+    <string name="account_google">Weiter mit Google</string>
+    <string name="account_or_email">ODER MIT E-MAIL</string>
+    <string name="account_email">E-Mail</string>
+    <string name="account_password">Passwort (mindestens 6 Zeichen)</string>
+    <string name="account_create">Mit E-Mail sichern</string>
+    <string name="account_sign_in">Anmelden</string>
+    <string name="account_forgot">Passwort vergessen?</string>
+    <string name="account_signed_in_as">Angemeldet als</string>
+    <string name="account_change_password">Passwort ändern</string>
+    <string name="account_change_password_hint">Wir schicken dir eine E-Mail mit Link</string>
+    <string name="account_sign_out">Abmelden</string>
+    <string name="account_sign_out_title">Abmelden?</string>
+    <string name="account_sign_out_body">Dein Training bleibt in deinem Konto. Knurl startet auf diesem Handy mit einem neuen, leeren Konto, bis du dich wieder anmeldest.</string>
+    <string name="account_your_data">Deine Daten</string>
+    <string name="account_export_json">Alles exportieren (JSON)</string>
+    <string name="account_export_json_hint">Trainings, Pläne und Einstellungen in einer Datei</string>
+    <string name="account_export_csv">Sätze exportieren (CSV)</string>
+    <string name="account_export_csv_hint">Eine Zeile pro Satz, für Tabellen</string>
+    <string name="account_delete">Konto löschen</string>
+    <string name="account_delete_hint">Löscht alle Trainings und das Konto selbst</string>
+    <string name="account_delete_title">Konto löschen?</string>
+    <string name="account_delete_body">Alle Trainings, Pläne und Einstellungen werden sofort von unseren Servern gelöscht. Das lässt sich nicht rückgängig machen.</string>
+    <string name="account_switch_title">Zum anderen Konto wechseln?</string>
+    <string name="account_switch_body">Die %1$d Trainings in diesem ungesicherten Konto werden dann nicht mehr angezeigt. Sichere dieses Konto zuerst, wenn du sie behalten willst.</string>
+    <string name="account_error_email">Diese E-Mail-Adresse sieht nicht richtig aus.</string>
+    <string name="account_error_weak">Wähle ein längeres Passwort (mindestens 6 Zeichen).</string>
+    <string name="account_error_wrong">E-Mail oder Passwort ist falsch.</string>
+    <string name="account_error_in_use">Diese Anmeldung gehört schon zu einem anderen Knurl-Konto. Nutze stattdessen „Ich habe ein Konto“.</string>
+    <string name="account_error_network">Keine Verbindung. Versuch es noch einmal, wenn du online bist.</string>
+    <string name="account_error_reauth">Zu deiner Sicherheit: Melde dich ab und wieder an, dann kannst du das Konto löschen.</string>
+    <string name="account_error_unknown">Das hat nicht geklappt. Bitte versuch es noch einmal.</string>
+    <string name="account_notice_linked">Konto gesichert</string>
+    <string name="account_notice_signed_in">Angemeldet</string>
+    <string name="account_notice_signed_out">Abgemeldet</string>
+    <string name="account_notice_reset">E-Mail verschickt. Schau in dein Postfach.</string>
+    <string name="account_notice_deleted">Konto gelöscht</string>
+    <string name="account_notice_exported">Export gespeichert</string>
+    <string name="account_notice_google_failed">Google-Anmeldung ist auf diesem Handy nicht verfügbar. Nutze stattdessen E-Mail.</string>
 </resources>

@@ -1,9 +1,10 @@
 package de.knurl
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,12 +23,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import de.knurl.core.settings.ThemeMode
 import de.knurl.data.firebase.AuthState
 import de.knurl.ui.brand.KnurlAppIcon
 import de.knurl.ui.navigation.KnurlNavHost
 import de.knurl.ui.theme.KnurlTheme
 
-class MainActivity : ComponentActivity() {
+/** AppCompatActivity, so the in-app language and night mode apply (core/settings/AppPreferences). */
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -38,7 +41,13 @@ class MainActivity : ComponentActivity() {
         }
         enableEdgeToEdge()
         setContent {
-            KnurlTheme {
+            val theme by container.preferences.theme.collectAsStateWithLifecycle()
+            val dark = when (theme) {
+                ThemeMode.SYSTEM -> isSystemInDarkTheme()
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
+            }
+            KnurlTheme(darkTheme = dark) {
                 val auth by container.auth.state.collectAsStateWithLifecycle()
                 if (auth == AuthState.Offline) FirstStartOffline(onRetry = container.auth::ensureSignedIn)
                 else KnurlNavHost()

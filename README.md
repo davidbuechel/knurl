@@ -15,7 +15,11 @@ Kotlin + Jetpack Compose, Modelle und Rechnungen in Kotlin Multiplatform (`:shar
   Bestwerte, Scheibenrechner, alle Einheiten.
 - **Fortschritt:** Einheiten, Volumen, Rekorde der Woche, harte Sätze pro Muskel mit Zielbereich 10–20,
   Volumen der letzten 8 Wochen, Wochenserie.
-- **Profil:** Stangengewicht, Standardpause, Wochenziel.
+- **Profil und Konto:** anonymer Start, Konto sichern mit Google oder E-Mail (Daten bleiben), Anmelden, Abmelden,
+  Konto löschen, Export als JSON und CSV.
+- **Einstellungen:** Design (System/Hell/Dunkel), Sprache (System/Deutsch/Englisch), kg/lb, Stange, vorhandene
+  Scheiben, Standardpause, Wochenziel, Bildschirm anlassen, Pausen-Vibration/-Ton, Benachrichtigungen einzeln,
+  Absturzberichte (aus bis eingeschaltet), Impressum/Datenschutz (Platzhalter).
 
 Daten liegen in Firebase (Projekt `knurl-gym`, Frankfurt) unter dem eigenen Konto. Jede Installation startet
 mit einem anonymen Konto; Training funktioniert dank Firestore-Cache auch offline. Details: `docs/firebase.md`.

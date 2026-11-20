@@ -24,6 +24,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.knurl.R
+import de.knurl.feature.common.weightText
+import de.knurl.feature.common.setText
+import de.knurl.feature.common.tonnageText
 import de.knurl.feature.common.Formatting
 import de.knurl.feature.common.KnurlCard
 import de.knurl.feature.common.ScreenTitle
@@ -90,7 +93,7 @@ fun TodayScreen(go: Navigator) {
                 SectionLabel(stringResource(R.string.today_this_week))
                 Row(Modifier.fillMaxWidth()) {
                     StatTile("${s.weekSessions}/${s.weeklyGoal}", stringResource(R.string.stat_sessions))
-                    StatTile(Formatting.tonnage(s.weekVolumeKg), stringResource(R.string.stat_volume))
+                    StatTile(tonnageText(s.weekVolumeKg), stringResource(R.string.stat_volume))
                     StatTile("${s.weekRecords}", stringResource(R.string.stat_records))
                 }
             }
@@ -107,12 +110,12 @@ fun TodayScreen(go: Navigator) {
                     Column(Modifier.weight(1f)) {
                         Text(vm.exerciseName(record.exerciseId, german), style = MaterialTheme.typography.titleMedium)
                         Text(
-                            "${Formatting.set(record.set.weightKg, record.set.reps)} · ${Formatting.date(record.atMs)}",
+                            "${setText(record.set.weightKg, record.set.reps)} · ${Formatting.date(record.atMs)}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                    Text(stringResource(R.string.unit_e1rm, Formatting.kg(record.oneRepMaxKg)), style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.unit_e1rm, weightText(record.oneRepMaxKg)), style = MaterialTheme.typography.labelLarge)
                 }
             }
         }

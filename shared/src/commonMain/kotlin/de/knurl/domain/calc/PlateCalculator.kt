@@ -5,6 +5,9 @@ object PlateCalculator {
 
     val standardPlatesKg: List<Double> = listOf(25.0, 20.0, 15.0, 10.0, 5.0, 2.5, 1.25)
 
+    /** Usual plates in pound gyms. [load] works in any unit as long as all numbers share it. */
+    val standardPlatesLb: List<Double> = listOf(45.0, 35.0, 25.0, 10.0, 5.0, 2.5)
+
     data class Load(
         /** Plates for one side, heaviest first. */
         val perSide: List<Double>,

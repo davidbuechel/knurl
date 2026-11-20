@@ -36,7 +36,11 @@ calculations in Kotlin Multiplatform (`:shared`). Firebase backend (Auth, Firest
 - **Navigation through `Navigator`** (`go.to` / `go.back`); motion is set once in `ScreenMotion`.
   Screens add no transitions.
 - **ViewModels via `knurlViewModel { ... }`**, dependencies from `AppContainer`.
-- **All formatting in `Formatting`** (locale-aware numbers, durations, dates).
+- **All formatting in `Formatting`** (locale-aware numbers, durations, dates). Weights on screen go
+  through `weightText` / `setText` / `tonnageText` (feature/common/Units.kt), which follow the chosen
+  kg/lb unit (`LocalWeightUnit`); typed weights are converted back with `Formatting.fromUnit`.
+- **Two kinds of settings:** account-wide in `Settings` (Firestore, follows the person), device-only in
+  `AppPreferences` (theme, language via AppCompat, screen on, rest feedback, crash-report consent).
 - **Exercise IDs are permanent.** Workouts reference them; never rename or reuse one.
 - **Data access only through `TrainingRepository`**; it talks to a `TrainingStore`
   (`FirestoreTrainingStore` in the app, `InMemoryTrainingStore` in tests). Screens never touch Firebase.

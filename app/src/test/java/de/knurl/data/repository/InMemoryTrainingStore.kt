@@ -53,4 +53,10 @@ class InMemoryUserStore : UserTrainingStore {
     override fun saveSettings(settings: Settings) {
         state.value = state.value.copy(settings = settings)
     }
+
+    override suspend fun deleteEverything() {
+        profileCreated = false
+        active.value = null
+        state.value = TrainingData()
+    }
 }

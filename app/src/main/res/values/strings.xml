@@ -29,7 +29,7 @@
     <string name="action_remove_exercise">Remove exercise</string>
 
     <!-- Units -->
-    <string name="unit_kg_value">%1$s kg</string>
+    <string name="unit_kg_value">%1$s</string>
     <string name="unit_e1rm">1RM %1$s</string>
 
     <!-- Stats -->
@@ -56,20 +56,20 @@
     <string name="exercises_pick_title">Add exercise</string>
     <string name="detail_e1rm">Estimated 1RM</string>
     <string name="detail_no_data">No sets logged yet. Your estimated max appears after the first workout.</string>
-    <string name="detail_gain">+%1$s kg over %2$d sessions</string>
+    <string name="detail_gain">+%1$s over %2$d sessions</string>
     <string name="detail_records">Best</string>
-    <string name="detail_heaviest">Heaviest %1$s kg</string>
+    <string name="detail_heaviest">Heaviest %1$s</string>
     <string name="detail_best_volume">Best session %1$s</string>
-    <string name="detail_plates">Plates for %1$s kg</string>
+    <string name="detail_plates">Plates for %1$s</string>
     <string name="detail_history">History</string>
-    <string name="plates_per_side">Per side: %1$s · bar %2$s kg</string>
-    <string name="plates_empty_bar">Empty bar (%1$s kg)</string>
-    <string name="plates_missing">%1$s kg cannot be made with standard plates</string>
+    <string name="plates_per_side">Per side: %1$s · bar %2$s</string>
+    <string name="plates_empty_bar">Empty bar (%1$s)</string>
+    <string name="plates_missing">%1$s cannot be made with standard plates</string>
 
     <!-- Active workout -->
     <string name="workout_last_time">Last time: %1$s</string>
-    <string name="workout_suggest_increase">Up to %1$s kg: you hit the top of the range on every set last time</string>
-    <string name="workout_weight_kg">Weight (kg)</string>
+    <string name="workout_suggest_increase">Up to %1$s: you hit the top of the range on every set last time</string>
+    <string name="workout_weight">Weight (%1$s)</string>
     <string name="workout_reps">Reps</string>
     <string name="set_warmup_short">W</string>
     <string name="set_drop_short">D</string>
@@ -101,9 +101,6 @@
     <string name="settings_default_rest">Default rest</string>
     <string name="settings_default_rest_seconds">Default rest (seconds)</string>
     <string name="settings_weekly_goal">Workouts per week</string>
-    <string name="settings_data">Your data</string>
-    <string name="settings_data_local">Your training is saved to your account and works offline. Nothing is tracked.</string>
-    <string name="settings_data_count">Workouts saved: %1$d</string>
     <string name="settings_version">Version %1$s</string>
 
     <!-- Empty states -->
@@ -144,4 +141,106 @@
     <string name="action_retry">Try again</string>
     <string name="first_start_offline_title">One moment online, please</string>
     <string name="first_start_offline_body">Knurl sets up your account on the first start, which needs the internet once. After that, training works offline too.</string>
+
+    <!-- Settings and account -->
+    <string name="action_done">Done</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_subtitle">Appearance, training, notifications, privacy</string>
+    <string name="settings_section_display">Appearance</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_system">System</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_de">Deutsch</string>
+    <string name="settings_language_en">English</string>
+    <string name="settings_unit">Unit</string>
+    <string name="settings_bar_weight_in">Bar weight (%1$s)</string>
+    <string name="settings_plates">Plates in your gym</string>
+    <string name="settings_plates_value">%1$d sizes</string>
+    <string name="settings_plates_hint">Used by the plate calculator</string>
+    <string name="settings_keep_screen_on">Keep screen on during workouts</string>
+    <string name="settings_keep_screen_on_hint">The set list stays visible between sets</string>
+    <string name="settings_rest_vibrate">Vibrate when rest is over</string>
+    <string name="settings_rest_sound">Sound when rest is over</string>
+    <string name="settings_section_notifications">Notifications</string>
+    <string name="notify_rest">Rest timer</string>
+    <string name="notify_rest_hint">When rest is over and Knurl is in the background</string>
+    <string name="notify_running">Workout in progress</string>
+    <string name="notify_running_hint">Time and rest on the lock screen</string>
+    <string name="notify_reminders">Training reminder</string>
+    <string name="notify_reminders_hint">On the days you train</string>
+    <string name="notify_reminder_days">Days</string>
+    <string name="notify_reminder_time">Time</string>
+    <string name="notify_streak">Streak reminder</string>
+    <string name="notify_streak_hint">Saturday, when one more workout keeps your streak</string>
+    <string name="notify_weekly">Weekly review</string>
+    <string name="notify_weekly_hint">Sunday evening: workouts, volume, records</string>
+    <string name="notify_account">Account and security</string>
+    <string name="notify_account_hint">Sign-ins and important changes</string>
+    <string name="notify_news">News</string>
+    <string name="notify_news_hint">New features, rarely</string>
+    <string name="settings_section_privacy">Privacy</string>
+    <string name="settings_crash_reports">Send crash reports</string>
+    <string name="settings_crash_reports_hint">Anonymous technical details when the app crashes. Off until you switch it on.</string>
+    <string name="settings_section_legal">Legal</string>
+    <string name="legal_imprint">Imprint</string>
+    <string name="legal_privacy">Privacy policy</string>
+    <string name="legal_licenses">Open-source licences</string>
+    <string name="legal_imprint_body">The imprint will be added before Knurl is released.</string>
+    <string name="legal_privacy_body">Knurl stores your training under your own account in Firebase (Google, data centre Frankfurt). Only you can read it. Nothing is tracked or shared. Crash reports are only sent if you switch them on. You can export or delete all your data in Profile → Manage account. The full privacy policy will be added before release.</string>
+    <string name="legal_licenses_body">Archivo and Inter: SIL Open Font License 1.1. AndroidX, Jetpack Compose, Kotlin and Firebase SDKs: Apache License 2.0.</string>
+    <string name="profile_workouts">Workouts</string>
+    <string name="profile_total_volume">Total volume</string>
+    <string name="profile_since">Since</string>
+    <string name="account_title">Account</string>
+    <string name="account_anonymous">Not secured yet</string>
+    <string name="account_anonymous_hint">Your training is saved, but only on this account. Secure it to keep it on a new phone.</string>
+    <string name="account_linked">Account secured</string>
+    <string name="account_linked_hint">Signed in. Your training is backed up and available on every phone.</string>
+    <string name="account_secure_cta">Secure account</string>
+    <string name="account_manage">Manage account</string>
+    <string name="account_secure_title">Keep your training</string>
+    <string name="account_mode_secure">Secure</string>
+    <string name="account_mode_sign_in">Sign in</string>
+    <string name="account_secure_body">Add Google or an e-mail address to this account. Everything you logged stays.</string>
+    <string name="account_sign_in_body">Sign in to an existing Knurl account. You will see that account\'s training.</string>
+    <string name="account_google">Continue with Google</string>
+    <string name="account_or_email">OR WITH E-MAIL</string>
+    <string name="account_email">E-mail</string>
+    <string name="account_password">Password (at least 6 characters)</string>
+    <string name="account_create">Secure with e-mail</string>
+    <string name="account_sign_in">Sign in</string>
+    <string name="account_forgot">Forgot password?</string>
+    <string name="account_signed_in_as">Signed in as</string>
+    <string name="account_change_password">Change password</string>
+    <string name="account_change_password_hint">We send you an e-mail with a link</string>
+    <string name="account_sign_out">Sign out</string>
+    <string name="account_sign_out_title">Sign out?</string>
+    <string name="account_sign_out_body">Your training stays in your account. Knurl starts with a new, empty account on this phone until you sign in again.</string>
+    <string name="account_your_data">Your data</string>
+    <string name="account_export_json">Export everything (JSON)</string>
+    <string name="account_export_json_hint">Workouts, routines and settings in one file</string>
+    <string name="account_export_csv">Export sets (CSV)</string>
+    <string name="account_export_csv_hint">One row per set, for spreadsheets</string>
+    <string name="account_delete">Delete account</string>
+    <string name="account_delete_hint">Deletes all training and the account itself</string>
+    <string name="account_delete_title">Delete account?</string>
+    <string name="account_delete_body">All workouts, routines and settings are deleted from our servers right away. This cannot be undone.</string>
+    <string name="account_switch_title">Switch to the other account?</string>
+    <string name="account_switch_body">The %1$d workouts on this unsecured account will no longer be shown. Secure this account first if you want to keep them.</string>
+    <string name="account_error_email">That e-mail address doesn\'t look right.</string>
+    <string name="account_error_weak">Choose a longer password (at least 6 characters).</string>
+    <string name="account_error_wrong">E-mail or password is wrong.</string>
+    <string name="account_error_in_use">This sign-in already belongs to another Knurl account. Use “I have an account” instead.</string>
+    <string name="account_error_network">No connection. Try again when you\'re online.</string>
+    <string name="account_error_reauth">For your safety, sign out, sign in again and then delete the account.</string>
+    <string name="account_error_unknown">That didn\'t work. Please try again.</string>
+    <string name="account_notice_linked">Account secured</string>
+    <string name="account_notice_signed_in">Signed in</string>
+    <string name="account_notice_signed_out">Signed out</string>
+    <string name="account_notice_reset">E-mail sent. Check your inbox.</string>
+    <string name="account_notice_deleted">Account deleted</string>
+    <string name="account_notice_exported">Export saved</string>
+    <string name="account_notice_google_failed">Google sign-in isn\'t available on this phone. Use e-mail instead.</string>
 </resources>

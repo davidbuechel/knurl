@@ -26,6 +26,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.knurl.R
+import de.knurl.feature.common.tonnageText
+import de.knurl.feature.common.weightText
+import de.knurl.feature.common.LocalWeightUnit
+import de.knurl.data.WeightUnit
 import de.knurl.feature.common.Formatting
 import de.knurl.feature.common.KnurlCard
 import de.knurl.feature.common.PlateBar
@@ -44,6 +48,7 @@ import de.knurl.ui.theme.Knurl
 fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
     val vm = knurlViewModel(key = "exercise-$exerciseId") { ExerciseDetailViewModel(it.training, exerciseId) }
     val state by vm.state.collectAsStateWithLifecycle()
+    val unit = LocalWeightUnit.current
 
     Scaffold(
         topBar = {
@@ -70,16 +75,16 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
                     if (s.bestOneRepMaxKg == null) {
                         Text(stringResource(R.string.detail_no_data), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     } else {
-                        Text(stringResource(R.string.unit_kg_value, Formatting.kg(Math.round(s.bestOneRepMaxKg * 2) / 2.0)), style = MaterialTheme.typography.displaySmall)
+                        Text(weightText(Math.round(s.bestOneRepMaxKg * 2) / 2.0), style = MaterialTheme.typography.displaySmall)
                         val gain = s.bestOneRepMaxKg - (s.firstOneRepMaxKg ?: s.bestOneRepMaxKg)
                         if (gain > 0) {
                             Text(
-                                stringResource(R.string.detail_gain, Formatting.kg(Math.round(gain * 2) / 2.0), s.sessions.size),
+                                stringResource(R.string.detail_gain, weightText(Math.round(gain * 2) / 2.0), s.sessions.size),
                                 color = Knurl.colors.success,
                                 style = MaterialTheme.typography.labelLarge,
                             )
                         }
-                        TrendChart(s.sessions.mapNotNull { it.bestOneRepMax }.takeLast(12), format = { Formatting.kg(it) })
+                        TrendChart(s.sessions.mapNotNull { it.bestOneRepMax }.takeLast(12), format = { Formatting.weightNumber(it, unit) })
                     }
                 }
             }
@@ -88,8 +93,8 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
                 KnurlCard {
                     SectionLabel(stringResource(R.string.detail_records))
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        s.heaviestKg?.let { AssistChip(onClick = {}, label = { Text(stringResource(R.string.detail_heaviest, Formatting.kg(it))) }) }
-                        s.bestVolumeKg?.let { AssistChip(onClick = {}, label = { Text(stringResource(R.string.detail_best_volume, Formatting.tonnage(it))) }) }
+                        s.heaviestKg?.let { AssistChip(onClick = {}, label = { Text(stringResource(R.string.detail_heaviest, weightText(it))) }) }
+                        s.bestVolumeKg?.let { AssistChip(onClick = {}, label = { Text(stringResource(R.string.detail_best_volume, tonnageText(it))) }) }
                     }
                 }
             }
@@ -97,19 +102,20 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
             s.plates?.let { load ->
                 item {
                     KnurlCard {
-                        SectionLabel(stringResource(R.string.detail_plates, Formatting.kg(s.plateTargetKg)))
-                        PlateBar(load.perSide)
+                        SectionLabel(stringResource(R.string.detail_plates, weightText(s.plateTargetKg)))
+                        PlateBar(load.perSide, unit)
                         Text(
-                            if (load.perSide.isEmpty()) stringResource(R.string.plates_empty_bar, Formatting.kg(s.barKg))
-                            else stringResource(R.string.plates_per_side, load.perSide.joinToString(" + ") { Formatting.kg(it) }, Formatting.kg(s.barKg)),
+                            if (load.perSide.isEmpty()) stringResource(R.string.plates_empty_bar, weightText(s.barKg))
+                            else stringResource(R.string.plates_per_side, load.perSide.joinToString(" + ") { Formatting.kg(it) }, weightText(s.barKg)),
                             style = MaterialTheme.typography.bodyMedium,
                         )
                         if (!load.isExact) {
-                            Text(stringResource(R.string.plates_missing, Formatting.kg(load.missingKg)), color = Knurl.colors.warning, style = MaterialTheme.typography.bodySmall)
+                            Text(stringResource(R.string.plates_missing, "${Formatting.kg(load.missingKg)} ${Formatting.symbol(unit)}"), color = Knurl.colors.warning, style = MaterialTheme.typography.bodySmall)
                         }
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                            listOf(-2.5, 2.5, 10.0).forEach { delta ->
-                                FilledTonalButton(onClick = { vm.changePlateTarget(delta) }) {
+                            val steps = if (unit == WeightUnit.LB) listOf(-5.0, 5.0, 20.0) else listOf(-2.5, 2.5, 10.0)
+                            steps.forEach { delta ->
+                                FilledTonalButton(onClick = { vm.changePlateTarget(Formatting.fromUnit(delta, unit)) }) {
                                     Text((if (delta < 0) "−" else "+") + Formatting.kg(kotlin.math.abs(delta)))
                                 }
                             }
@@ -126,7 +132,7 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
                 KnurlCard {
                     Text(Formatting.date(session.atMs), style = MaterialTheme.typography.titleSmall)
                     Text(
-                        session.sets.joinToString("  ·  ") { Formatting.set(it.weightKg, it.reps) },
+                        session.sets.joinToString("  ·  ") { Formatting.set(it.weightKg, it.reps, unit) },
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

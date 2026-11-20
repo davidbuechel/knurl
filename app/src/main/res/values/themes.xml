@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- The window behind Compose; colours inside the app come from ui/theme. -->
-    <style name="Theme.Knurl" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:windowBackground">@color/steel_50</item>
+    <style name="Theme.Knurl" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
     </style>
 
     <style name="Theme.Knurl.Starting" parent="Theme.SplashScreen">

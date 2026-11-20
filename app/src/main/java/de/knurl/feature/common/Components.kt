@@ -47,12 +47,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import de.knurl.AppContainer
 import de.knurl.KnurlApp
 import de.knurl.R
+import de.knurl.data.WeightUnit
 import de.knurl.ui.theme.Knurl
+
+/** The app's long-lived objects. Screens use [knurlViewModel]; this is for the few app-wide reads. */
+@Composable
+fun appContainer(): AppContainer = (LocalContext.current.applicationContext as KnurlApp).container
 
 /** ViewModels get their dependencies from the [AppContainer]; this is the one way screens create them. */
 @Composable
 inline fun <reified VM : ViewModel> knurlViewModel(key: String? = null, noinline create: (AppContainer) -> VM): VM {
-    val container = (LocalContext.current.applicationContext as KnurlApp).container
+    val container = appContainer()
     return viewModel(key = key) { create(container) }
 }
 
@@ -174,15 +179,16 @@ fun ConfirmDialog(title: String, body: String, confirm: String, onDismiss: () ->
     )
 }
 
-/** The bar as it is loaded: plates per side in competition colours, sized by weight. */
+/** The bar as it is loaded: plates per side (in [unit]) in competition colours, sized by weight. */
 @Composable
-fun PlateBar(perSide: List<Double>, modifier: Modifier = Modifier) {
+fun PlateBar(perSide: List<Double>, unit: WeightUnit, modifier: Modifier = Modifier) {
     val colors = Knurl.colors
+    val kg = { plate: Double -> Formatting.fromUnit(plate, unit) }
     Row(modifier.fillMaxWidth().height(84.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
         Box(Modifier.width(14.dp).height(10.dp).background(MaterialTheme.colorScheme.outline, RoundedCornerShape(2.dp)))
-        perSide.reversed().forEach { Plate(it, colors.plate(it)) }
+        perSide.reversed().forEach { Plate(kg(it), colors.plate(kg(it))) }
         Box(Modifier.width(72.dp).height(8.dp).background(MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)))
-        perSide.forEach { Plate(it, colors.plate(it)) }
+        perSide.forEach { Plate(kg(it), colors.plate(kg(it))) }
         Box(Modifier.width(14.dp).height(10.dp).background(MaterialTheme.colorScheme.outline, RoundedCornerShape(2.dp)))
     }
 }

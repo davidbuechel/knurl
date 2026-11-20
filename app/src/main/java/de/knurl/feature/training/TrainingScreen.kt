@@ -28,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.knurl.R
+import de.knurl.feature.common.tonnageText
 import de.knurl.feature.common.ConfirmDialog
 import de.knurl.feature.common.Formatting
 import de.knurl.feature.common.KnurlCard
@@ -93,7 +94,7 @@ fun TrainingScreen(go: Navigator) {
                                 Formatting.date(row.workout.startedAtMs),
                                 Formatting.duration(row.durationSec),
                                 row.sets,
-                                Formatting.tonnage(row.volumeKg),
+                                tonnageText(row.volumeKg),
                             ),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,

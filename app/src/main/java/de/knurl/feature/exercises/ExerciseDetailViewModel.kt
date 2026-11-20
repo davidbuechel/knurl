@@ -2,7 +2,10 @@ package de.knurl.feature.exercises
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import de.knurl.data.Settings
+import de.knurl.data.WeightUnit
 import de.knurl.data.repository.TrainingRepository
+import de.knurl.feature.common.Formatting
 import de.knurl.domain.calc.ExerciseSession
 import de.knurl.domain.calc.History
 import de.knurl.domain.calc.PlateCalculator
@@ -47,7 +50,7 @@ class ExerciseDetailViewModel(private val training: TrainingRepository, private 
             heaviestKg = heaviest,
             bestVolumeKg = sessions.maxOfOrNull { it.volumeKg },
             plateTargetKg = plateWeight,
-            plates = if (exercise.equipment.usesPlates()) PlateCalculator.load(plateWeight, bar) else null,
+            plates = if (exercise.equipment.usesPlates()) plates(plateWeight, bar, data.settings) else null,
             barKg = bar,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
@@ -56,6 +59,18 @@ class ExerciseDetailViewModel(private val training: TrainingRepository, private 
         val current = state.value?.plateTargetKg ?: return
         plateTarget.value = (current + deltaKg).coerceAtLeast(state.value?.barKg ?: 0.0)
     }
+
+    /** Plates in the chosen unit: kilogram plates the gym has, or the usual pound plates. */
+    private fun plates(targetKg: Double, barKg: Double, settings: Settings): PlateCalculator.Load =
+        if (settings.unit == WeightUnit.LB) {
+            PlateCalculator.load(
+                targetKg = Math.round(Formatting.toUnit(targetKg, WeightUnit.LB) / 5) * 5.0,
+                barKg = Math.round(Formatting.toUnit(barKg, WeightUnit.LB)).toDouble(),
+                platesKg = PlateCalculator.standardPlatesLb,
+            )
+        } else {
+            PlateCalculator.load(targetKg, barKg, settings.platesKg)
+        }
 
     private fun Equipment.usesPlates() = this == Equipment.BARBELL || this == Equipment.SMITH || this == Equipment.EZ_BAR
 }

@@ -37,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,16 +48,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.knurl.R
+import de.knurl.feature.common.stepKg
+import de.knurl.feature.common.weightText
+import de.knurl.feature.common.LocalWeightUnit
 import de.knurl.domain.model.SetKind
 import de.knurl.feature.common.ConfirmDialog
 import de.knurl.feature.common.Formatting
 import de.knurl.feature.common.KnurlCard
+import de.knurl.feature.common.appContainer
 import de.knurl.feature.common.NumberInputDialog
 import de.knurl.feature.common.Stepper
 import de.knurl.feature.common.displayName
@@ -75,6 +81,8 @@ private data class Typing(val exercise: Int, val set: Int, val weight: Boolean)
 fun ActiveWorkoutScreen(go: Navigator) {
     val vm = knurlViewModel { ActiveWorkoutViewModel(it.training) }
     val state by vm.state.collectAsStateWithLifecycle()
+    val unit = LocalWeightUnit.current
+    KeepScreenOn()
     var confirmFinish by rememberSaveable { mutableStateOf(false) }
     var confirmDiscard by rememberSaveable { mutableStateOf(false) }
     var menuOpen by rememberSaveable { mutableStateOf(false) }
@@ -158,8 +166,8 @@ fun ActiveWorkoutScreen(go: Navigator) {
     typing?.let { t ->
         val set = s?.cards?.getOrNull(t.exercise)?.sets?.getOrNull(t.set)
         if (set != null && t.weight) {
-            NumberInputDialog(stringResource(R.string.workout_weight_kg), Formatting.kg(set.weightKg), decimal = true,
-                onDismiss = { typing = null }, onConfirm = { vm.setWeight(t.exercise, t.set, it); typing = null })
+            NumberInputDialog(stringResource(R.string.workout_weight, Formatting.symbol(unit)), Formatting.weightNumber(set.weightKg, unit), decimal = true,
+                onDismiss = { typing = null }, onConfirm = { vm.setWeight(t.exercise, t.set, Formatting.fromUnit(it, unit)); typing = null })
         } else if (set != null) {
             NumberInputDialog(stringResource(R.string.workout_reps), "${set.reps}", decimal = false,
                 onDismiss = { typing = null }, onConfirm = { vm.setReps(t.exercise, t.set, it.toInt()); typing = null })
@@ -199,6 +207,7 @@ private fun ExerciseCardView(
     onRemoveExercise: () -> Unit,
 ) {
     var menuOpen by rememberSaveable { mutableStateOf(false) }
+    val unit = LocalWeightUnit.current
     KnurlCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(card.exercise?.displayName() ?: card.exerciseId, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
@@ -222,14 +231,14 @@ private fun ExerciseCardView(
 
         if (card.lastTime.isNotEmpty()) {
             Text(
-                stringResource(R.string.workout_last_time, card.lastTime.joinToString(", ") { Formatting.set(it.weightKg, it.reps) }),
+                stringResource(R.string.workout_last_time, card.lastTime.joinToString(", ") { Formatting.set(it.weightKg, it.reps, unit) }),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
         card.suggestion?.takeIf { it.increased }?.let {
             Text(
-                stringResource(R.string.workout_suggest_increase, Formatting.kg(it.weightKg)),
+                stringResource(R.string.workout_suggest_increase, weightText(it.weightKg)),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary,
             )
@@ -244,12 +253,12 @@ private fun ExerciseCardView(
                     else -> "$workingNumber"
                 },
                 warmup = set.kind == SetKind.WARMUP,
-                weight = stringResource(R.string.unit_kg_value, Formatting.kg(set.weightKg)),
+                weight = weightText(set.weightKg),
                 reps = "${set.reps}",
                 done = set.done,
                 onLabel = { onCycleKind(index) },
-                onWeightMinus = { onWeight(index, -card.weightStepKg) },
-                onWeightPlus = { onWeight(index, card.weightStepKg) },
+                onWeightMinus = { onWeight(index, -unit.stepKg(card.exercise?.equipment, card.weightStepKg)) },
+                onWeightPlus = { onWeight(index, unit.stepKg(card.exercise?.equipment, card.weightStepKg)) },
                 onWeightType = { onType(index, true) },
                 onRepsMinus = { onReps(index, -1) },
                 onRepsPlus = { onReps(index, 1) },
@@ -328,5 +337,16 @@ private fun RestBar(leftSec: Long, onAdd: () -> Unit, onSkip: () -> Unit) {
             FilledTonalButton(onClick = onAdd) { Text(stringResource(R.string.rest_add_15)) }
             IconButton(onClick = onSkip) { Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.rest_skip)) }
         }
+    }
+}
+
+/** Keeps the display on while this screen is shown, if the person wants that (Settings). */
+@Composable
+private fun KeepScreenOn() {
+    val wanted by appContainer().preferences.keepScreenOn.collectAsStateWithLifecycle()
+    val view = LocalView.current
+    DisposableEffect(wanted) {
+        view.keepScreenOn = wanted
+        onDispose { view.keepScreenOn = false }
     }
 }
