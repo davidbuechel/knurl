@@ -2,6 +2,7 @@ package de.knurl.feature.training
 
 import de.knurl.domain.calc.Calories
 import androidx.lifecycle.ViewModel
+import de.knurl.core.workout.RestTimer
 import androidx.lifecycle.viewModelScope
 import de.knurl.data.repository.TrainingRepository
 import de.knurl.domain.calc.History
@@ -27,13 +28,15 @@ data class HistoryRow(
 
 data class TrainingState(
     val hasActive: Boolean,
+    /** Name of the workout that is running, if one is. */
+    val activeName: String? = null,
     val routines: List<Routine>,
     val history: List<HistoryRow>,
     /** The routine "up next": the one after the routine trained last. */
     val nextRoutineId: String?,
 )
 
-class TrainingViewModel(private val training: TrainingRepository) : ViewModel() {
+class TrainingViewModel(private val training: TrainingRepository, private val rest: RestTimer) : ViewModel() {
 
     val state: StateFlow<TrainingState?> = training.data.filterNotNull()
         .map { data ->
@@ -42,6 +45,7 @@ class TrainingViewModel(private val training: TrainingRepository) : ViewModel() 
             val lastId = data.workouts.filter { it.routineId != null }.maxByOrNull { it.startedAtMs }?.routineId
             TrainingState(
                 hasActive = data.active != null,
+                activeName = data.active?.name,
                 routines = data.routines,
                 history = data.workouts.sortedByDescending { it.startedAtMs }.map { w ->
                     HistoryRow(
@@ -59,6 +63,13 @@ class TrainingViewModel(private val training: TrainingRepository) : ViewModel() 
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     fun start(routine: Routine?, freeName: String) = training.startWorkout(routine, freeName)
+
+    /** Throws the running workout away and starts [routine] instead. */
+    fun replaceActive(routine: Routine, freeName: String) {
+        rest.stop()
+        training.discardActive()
+        training.startWorkout(routine, freeName)
+    }
 
     fun deleteWorkout(workout: Workout) = training.deleteWorkout(workout.id)
 

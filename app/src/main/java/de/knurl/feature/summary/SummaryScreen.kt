@@ -218,7 +218,7 @@ fun SummaryScreen(go: Navigator, workoutId: String) {
             item {
                 KpiRow(
                     listOf(
-                        Kpi(Formatting.duration(s.durationSec), stringResource(R.string.summary_duration)),
+                        Kpi(Formatting.length(s.durationSec), stringResource(R.string.summary_duration)),
                         Kpi("${s.sets}", stringResource(R.string.summary_sets)),
                         Kpi(tonnageText(s.volumeKg), stringResource(R.string.stat_volume), s.previousVolumeKg?.let { Change(s.volumeKg, it).percent }),
                     ),

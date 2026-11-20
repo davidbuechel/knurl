@@ -39,7 +39,16 @@ calculations in Kotlin Multiplatform (`:shared`). Firebase backend (Auth, Firest
   states via `BrandEmptyState`; no stock spinners.
 - **Texts:** every count goes through `<plurals>`. German says "Training(s)" for workouts
   ("Einheit" means kg/lb). English exercise names are in Title Case.
-- **Navigation through `Navigator`** (`go.to` / `go.back`); motion is set once in `ScreenMotion`.
+- **Navigation through `Navigator`** (`go.to` / `go.back`); motion is set once in `ScreenMotion`
+  (a stack: slide over, the screen below drifts and darkens; the back gesture shrinks the screen
+  and follows the finger). Destinations use `screen<Route>(nav) { go, entry -> }`, never
+  `composable`; screens add no transitions. Each destination's `Navigator` only acts while its
+  screen is settled on top, so navigation from an effect waits for RESUMED (`withResumed`).
+- **Back never loses work.** A `BackHandler` closes what is open first (number pad, sheet) and
+  guards unsaved edits, and is only enabled while there is something to guard, so the back
+  gesture animates normally otherwise. Back on a tab other than Today returns to Today.
+- **Numbers read the local way:** `Formatting.weight/tonnage/percent/length`, units joined with
+  `Formatting.NBSP`; the decimal key and typed values use `Formatting.decimalSeparator()`.
   Screens add no transitions.
 - **Notifications:** every kind is a `Channel` with a switch in `NotificationSettings`; add both,
   plus a row in `docs/notifications.md`. The rest timer is app-wide (`RestTimer`), never screen state.

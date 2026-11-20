@@ -1,9 +1,12 @@
 package de.knurl.feature.workout
 
+import androidx.activity.compose.BackHandler
 import android.Manifest
 import android.media.AudioManager
 import android.media.ToneGenerator
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.os.VibrationEffect
 import android.os.Vibrator
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -73,6 +76,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.knurl.R
+import androidx.lifecycle.withResumed
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import de.knurl.core.notifications.Notifications
 import de.knurl.domain.Supersets
 import de.knurl.feature.common.ConfirmDialog
@@ -133,9 +138,20 @@ fun ActiveWorkoutScreen(go: Navigator, savedState: SavedStateHandle, editWorkout
     var menuOpen by remember { mutableStateOf(false) }
     var actionsFor by remember { mutableStateOf<Int?>(null) }
     var noting by remember { mutableStateOf<Noting?>(null) }
+    var removing by remember { mutableStateOf<Int?>(null) }
 
     val s = state
-    LaunchedEffect(s?.workout == null && s != null) { if (s != null && s.workout == null && !leaving) go.back() }
+    // The workout ended elsewhere (notification, another device): leave once this screen is on top.
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(s?.workout == null && s != null) {
+        if (s != null && s.workout == null && !leaving) lifecycle.withResumed { go.back() }
+    }
+
+    // Back never loses anything by accident: it first closes the number pad, and edits to a past
+    // workout ask before they are thrown away. A running workout keeps running when you leave it.
+    val leave: () -> Unit = { if (s?.changed == true) { confirmDiscard = true } else { go.back() } }
+    BackHandler(enabled = s?.changed == true) { confirmDiscard = true }
+    BackHandler(enabled = s?.focus != null) { vm.clearFocus() }
 
     // Number pad input: the first key replaces the value, further keys append.
     var buffer by remember(s?.focus) { mutableStateOf<String?>(null) }
@@ -167,11 +183,11 @@ fun ActiveWorkoutScreen(go: Navigator, savedState: SavedStateHandle, editWorkout
                 subtitle = when {
                     s?.workout == null -> ""
                     editing -> Formatting.date(s.workout.startedAtMs)
-                    else -> stringResource(R.string.workout_progress, Formatting.duration(s.elapsedSec), s.doneSets, s.totalSets)
+                    else -> pluralStringResource(R.plurals.workout_progress, s.totalSets, Formatting.duration(s.elapsedSec), s.doneSets, s.totalSets)
                 },
                 progress = if (s == null || s.totalSets == 0) 0f else s.doneSets.toFloat() / s.totalSets,
                 finishLabel = stringResource(if (editing) R.string.action_save else R.string.action_finish),
-                onBack = go::back,
+                onBack = leave,
                 onFinish = { confirmFinish = true },
                 menuOpen = menuOpen,
                 onMenu = { menuOpen = it },
@@ -202,7 +218,7 @@ fun ActiveWorkoutScreen(go: Navigator, savedState: SavedStateHandle, editWorkout
                         NumberPad(
                             target = PadTarget(
                                 title = stringResource(if (weightField) R.string.pad_weight else R.string.pad_reps, name, setLabel),
-                                display = if (weightField) "${buffer ?: Formatting.weightNumber(set.weightKg, unit)} ${Formatting.symbol(unit)}" else buffer ?: "${set.reps}",
+                                display = if (weightField) "${buffer?.replace('.', Formatting.decimalSeparator()) ?: Formatting.weightNumber(set.weightKg, unit)}${Formatting.NBSP}${Formatting.symbol(unit)}" else buffer ?: "${set.reps}",
                                 decimal = weightField,
                                 minusLabel = if (weightField) "−$stepLabel" else "−1",
                                 plusLabel = if (weightField) "+$stepLabel" else "+1",
@@ -222,7 +238,7 @@ fun ActiveWorkoutScreen(go: Navigator, savedState: SavedStateHandle, editWorkout
                                 }
                             },
                             onBackspace = {
-                                val base = buffer ?: if (weightField) Formatting.weightNumber(set.weightKg, unit).replace(',', '.') else "${set.reps}"
+                                val base = buffer ?: if (weightField) Formatting.weightNumber(set.weightKg, unit).replace(Formatting.decimalSeparator(), '.') else "${set.reps}"
                                 val next = base.dropLast(1)
                                 buffer = next
                                 if (weightField) vm.setWeight(focus.ref.exercise, focus.ref.set, Formatting.fromUnit(next.toDoubleOrNull() ?: 0.0, unit))
@@ -343,11 +359,16 @@ fun ActiveWorkoutScreen(go: Navigator, savedState: SavedStateHandle, editWorkout
                             vm.linkWithNext(index); actionsFor = null
                         }
                     }
-                    ListRow(stringResource(R.string.action_remove_last_set), leading = { IconTile(Icons.Rounded.RemoveCircleOutline, MaterialTheme.colorScheme.outline) }) {
-                        vm.removeSet(index, card.sets.lastIndex); actionsFor = null
+                    // An exercise keeps at least one set; removing the whole exercise is the next row.
+                    if (card.sets.size > 1) {
+                        ListRow(stringResource(R.string.action_remove_last_set), leading = { IconTile(Icons.Rounded.RemoveCircleOutline, MaterialTheme.colorScheme.outline) }) {
+                            vm.removeSet(index, card.sets.lastIndex); actionsFor = null
+                        }
                     }
                     ListRow(stringResource(R.string.action_remove_exercise), leading = { IconTile(Icons.Rounded.DeleteOutline, MaterialTheme.colorScheme.error) }, divider = false) {
-                        vm.removeExercise(index); actionsFor = null
+                        actionsFor = null
+                        // Logged sets are only thrown away after a yes.
+                        if (card.sets.any { it.done }) removing = index else vm.removeExercise(index)
                     }
                 }
             }
@@ -359,6 +380,7 @@ fun ActiveWorkoutScreen(go: Navigator, savedState: SavedStateHandle, editWorkout
         NoteDialog(
             title = stringResource(if (n.exercise == null) R.string.workout_note else R.string.exercise_note),
             initial = current,
+            maxLength = if (n.exercise == null) 2000 else 500,
             onDismiss = { noting = null },
             onConfirm = { text ->
                 if (n.exercise == null) vm.setWorkoutNote(text) else vm.setExerciseNote(n.exercise, text)
@@ -380,6 +402,16 @@ fun ActiveWorkoutScreen(go: Navigator, savedState: SavedStateHandle, editWorkout
                 val savedId = vm.finish()
                 if (!editing && savedId != null) go.replace(SummaryRoute(savedId)) else go.back()
             },
+        )
+    }
+    removing?.let { index ->
+        val card = s?.cards?.getOrNull(index)
+        ConfirmDialog(
+            title = stringResource(R.string.remove_exercise_title),
+            body = stringResource(R.string.remove_exercise_body, card?.exercise?.displayName() ?: card?.exerciseId.orEmpty()),
+            confirm = stringResource(R.string.action_remove),
+            onDismiss = { removing = null },
+            onConfirm = { removing = null; vm.removeExercise(index) },
         )
     }
     if (confirmDiscard) {
@@ -472,7 +504,11 @@ private fun RestOverFeedback(restLeftSec: Long?, onDone: () -> Unit) {
             context.getSystemService(Vibrator::class.java)?.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 250, 120, 250), -1))
         }
         if (prefs.restSound.value) {
-            ToneGenerator(AudioManager.STREAM_NOTIFICATION, 80).startTone(ToneGenerator.TONE_PROP_BEEP2, 400)
+            // A tone generator holds an audio track until released; release it once the beep is over
+            // (not in this effect, which ends as soon as the rest is cleared below).
+            val tone = ToneGenerator(AudioManager.STREAM_NOTIFICATION, 80)
+            tone.startTone(ToneGenerator.TONE_PROP_BEEP2, 400)
+            Handler(Looper.getMainLooper()).postDelayed(tone::release, 600)
         }
         onDone()
     }

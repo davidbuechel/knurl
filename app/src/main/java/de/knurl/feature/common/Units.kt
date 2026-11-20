@@ -25,7 +25,7 @@ fun estimateText(kg: Double): String {
     val unit = LocalWeightUnit.current
     val inUnit = Formatting.toUnit(kg, unit)
     val rounded = if (unit == WeightUnit.LB) Math.round(inUnit).toDouble() else Math.round(inUnit * 2) / 2.0
-    return "${Formatting.kg(rounded)} ${Formatting.symbol(unit)}"
+    return "${Formatting.kg(rounded)}${Formatting.NBSP}${Formatting.symbol(unit)}"
 }
 
 @Composable

@@ -47,6 +47,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import de.knurl.AppContainer
 import de.knurl.KnurlApp
 import de.knurl.R
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import de.knurl.data.WeightUnit
 import de.knurl.ui.theme.Knurl
 
@@ -137,7 +145,11 @@ fun Stepper(
     }
 }
 
-/** Dialog to type a number. Accepts "," and "." as decimal separator. */
+/**
+ * Dialog to type a number: opens with the keyboard up and the old value selected, so typing
+ * replaces it. Accepts "," and "." as decimal separator. Values outside [range] can't be confirmed
+ * (the range is shown below the field) instead of being changed or dropped without a word.
+ */
 @Composable
 fun NumberInputDialog(
     title: String,
@@ -145,19 +157,31 @@ fun NumberInputDialog(
     decimal: Boolean,
     onDismiss: () -> Unit,
     onConfirm: (Double) -> Unit,
+    range: ClosedFloatingPointRange<Double>? = null,
 ) {
-    var text by rememberSaveable { mutableStateOf(initial) }
-    val parsed = text.replace(',', '.').toDoubleOrNull()?.takeIf { it >= 0 }
+    var field by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue(initial, TextRange(0, initial.length))) }
+    val text = field.text.trim().replace(',', '.')
+    val parsed = (if (decimal) text.toDoubleOrNull() else text.toIntOrNull()?.toDouble())
+        ?.takeIf { it >= 0 && (range == null || it in range) }
+    val focus = remember { FocusRequester() }
+    LaunchedEffect(Unit) { focus.requestFocus() }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
             OutlinedTextField(
-                value = text,
-                onValueChange = { text = it },
+                value = field,
+                onValueChange = { field = it },
                 singleLine = true,
-                isError = parsed == null,
-                keyboardOptions = KeyboardOptions(keyboardType = if (decimal) KeyboardType.Decimal else KeyboardType.Number),
+                isError = parsed == null && field.text.isNotBlank(),
+                supportingText = range?.let { r ->
+                    // Whole numbers without grouping: a year reads "1926", not "1.926".
+                    val show = { v: Double -> if (decimal) Formatting.kg(v) else v.toLong().toString() }
+                    { Text(stringResource(R.string.input_range, show(r.start), show(r.endInclusive))) }
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = if (decimal) KeyboardType.Decimal else KeyboardType.Number, imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { parsed?.let(onConfirm) }),
+                modifier = Modifier.focusRequester(focus),
             )
         },
         confirmButton = {

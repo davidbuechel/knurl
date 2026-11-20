@@ -1,12 +1,12 @@
 package de.knurl.ui.navigation
 
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.lifecycle.Lifecycle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -30,7 +30,6 @@ import androidx.compose.runtime.remember
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import de.knurl.feature.achievements.AchievementsScreen
@@ -59,40 +58,41 @@ import kotlinx.serialization.Serializable
 @Serializable data class RecapRoute(val year: Int, val month: Int)
 @Serializable data class LegalRoute(val page: LegalPage)
 
-/** The only way screens move: `go.to(route)` and `go.back()`. */
-class Navigator(private val nav: NavHostController) {
-    fun <T : Any> to(route: T) = nav.navigate(route) { launchSingleTop = true }
-    fun back() {
-        nav.popBackStack()
+/**
+ * The only way screens move: `go.to(route)` and `go.back()`. Each destination gets its own, and it
+ * only acts while its screen is the settled one on top: a second tap during a transition opens
+ * nothing twice and pops nothing twice, and Home is never popped.
+ */
+class Navigator(private val nav: NavHostController, private val entry: NavBackStackEntry? = null) {
+    private fun ready() = entry == null || entry.lifecycle.currentState == Lifecycle.State.RESUMED
+
+    fun <T : Any> to(route: T) {
+        if (ready()) nav.navigate(route) { launchSingleTop = true }
+    }
+
+    /** Goes back [times] screens at once (never past Home). */
+    fun back(times: Int = 1) {
+        if (!ready()) return
+        repeat(times) { if (nav.previousBackStackEntry != null) nav.popBackStack() }
     }
 
     /** Goes back and hands the previous screen a value (e.g. the exercise picked). */
     fun backWithResult(key: String, value: String) {
+        if (!ready()) return
         nav.previousBackStackEntry?.savedStateHandle?.set(key, value)
         nav.popBackStack()
     }
 
     /** Replaces the current screen, so back skips it (workout → summary). */
-    fun <T : Any> replace(route: T) = nav.navigate(route) {
-        nav.currentDestination?.id?.let { popUpTo(it) { inclusive = true } }
+    fun <T : Any> replace(route: T) {
+        if (!ready()) return
+        nav.navigate(route) { nav.currentDestination?.id?.let { popUpTo(it) { inclusive = true } } }
     }
 
     companion object {
         const val RESULT_EXERCISE = "pickedExercise"
     }
 }
-
-/** Motion is defined once here: new screens slide over, back slides them away. Screens add no transitions. */
-private object ScreenMotion {
-    private const val MS = 320
-    val enter: TransitionEnter = { slideIntoContainer(SlideDirection.Start, tween(MS)) }
-    val exit: TransitionExit = { fadeOut(tween(MS)) }
-    val popEnter: TransitionEnter = { fadeIn(tween(MS)) }
-    val popExit: TransitionExit = { slideOutOfContainer(SlideDirection.End, tween(MS)) }
-}
-
-private typealias TransitionEnter = AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition
-private typealias TransitionExit = AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition
 
 @Composable
 fun KnurlNavHost(pendingTarget: String? = null, onTargetHandled: () -> Unit = {}) {
@@ -108,38 +108,45 @@ fun KnurlNavHost(pendingTarget: String? = null, onTargetHandled: () -> Unit = {}
     CompositionLocalProvider(LocalWeightUnit provides (data?.settings?.unit ?: WeightUnit.KG)) {
         // A new account answers three questions first (OnboardingScreen); everyone else goes straight in.
         val current = data
-        if (current != null && training.needsOnboarding(current)) OnboardingScreen() else Destinations(nav, go)
+        if (current != null && training.needsOnboarding(current)) OnboardingScreen() else Destinations(nav)
     }
 }
 
 @Composable
-private fun Destinations(nav: NavHostController, go: Navigator) {
-    NavHost(
-        navController = nav,
-        startDestination = HomeRoute,
-        enterTransition = ScreenMotion.enter,
-        exitTransition = ScreenMotion.exit,
-        popEnterTransition = ScreenMotion.popEnter,
-        popExitTransition = ScreenMotion.popExit,
-    ) {
-        composable<HomeRoute> { HomeScreen(go) }
-        composable<ActiveWorkoutRoute> { entry -> ActiveWorkoutScreen(go, entry.savedStateHandle) }
-        composable<EditWorkoutRoute> { entry -> ActiveWorkoutScreen(go, entry.savedStateHandle, editWorkoutId = entry.toRoute<EditWorkoutRoute>().id) }
-        composable<SummaryRoute> { entry -> SummaryScreen(go, entry.toRoute<SummaryRoute>().workoutId) }
-        composable<RoutineEditorRoute> { entry -> RoutineEditorScreen(go, entry.toRoute<RoutineEditorRoute>().id, entry.savedStateHandle) }
-        composable<PickExerciseRoute> { entry -> ExercisesScreen(go, pickForWorkout = true, savedState = entry.savedStateHandle) }
-        composable<ExerciseRoute> { entry -> ExerciseDetailScreen(go, entry.toRoute<ExerciseRoute>().id) }
-        composable<CustomExerciseRoute> { entry ->
-            val route = entry.toRoute<CustomExerciseRoute>()
-            CustomExerciseScreen(go, route.id, route.name, pickForWorkout = route.pick)
+private fun Destinations(nav: NavHostController) {
+    // The screen's width: the back gesture's transitions move by parts of it.
+    val width = LocalWindowInfo.current.containerSize.width
+    // Black behind everything: the screen below a moving one darkens against it (ScreenMotion).
+    Box(Modifier.fillMaxSize().background(Color.Black)) {
+        NavHost(
+            navController = nav,
+            startDestination = HomeRoute,
+            enterTransition = { ScreenMotion.enter() },
+            exitTransition = { ScreenMotion.exit() },
+            popEnterTransition = { ScreenMotion.popEnter() },
+            popExitTransition = { ScreenMotion.popExit() },
+            predictivePopEnterTransition = { edge -> ScreenMotion.gestureEnter(edge, width) },
+            predictivePopExitTransition = { edge -> ScreenMotion.gestureExit(edge, width) },
+        ) {
+            screen<HomeRoute>(nav) { go, _ -> HomeScreen(go) }
+            screen<ActiveWorkoutRoute>(nav) { go, entry -> ActiveWorkoutScreen(go, entry.savedStateHandle) }
+            screen<EditWorkoutRoute>(nav) { go, entry -> ActiveWorkoutScreen(go, entry.savedStateHandle, editWorkoutId = entry.toRoute<EditWorkoutRoute>().id) }
+            screen<SummaryRoute>(nav) { go, entry -> SummaryScreen(go, entry.toRoute<SummaryRoute>().workoutId) }
+            screen<RoutineEditorRoute>(nav) { go, entry -> RoutineEditorScreen(go, entry.toRoute<RoutineEditorRoute>().id, entry.savedStateHandle) }
+            screen<PickExerciseRoute>(nav) { go, entry -> ExercisesScreen(go, pickForWorkout = true, savedState = entry.savedStateHandle) }
+            screen<ExerciseRoute>(nav) { go, entry -> ExerciseDetailScreen(go, entry.toRoute<ExerciseRoute>().id) }
+            screen<CustomExerciseRoute>(nav) { go, entry ->
+                val route = entry.toRoute<CustomExerciseRoute>()
+                CustomExerciseScreen(go, route.id, route.name, pickForWorkout = route.pick)
+            }
+            screen<SettingsRoute>(nav) { go, _ -> SettingsScreen(go) }
+            screen<StatsRoute>(nav) { go, _ -> ProgressScreen(go) }
+            screen<BodyWeightRoute>(nav) { go, _ -> BodyWeightScreen(go) }
+            screen<CalendarRoute>(nav) { go, _ -> CalendarScreen(go) }
+            screen<AccountRoute>(nav) { go, _ -> AccountScreen(go) }
+            screen<AchievementsRoute>(nav) { go, _ -> AchievementsScreen(go) }
+            screen<RecapRoute>(nav) { go, entry -> entry.toRoute<RecapRoute>().let { MonthRecapScreen(go, it.year, it.month) } }
+            screen<LegalRoute>(nav) { go, entry -> LegalScreen(go, entry.toRoute<LegalRoute>().page) }
         }
-        composable<SettingsRoute> { SettingsScreen(go) }
-        composable<StatsRoute> { ProgressScreen(go) }
-        composable<BodyWeightRoute> { BodyWeightScreen(go) }
-        composable<CalendarRoute> { CalendarScreen(go) }
-        composable<AccountRoute> { AccountScreen(go) }
-        composable<AchievementsRoute> { AchievementsScreen(go) }
-        composable<RecapRoute> { entry -> entry.toRoute<RecapRoute>().let { MonthRecapScreen(go, it.year, it.month) } }
-        composable<LegalRoute> { entry -> LegalScreen(go, entry.toRoute<LegalRoute>().page) }
     }
 }

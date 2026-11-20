@@ -131,7 +131,7 @@ fun KnurlLoader(modifier: Modifier = Modifier.size(44.dp), color: Color = Materi
 @Composable
 fun KnurlProgress(progress: Float, modifier: Modifier = Modifier.size(28.dp), color: Color = MaterialTheme.colorScheme.primary) {
     val animated by animateFloatAsState(progress.coerceIn(0f, 1f), spring(dampingRatio = 0.6f, stiffness = 300f), label = "progress")
-    Canvas(modifier.semantics { contentDescription = "${(progress * 100).toInt()} %" }) {
+    Canvas(modifier.semantics { contentDescription = de.knurl.feature.common.Formatting.percent((progress * 100).toInt()) }) {
         drawPlates(color, color.copy(alpha = 0.18f)) { i -> (animated * 3f - i) }
     }
 }

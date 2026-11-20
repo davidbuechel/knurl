@@ -91,8 +91,12 @@ fun Workout.prependWarmups(exercise: Int, warmups: List<SetEntry>): Workout = up
     if (warmups.isEmpty() || item.sets.any { it.kind == SetKind.WARMUP }) item else item.copy(sets = warmups + item.sets)
 }
 
-fun Workout.removeExercise(exercise: Int): Workout =
-    copy(exercises = exercises.filterIndexed { i, _ -> i != exercise })
+/** Removes an exercise; a superset left with one exercise dissolves. */
+fun Workout.removeExercise(exercise: Int): Workout {
+    val left = exercises.filterIndexed { i, _ -> i != exercise }
+    val groups = Supersets.tidy(left.map { it.group })
+    return copy(exercises = left.mapIndexed { i, e -> e.copy(group = groups[i]) })
+}
 
 private fun Workout.updateExercise(index: Int, transform: (WorkoutExercise) -> WorkoutExercise): Workout =
     copy(exercises = exercises.mapIndexed { i, e -> if (i == index) transform(e) else e })

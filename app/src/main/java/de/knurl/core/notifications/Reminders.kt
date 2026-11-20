@@ -102,7 +102,7 @@ class ReminderReceiver : BroadcastReceiver() {
                 Notifications.show(
                     context, Channel.REMINDERS, Notifications.ID_REMINDER,
                     context.getString(R.string.reminder_training_title),
-                    context.getString(R.string.reminder_training_body, week.size, goal),
+                    context.resources.getQuantityString(R.plurals.reminder_training_body, goal, week.size, goal),
                 )
             }
             Reminder.STREAK -> {

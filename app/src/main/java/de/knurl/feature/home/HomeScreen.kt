@@ -1,7 +1,10 @@
 package de.knurl.feature.home
 
 import androidx.annotation.StringRes
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.scaleIn
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -41,10 +44,16 @@ private enum class HomeTab(@StringRes val label: Int, val icon: ImageVector) {
     PROFILE(R.string.tab_profile, Icons.Rounded.Person),
 }
 
-/** The five tabs. Tab changes cross-fade; everything that opens on top slides (see ScreenMotion). */
+/**
+ * The four tabs. A tab change fades through (the old tab leaves quickly, the new one comes in), each
+ * tab keeps its scroll position, and back on another tab returns to Today before it leaves the app.
+ * Everything that opens on top slides (see ScreenMotion).
+ */
 @Composable
 fun HomeScreen(go: Navigator) {
     var tab by rememberSaveable { mutableStateOf(HomeTab.TODAY) }
+    val tabs = rememberSaveableStateHolder()
+    BackHandler(enabled = tab != HomeTab.TODAY) { tab = HomeTab.TODAY }
     Scaffold(
         bottomBar = {
             NavigationBar {
@@ -61,16 +70,20 @@ fun HomeScreen(go: Navigator) {
     ) { padding ->
         AnimatedContent(
             targetState = tab,
-            transitionSpec = { fadeIn(tween(180)) togetherWith fadeOut(tween(120)) },
+            transitionSpec = {
+                (fadeIn(tween(210, delayMillis = 90)) + scaleIn(tween(210, delayMillis = 90), initialScale = 0.98f)) togetherWith fadeOut(tween(90))
+            },
             label = "tab",
             modifier = Modifier.padding(padding),
         ) { current ->
             Box(Modifier.fillMaxSize()) {
-                when (current) {
-                    HomeTab.TODAY -> TodayScreen(go)
-                    HomeTab.TRAINING -> TrainingScreen(go)
-                    HomeTab.EXERCISES -> ExercisesScreen(go, pickForWorkout = false)
-                    HomeTab.PROFILE -> ProfileScreen(go)
+                tabs.SaveableStateProvider(current.name) {
+                    when (current) {
+                        HomeTab.TODAY -> TodayScreen(go)
+                        HomeTab.TRAINING -> TrainingScreen(go)
+                        HomeTab.EXERCISES -> ExercisesScreen(go, pickForWorkout = false)
+                        HomeTab.PROFILE -> ProfileScreen(go)
+                    }
                 }
             }
         }

@@ -220,10 +220,7 @@
     <!-- Notifications -->
     <string name="rest_over_title">Pause vorbei</string>
     <string name="rest_over_body">Zeit für den nächsten Satz.</string>
-    <string name="workout_notification_sets">%1$d von %2$d Sätzen erledigt</string>
-    <string name="workout_notification_rest">Pause · %1$d von %2$d Sätzen erledigt</string>
     <string name="reminder_training_title">Trainingstag</string>
-    <string name="reminder_training_body">%1$d von %2$d Trainings diese Woche. Bereit für das nächste?</string>
     <string name="reminder_streak_title">Noch eins für deine Serie</string>
     <string name="reminder_weekly_title">Deine Woche</string>
     <string name="reminder_weekly_body">%1$s · %2$s · %3$s</string>
@@ -322,7 +319,6 @@
     <string name="table_last">Zuletzt</string>
     <string name="table_reps">Wdh</string>
     <string name="workout_suggest_short">Heute: %1$s, letztes Mal alle Wdh geschafft</string>
-    <string name="workout_progress">%1$s · %2$d/%3$d Sätze</string>
     <string name="superset_label">Supersatz %1$s</string>
     <string name="superset_leave">Aus Supersatz lösen</string>
     <string name="superset_link_next">Supersatz mit nächster Übung</string>
@@ -355,8 +351,8 @@
         <item quantity="other">zuletzt vor %1$d Tagen</item>
     </plurals>
     <plurals name="streak_weeks_label">
-        <item quantity="one">Woche Serie</item>
-        <item quantity="other">Wochen Serie</item>
+        <item quantity="one">Woche in Folge</item>
+        <item quantity="other">Wochen in Folge</item>
     </plurals>
 
     <!-- Exercise detail -->
@@ -629,4 +625,34 @@
     <string name="hr_value">Ø %1$d bpm · max %2$d bpm</string>
     <string name="hr_title">Herzfrequenz</string>
     <string name="kcal_hint_hr">Aus Herzfrequenz, Alter, Geschlecht und Körpergewicht: deutlich genauer.</string>
+
+    <!-- Audit 2 -->
+    <string name="action_remove">Entfernen</string>
+    <string name="remove_exercise_title">Übung entfernen?</string>
+    <string name="remove_exercise_body">%1$s und die erledigten Sätze werden aus diesem Training entfernt.</string>
+    <string name="input_range">%1$s bis %2$s</string>
+
+    <!-- Audit 2 -->
+    <string name="active_running_title">Ein Training läuft</string>
+    <string name="active_running_body">%1$s läuft noch. Fortsetzen oder verwerfen und %2$s starten?</string>
+    <string name="active_replace">Verwerfen und starten</string>
+
+    <!-- Audit 2 -->
+    <string name="action_resume_short">Fortsetzen</string>
+    <plurals name="workout_notification_sets">
+        <item quantity="one">%1$d von %2$d Satz erledigt</item>
+        <item quantity="other">%1$d von %2$d Sätzen erledigt</item>
+    </plurals>
+    <plurals name="workout_notification_rest">
+        <item quantity="one">Pause · %1$d von %2$d Satz erledigt</item>
+        <item quantity="other">Pause · %1$d von %2$d Sätzen erledigt</item>
+    </plurals>
+    <plurals name="reminder_training_body">
+        <item quantity="one">%1$d von %2$d Training diese Woche. Bereit dafür?</item>
+        <item quantity="other">%1$d von %2$d Trainings diese Woche. Bereit für das nächste?</item>
+    </plurals>
+    <plurals name="workout_progress">
+        <item quantity="one">%1$s · %2$d/%3$d Satz</item>
+        <item quantity="other">%1$s · %2$d/%3$d Sätze</item>
+    </plurals>
 </resources>

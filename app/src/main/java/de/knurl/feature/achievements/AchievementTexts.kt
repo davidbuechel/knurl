@@ -81,4 +81,4 @@ private fun Achievement.liftName(): String {
 /** A round volume goal without false decimals: "5 t", "1.000 t" (pounds as the usual tonnage). */
 @Composable
 private fun goalTonnes(kg: Double): String =
-    if (LocalWeightUnit.current == WeightUnit.KG) "${Formatting.kg(kg / 1000)} t" else tonnageText(kg)
+    if (LocalWeightUnit.current == WeightUnit.KG) "${Formatting.kg(kg / 1000)}${Formatting.NBSP}t" else tonnageText(kg)

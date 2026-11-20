@@ -40,7 +40,8 @@ object RoutineEditing {
     fun add(routine: Routine, exerciseId: String, restSec: Int) =
         routine.copy(items = routine.items + RoutineItem(exerciseId, sets = 3, repRange = RepRange.Hypertrophy, restSec = restSec))
 
-    fun remove(routine: Routine, index: Int) = routine.copy(items = routine.items.filterIndexed { i, _ -> i != index })
+    /** Removes an item; a superset left with one exercise dissolves. */
+    fun remove(routine: Routine, index: Int) = routine.copy(items = routine.items.filterIndexed { i, _ -> i != index }).tidied()
 
     /** Moves an item one place up (-1) or down (+1); nothing happens at the ends. */
     fun move(routine: Routine, index: Int, by: Int): Routine {
@@ -48,7 +49,13 @@ object RoutineEditing {
         if (index !in routine.items.indices || target !in routine.items.indices) return routine
         val items = routine.items.toMutableList()
         items.add(target, items.removeAt(index))
-        return routine.copy(items = items)
+        return routine.copy(items = items).tidied()
+    }
+
+    /** Supersets only of neighbours with two or more members, after items moved or left. */
+    private fun Routine.tidied(): Routine {
+        val groups = Supersets.tidy(items.map { it.group })
+        return copy(items = items.mapIndexed { i, item -> item.copy(group = groups[i]) })
     }
 
     fun update(routine: Routine, index: Int, transform: (RoutineItem) -> RoutineItem) =

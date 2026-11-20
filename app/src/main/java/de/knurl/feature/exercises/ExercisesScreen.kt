@@ -50,6 +50,14 @@ import androidx.compose.material.icons.rounded.Add
 import de.knurl.ui.navigation.CustomExerciseRoute
 import androidx.compose.runtime.saveable.rememberSaveable
 import de.knurl.R
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.ui.platform.LocalFocusManager
 import de.knurl.feature.common.estimateText
 import de.knurl.domain.model.Equipment
 import de.knurl.domain.model.ExerciseLevel
@@ -84,11 +92,15 @@ fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean, savedState: SavedSta
     }
     // An own exercise created from the picker comes back here and goes straight on to whoever asked.
     if (savedState != null) {
+        // Only once this screen is back on top: during the way back it could not navigate yet.
+        val lifecycle = LocalLifecycleOwner.current.lifecycle
         LaunchedEffect(savedState) {
-            savedState.getStateFlow<String?>(Navigator.RESULT_EXERCISE, null).collect { id ->
-                if (id != null) {
-                    savedState[Navigator.RESULT_EXERCISE] = null
-                    go.backWithResult(Navigator.RESULT_EXERCISE, id)
+            lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                savedState.getStateFlow<String?>(Navigator.RESULT_EXERCISE, null).collect { id ->
+                    if (id != null) {
+                        savedState[Navigator.RESULT_EXERCISE] = null
+                        go.backWithResult(Navigator.RESULT_EXERCISE, id)
+                    }
                 }
             }
         }
@@ -101,8 +113,13 @@ fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean, savedState: SavedSta
     val customTitle = stringResource(R.string.exercises_custom)
     val recentTitle = stringResource(R.string.exercises_recent)
 
+    // The keyboard gets out of the way as soon as the list is scrolled or search is pressed.
+    val focusManager = LocalFocusManager.current
+    val listState = rememberLazyListState()
+    LaunchedEffect(listState.isScrollInProgress) { if (listState.isScrollInProgress) focusManager.clearFocus() }
+
     val content: @Composable (Modifier) -> Unit = { modifier ->
-        LazyColumn(modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
+        LazyColumn(modifier.fillMaxSize(), state = listState, contentPadding = PaddingValues(16.dp)) {
             if (!pickForWorkout) item {
                 Row(Modifier.padding(bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                     ScreenTitle(stringResource(R.string.tab_exercises), Modifier.weight(1f))
@@ -126,6 +143,8 @@ fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean, savedState: SavedSta
                     },
                     placeholder = { Text(stringResource(R.string.exercises_search_hint)) },
                     shape = MaterialTheme.shapes.medium,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() }),
                 )
             }
             item {

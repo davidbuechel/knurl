@@ -23,6 +23,9 @@ object Formatting {
 
     fun symbol(unit: WeightUnit): String = if (unit == WeightUnit.LB) "lb" else "kg"
 
+    /** The decimal separator people expect: "," in German, "." in English. */
+    fun decimalSeparator(locale: Locale = Locale.getDefault()): Char = java.text.DecimalFormatSymbols.getInstance(locale).decimalSeparator
+
     /** A plain number with up to two decimals. */
     fun kg(value: Double, locale: Locale = Locale.getDefault()): String =
         NumberFormat.getNumberInstance(locale).apply {
@@ -34,18 +37,21 @@ object Formatting {
     fun weightNumber(kg: Double, unit: WeightUnit, locale: Locale = Locale.getDefault()): String =
         if (unit == WeightUnit.LB) kg(Math.round(kg * LB_PER_KG * 10) / 10.0, locale) else kg(kg, locale)
 
+    /** Joins a number and its unit so a line never breaks between them ("60 kg", not "60 / kg"). */
+    const val NBSP = ' '
+
     /** "102,5 kg" or "226 lb". */
     fun weight(kg: Double, unit: WeightUnit = WeightUnit.KG, locale: Locale = Locale.getDefault()): String =
-        "${weightNumber(kg, unit, locale)} ${symbol(unit)}"
+        "${weightNumber(kg, unit, locale)}$NBSP${symbol(unit)}"
 
     /** Volume in kilograms below a tonne, in tonnes (one decimal) above; pounds as a whole number. */
     fun tonnage(kgTotal: Double, unit: WeightUnit = WeightUnit.KG, locale: Locale = Locale.getDefault()): String = when {
-        unit == WeightUnit.LB -> "${NumberFormat.getIntegerInstance(locale).format((kgTotal * LB_PER_KG).roundToLong())} lb"
-        kgTotal < 1000 -> "${kg(Math.round(kgTotal).toDouble(), locale)} kg"
+        unit == WeightUnit.LB -> "${NumberFormat.getIntegerInstance(locale).format((kgTotal * LB_PER_KG).roundToLong())}${NBSP}lb"
+        kgTotal < 1000 -> "${kg(Math.round(kgTotal).toDouble(), locale)}${NBSP}kg"
         else -> NumberFormat.getNumberInstance(locale).apply {
             minimumFractionDigits = 1
             maximumFractionDigits = 1
-        }.format(kgTotal / 1000) + " t"
+        }.format(kgTotal / 1000) + "${NBSP}t"
     }
 
     /** "100 × 5", or just the reps for bodyweight sets. */
@@ -53,6 +59,24 @@ object Formatting {
         if (weightKg == 0.0) "$reps" else "${weightNumber(weightKg, unit, locale)} × $reps"
 
     /** "1:24" or "1:02:03". */
+    /** How long something took, for lists and summaries: "< 1 min", "55 min", "1 h 5 min". [duration] is for running clocks. */
+    fun length(totalSec: Long): String {
+        val minutes = totalSec.coerceAtLeast(0) / 60
+        return when {
+            minutes < 1 -> "< 1 min"
+            minutes < 60 -> "$minutes min"
+            minutes % 60 == 0L -> "${minutes / 60} h"
+            else -> "${minutes / 60} h ${minutes % 60} min"
+        }
+    }
+
+    /** A whole percentage the local way: "12 %" in German, "12%" in English; [signed] adds "+". */
+    fun percent(value: Int, signed: Boolean = false, locale: Locale = Locale.getDefault()): String {
+        val number = (if (signed && value > 0) "+" else "") + value
+        return if (locale.language == "de") "$number$NBSP%" else "$number%"
+    }
+
+    /** A running clock or a rest time: "1:05:30", "2:00". */
     fun duration(totalSec: Long): String {
         val sec = totalSec.coerceAtLeast(0)
         val h = sec / 3600

@@ -49,8 +49,8 @@ class WorkoutNotifier(
         val notification = Notifications.builder(context, Channel.WORKOUT)
             .setContentTitle(shown.name)
             .setContentText(
-                if (resting) context.getString(R.string.workout_notification_rest, shown.done, shown.total)
-                else context.getString(R.string.workout_notification_sets, shown.done, shown.total),
+                if (resting) context.resources.getQuantityString(R.plurals.workout_notification_rest, shown.total, shown.done, shown.total)
+                else context.resources.getQuantityString(R.plurals.workout_notification_sets, shown.total, shown.done, shown.total),
             )
             .setOngoing(true)
             .setOnlyAlertOnce(true)

@@ -41,7 +41,6 @@ import de.knurl.feature.common.Formatting
 import de.knurl.feature.common.KnurlCard
 import de.knurl.feature.common.LocalWeightUnit
 import de.knurl.feature.common.NumberInputDialog
-import de.knurl.feature.common.SectionLabel
 import de.knurl.feature.common.TrendChart
 import de.knurl.feature.common.weightNumber
 import de.knurl.feature.common.weightText
@@ -56,7 +55,6 @@ fun BodyWeightCard(entries: List<BodyWeight>, onAdd: (Double) -> Unit) {
     val unit = LocalWeightUnit.current
     var adding by rememberSaveable { mutableStateOf(false) }
     KnurlCard {
-        SectionLabel(stringResource(R.string.body_weight))
         val latest = entries.lastOrNull()
         if (latest == null) {
             Text(stringResource(R.string.body_weight_empty), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -83,9 +81,10 @@ fun BodyWeightCard(entries: List<BodyWeight>, onAdd: (Double) -> Unit) {
             stringResource(R.string.body_weight_in, Formatting.symbol(unit)),
             entries.lastOrNull()?.let { weightNumber(it.weightKg) } ?: "",
             decimal = true,
+            range = Math.round(Formatting.toUnit(20.0, unit)).toDouble()..Math.round(Formatting.toUnit(400.0, unit)).toDouble(),
             onDismiss = { adding = false },
             onConfirm = { value ->
-                if (value > 0) onAdd(Formatting.fromUnit(value, unit))
+                onAdd(Formatting.fromUnit(value, unit))
                 adding = false
             },
         )
@@ -102,12 +101,13 @@ fun TrainingCalendarCard(trainingDays: Set<LocalDate>, onRecap: (YearMonth) -> U
     val inMonth = trainingDays.count { YearMonth.from(it) == shown }
     KnurlCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
+            // The screen is already called Calendar: the card names the month and how many days.
             Column(Modifier.weight(1f)) {
-                SectionLabel(stringResource(R.string.calendar))
+                Text("${shown.month.getDisplayName(TextStyle.FULL_STANDALONE, locale)} ${shown.year}", style = MaterialTheme.typography.titleMedium)
                 Text(
-                    "${shown.month.getDisplayName(TextStyle.FULL_STANDALONE, locale)} ${shown.year} · " +
-                        pluralStringResource(R.plurals.calendar_days, inMonth, inMonth),
-                    style = MaterialTheme.typography.titleMedium,
+                    pluralStringResource(R.plurals.calendar_days, inMonth, inMonth),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             IconButton(onClick = { month = shown.minusMonths(1).toString() }) {

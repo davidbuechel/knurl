@@ -48,6 +48,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import de.knurl.R
+import de.knurl.feature.common.Formatting
 import de.knurl.data.repository.TrainingRepository
 import de.knurl.domain.achievements.MonthRecap
 import de.knurl.domain.achievements.MonthRecaps
@@ -208,7 +209,7 @@ private fun RecapCard(r: MonthRecap, monthName: String, year: Int, exercise: (St
                     ex?.name(german) ?: gain.exerciseId,
                     subtitle = stringResource(R.string.recap_gain, estimateText(gain.fromKg), estimateText(gain.toKg)),
                     leading = { ex?.let { ExerciseThumbnail(it, Modifier.size(44.dp)) } },
-                    trailing = { Text("+${gain.percent.roundToInt()} %", style = MaterialTheme.typography.titleSmall, color = Knurl.colors.success) },
+                    trailing = { Text(Formatting.percent(gain.percent.roundToInt(), signed = true), style = MaterialTheme.typography.titleSmall, color = Knurl.colors.success) },
                     divider = false,
                 )
             }

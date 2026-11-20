@@ -121,7 +121,7 @@ fun ProgressScreen(go: Navigator) {
                 KpiRow(
                     listOf(
                         Kpi("${s.stats.trainingDays}", stringResource(R.string.stat_days)),
-                        Kpi(hoursText(s.stats.minutes), stringResource(R.string.stat_time)),
+                        Kpi(hoursText(s.stats.minutes, s.stats.workouts), stringResource(R.string.stat_time)),
                         Kpi(s.kcal?.let { "≈ " + Formatting.kg(it.toDouble()) } ?: "–", stringResource(R.string.stat_kcal), s.kcal?.let { now -> s.kcalPrevious?.let { Change(now.toDouble(), it.toDouble()).percent } }),
                     ),
                 )
@@ -174,7 +174,7 @@ fun ProgressScreen(go: Navigator) {
                                 trailing = {
                                     Sparkline(row.improvement.series.map { it.value }, Modifier.width(56.dp).height(28.dp))
                                     Text(
-                                        "+${row.improvement.percent.roundToInt()} %",
+                                        Formatting.percent(row.improvement.percent.roundToInt(), signed = true),
                                         style = MaterialTheme.typography.labelLarge,
                                         color = Knurl.colors.success,
                                     )
@@ -210,8 +210,12 @@ fun ProgressScreen(go: Navigator) {
     }
 }
 
-/** "45 min" or "12 h": time in a period at a glance. */
-private fun hoursText(minutes: Int): String = if (minutes < 60) "$minutes min" else "${(minutes / 60.0).roundToInt()} h"
+/** "45 min" or "12 h": time in a period at a glance; short workouts still show as "< 1 min", not "0 min". */
+private fun hoursText(minutes: Int, workouts: Int): String = when {
+    minutes == 0 && workouts > 0 -> "< 1 min"
+    minutes < 60 -> "$minutes min"
+    else -> "${(minutes / 60.0).roundToInt()} h"
+}
 
 /** One decimal at most, none when it is whole after rounding ("11", "6.3"). */
 private fun setsText(sets: Double, locale: Locale): String {
@@ -219,10 +223,10 @@ private fun setsText(sets: Double, locale: Locale): String {
     return String.format(locale, if (rounded % 1.0 == 0.0) "%.0f" else "%.1f", rounded)
 }
 
-/** Week buckets show their Monday ("16.11."), month buckets the month ("Nov"). */
+/** Week buckets show their Monday the local way ("16.11." / "11/16"), month buckets the month ("Nov"). */
 private fun bucketLabel(start: kotlinx.datetime.LocalDate, period: Period, locale: Locale): String {
     val date = java.time.LocalDate.of(start.year, start.month.ordinal + 1, start.day)
-    return if (period == Period.WEEK) date.format(DateTimeFormatter.ofPattern("d.M.", locale))
+    return if (period == Period.WEEK) date.format(DateTimeFormatter.ofPattern(android.text.format.DateFormat.getBestDateTimePattern(locale, "dM"), locale))
     else date.month.getDisplayName(java.time.format.TextStyle.SHORT_STANDALONE, locale).take(3)
 }
 

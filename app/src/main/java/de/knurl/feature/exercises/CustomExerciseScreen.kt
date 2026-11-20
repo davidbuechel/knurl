@@ -173,7 +173,8 @@ fun CustomExerciseScreen(go: Navigator, exerciseId: String?, initialName: String
     }
 
     val leave = { if (vm.hasChanges()) confirmDiscard = true else go.back() }
-    BackHandler(onBack = leave)
+    // Only with unsaved changes: otherwise the back gesture plays its normal animation.
+    BackHandler(enabled = vm.hasChanges()) { confirmDiscard = true }
     val canSave = name.isNotBlank()
     fun save() {
         val id = vm.save()
@@ -321,8 +322,7 @@ fun CustomExerciseScreen(go: Navigator, exerciseId: String?, initialName: String
                 confirmDelete = false
                 vm.delete()
                 // The detail page of a deleted exercise has nothing left to show.
-                go.back()
-                if (!pickForWorkout) go.back()
+                go.back(times = if (pickForWorkout) 1 else 2)
             },
         )
     }

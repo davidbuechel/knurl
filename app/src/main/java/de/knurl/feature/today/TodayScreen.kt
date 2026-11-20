@@ -33,6 +33,7 @@ import de.knurl.ui.theme.Knurl
 import de.knurl.ui.navigation.StatsRoute
 import de.knurl.feature.common.weightText
 import de.knurl.R
+import androidx.compose.ui.graphics.vector.ImageVector
 import de.knurl.ui.navigation.RecapRoute
 import de.knurl.feature.common.IconTile
 import androidx.compose.material.icons.rounded.AutoAwesome
@@ -140,7 +141,7 @@ fun TodayScreen(go: Navigator) {
                     }
                     else -> {
                         Text(stringResource(R.string.today_no_routine), style = MaterialTheme.typography.headlineSmall, color = onHero)
-                        HeroButton(stringResource(R.string.routine_new)) { go.to(RoutineEditorRoute()) }
+                        HeroButton(stringResource(R.string.routine_new), Icons.Rounded.Add) { go.to(RoutineEditorRoute()) }
                     }
                 }
             }
@@ -181,7 +182,7 @@ fun TodayScreen(go: Navigator) {
                             title = row.exercise?.name(german) ?: row.improvement.exerciseId,
                             subtitle = "${estimateText(row.improvement.fromKg)} → ${estimateText(row.improvement.toKg)}",
                             leading = { row.exercise?.let { ExerciseThumbnail(it, Modifier.size(44.dp)) } },
-                            trailing = { Pill("+${row.improvement.percent.roundToInt()} %", color = Knurl.colors.success) },
+                            trailing = { Pill(Formatting.percent(row.improvement.percent.roundToInt(), signed = true), color = Knurl.colors.success) },
                             divider = i < s.gains.lastIndex,
                             onClick = { go.to(ExerciseRoute(row.improvement.exerciseId)) },
                         )
@@ -213,13 +214,13 @@ fun TodayScreen(go: Navigator) {
 }
 
 @Composable
-private fun HeroButton(text: String, onClick: () -> Unit) {
+private fun HeroButton(text: String, icon: ImageVector = Icons.Rounded.PlayArrow, onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth().padding(top = 8.dp).height(52.dp),
         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onPrimary, contentColor = MaterialTheme.colorScheme.primary),
     ) {
-        Icon(Icons.Rounded.PlayArrow, contentDescription = null)
+        Icon(icon, contentDescription = null)
         Text(text, style = MaterialTheme.typography.titleMedium)
     }
 }

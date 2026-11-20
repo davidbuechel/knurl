@@ -60,6 +60,8 @@ data class ActiveWorkoutState(
     val restLeftSec: Long?,
     /** Editing a finished workout from the history instead of logging the running one. */
     val editing: Boolean,
+    /** Editing a past workout and something differs from how it was opened. */
+    val changed: Boolean = false,
     val focus: Focus?,
     /** Length of the running rest, for its progress. */
     val restTotalSec: Long,
@@ -79,6 +81,9 @@ class ActiveWorkoutViewModel(
 ) : ViewModel() {
 
     private val editing = MutableStateFlow(editWorkoutId?.let { id -> training.workout(id)?.markAllDone() })
+
+    /** The past workout as it was opened, to tell whether leaving would lose changes. */
+    private val original = editing.value
 
     /** Where the number pad points. Starts on the first open set of a running workout. */
     private val focus = MutableStateFlow<Focus?>(null)
@@ -116,6 +121,7 @@ class ActiveWorkoutViewModel(
                 elapsedSec = workout?.let { ((it.endedAtMs ?: nowMs) - it.startedAtMs) / 1000 } ?: 0,
                 restLeftSec = if (editWorkoutId != null) null else restEnd?.let { ((it - nowMs) / 1000).takeIf { left -> left >= 0 } },
                 editing = editWorkoutId != null,
+                changed = editWorkoutId != null && edited != original,
                 focus = validFocus,
                 restTotalSec = rest.totalMs.value / 1000,
                 doneSets = done,
@@ -212,9 +218,16 @@ class ActiveWorkoutViewModel(
 
     fun setWorkoutNote(note: String) = edit { it.copy(note = note.take(2000)) }
 
-    fun removeSet(exercise: Int, set: Int) = edit { it.removeSet(exercise, set) }
+    fun removeSet(exercise: Int, set: Int) {
+        if (focus.value?.ref == SetRef(exercise, set)) focus.value = null
+        edit { it.removeSet(exercise, set) }
+    }
 
-    fun removeExercise(exercise: Int) = edit { it.removeExercise(exercise) }
+    /** Indexes after it shift, so the number pad closes rather than point at another exercise. */
+    fun removeExercise(exercise: Int) {
+        focus.value = null
+        edit { it.removeExercise(exercise) }
+    }
 
     /** An exercise picked in the library. */
     fun addExercise(exerciseId: String) {

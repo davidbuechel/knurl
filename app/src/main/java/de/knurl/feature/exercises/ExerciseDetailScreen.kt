@@ -178,7 +178,7 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
                                         stringResource(
                                             R.string.detail_change,
                                             "+" + estimateText(change.deltaKg),
-                                            "+${change.percent.roundToInt()} %",
+                                            Formatting.percent(change.percent.roundToInt(), signed = true),
                                         ),
                                         color = Knurl.colors.success,
                                         style = MaterialTheme.typography.labelLarge,
@@ -235,15 +235,15 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
                     s.plates?.let { load ->
                         item {
                             KnurlCard {
-                                SectionLabel(stringResource(R.string.detail_plates, "${Formatting.kg(s.plateTargetInUnit)} ${Formatting.symbol(unit)}"))
+                                SectionLabel(stringResource(R.string.detail_plates, "${Formatting.kg(s.plateTargetInUnit)}${Formatting.NBSP}${Formatting.symbol(unit)}"))
                                 PlateBar(load.perSide, unit)
                                 Text(
-                                    if (load.perSide.isEmpty()) stringResource(R.string.plates_empty_bar, "${Formatting.kg(s.barInUnit)} ${Formatting.symbol(unit)}")
-                                    else stringResource(R.string.plates_per_side, load.perSide.joinToString(" + ") { Formatting.kg(it) }, "${Formatting.kg(s.barInUnit)} ${Formatting.symbol(unit)}"),
+                                    if (load.perSide.isEmpty()) stringResource(R.string.plates_empty_bar, "${Formatting.kg(s.barInUnit)}${Formatting.NBSP}${Formatting.symbol(unit)}")
+                                    else stringResource(R.string.plates_per_side, load.perSide.joinToString(" + ") { Formatting.kg(it) }, "${Formatting.kg(s.barInUnit)}${Formatting.NBSP}${Formatting.symbol(unit)}"),
                                     style = MaterialTheme.typography.bodyMedium,
                                 )
                                 if (!load.isExact) {
-                                    Text(stringResource(R.string.plates_missing, "${Formatting.kg(load.missingKg)} ${Formatting.symbol(unit)}"), color = Knurl.colors.warning, style = MaterialTheme.typography.bodySmall)
+                                    Text(stringResource(R.string.plates_missing, "${Formatting.kg(load.missingKg)}${Formatting.NBSP}${Formatting.symbol(unit)}"), color = Knurl.colors.warning, style = MaterialTheme.typography.bodySmall)
                                 }
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                                     val steps = if (unit == WeightUnit.LB) listOf(-5.0, 5.0, 20.0) else listOf(-2.5, 2.5, 10.0)

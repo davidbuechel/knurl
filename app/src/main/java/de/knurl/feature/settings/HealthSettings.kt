@@ -120,10 +120,10 @@ fun HealthSettings(s: Settings, vm: SettingsViewModel) {
         val thisYear = Year.now().value
         NumberInputDialog(
             stringResource(R.string.profile_birth_year), s.birthYear?.toString() ?: "", decimal = false,
+            range = (thisYear - 100).toDouble()..(thisYear - 13).toDouble(),
             onDismiss = { editingYear = false },
             onConfirm = { v ->
-                val year = v.toInt()
-                vm.update { it.copy(birthYear = year.takeIf { y -> y in (thisYear - 100)..(thisYear - 13) }) }
+                vm.update { it.copy(birthYear = v.toInt()) }
                 editingYear = false
             },
         )

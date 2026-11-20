@@ -66,4 +66,16 @@ class WorkoutPlanningTest {
         assertEquals(4, workout.exercises.single().sets.size)
         assertEquals(false, workout.exercises.single().sets.last().done)
     }
+
+    @Test fun removingAnExerciseDissolvesASupersetOfOne() {
+        val workout = Workout(
+            id = "w", name = "w", startedAtMs = 0,
+            exercises = listOf(
+                WorkoutExercise("bench_press", emptyList(), group = 1),
+                WorkoutExercise("barbell_row", emptyList(), group = 1),
+                WorkoutExercise("squat", emptyList()),
+            ),
+        )
+        assertEquals(listOf<Int?>(null, null), workout.removeExercise(1).exercises.map { it.group })
+    }
 }

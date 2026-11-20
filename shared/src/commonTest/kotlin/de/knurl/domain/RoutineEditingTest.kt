@@ -43,4 +43,17 @@ class RoutineEditingTest {
         assertEquals(0, RoutineEditing.nextPosition(emptyList()))
         assertEquals(4, RoutineEditing.nextPosition(listOf(routine.copy(position = 3))))
     }
+
+    @Test fun movingOrRemovingKeepsSupersetsWhole() {
+        val paired = Routine(
+            id = "r", name = "r", position = 0,
+            items = listOf(
+                RoutineItem("bench_press", 3, RepRange.Hypertrophy, 90, group = 1),
+                RoutineItem("barbell_row", 3, RepRange.Hypertrophy, 90, group = 1),
+                RoutineItem("squat", 3, RepRange.Hypertrophy, 90),
+            ),
+        )
+        assertEquals(listOf<Int?>(null, null), RoutineEditing.remove(paired, 0).items.map { it.group })
+        assertEquals(listOf<Int?>(null, null, null), RoutineEditing.move(paired, 1, 1).items.map { it.group })
+    }
 }

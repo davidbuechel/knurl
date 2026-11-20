@@ -33,7 +33,6 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -55,6 +54,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.knurl.R
+import de.knurl.ui.theme.Knurl
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.AlertDialog
 import de.knurl.domain.calc.Estimates
 import de.knurl.domain.model.Routine
 import de.knurl.domain.model.Workout
@@ -91,7 +93,7 @@ private sealed interface Sheet {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrainingScreen(go: Navigator) {
-    val vm = knurlViewModel { TrainingViewModel(it.training) }
+    val vm = knurlViewModel { TrainingViewModel(it.training, it.restTimer) }
     val state by vm.state.collectAsStateWithLifecycle()
     val s = state ?: return BrandLoadingBox()
     val freeName = stringResource(R.string.workout_free_name)
@@ -100,6 +102,11 @@ fun TrainingScreen(go: Navigator) {
     var tab by rememberSaveable { mutableStateOf(Tab.ROUTINES) }
     var naming by remember { mutableStateOf<Naming?>(null) }
     var sheet by remember { mutableStateOf<Sheet?>(null) }
+    // Starting a routine while another workout runs asks first instead of quietly resuming that one.
+    var replacing by remember { mutableStateOf<Routine?>(null) }
+    fun startRoutine(routine: Routine) {
+        if (s.hasActive) replacing = routine else { vm.start(routine, freeName); go.to(ActiveWorkoutRoute) }
+    }
     val deletedText = stringResource(R.string.deleted)
     val undoText = stringResource(R.string.action_undo)
 
@@ -122,6 +129,21 @@ fun TrainingScreen(go: Navigator) {
             item { SegmentedTabs(Tab.entries, tab, { stringResource(if (it == Tab.ROUTINES) R.string.training_routines else R.string.training_history) }, { tab = it }) }
 
             if (tab == Tab.ROUTINES) {
+                // A running workout comes first, so it is never mistaken for one still to start.
+                s.activeName?.let { name ->
+                    item(key = "active") {
+                        ListGroup {
+                            ListRow(
+                                name,
+                                subtitle = stringResource(R.string.today_running),
+                                leading = { IconTile(Icons.Rounded.PlayArrow, Knurl.colors.success) },
+                                trailing = { Text(stringResource(R.string.action_resume_short), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary) },
+                                divider = false,
+                                onClick = { go.to(ActiveWorkoutRoute) },
+                            )
+                        }
+                    }
+                }
                 if (s.routines.isEmpty()) {
                     item { BrandEmptyState(stringResource(R.string.routines_empty_title), stringResource(R.string.routines_empty_body)) }
                 }
@@ -132,12 +154,14 @@ fun TrainingScreen(go: Navigator) {
                         exercises = routine.items.mapNotNull { vm.exercise(it.exerciseId) },
                         onOpen = { go.to(RoutineEditorRoute(routine.id)) },
                         onLongPress = { sheet = Sheet.ForRoutine(routine) },
-                        onStart = { vm.start(routine, freeName); go.to(ActiveWorkoutRoute) },
+                        onStart = { startRoutine(routine) },
                     )
                 }
-                item {
-                    OutlinedButton(onClick = { vm.start(null, freeName); go.to(ActiveWorkoutRoute) }, modifier = Modifier.fillMaxWidth().height(52.dp)) {
-                        Text(stringResource(if (s.hasActive) R.string.action_resume else R.string.action_start_empty))
+                // Same as on Today: a quiet way to start without a routine, only while nothing runs.
+                if (!s.hasActive) item {
+                    TextButton(onClick = { vm.start(null, freeName); go.to(ActiveWorkoutRoute) }, modifier = Modifier.fillMaxWidth()) {
+                        Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Text(stringResource(R.string.action_start_empty))
                     }
                 }
             } else {
@@ -149,7 +173,7 @@ fun TrainingScreen(go: Navigator) {
                             s.history.forEachIndexed { i, row ->
                                 ListRow(
                                     title = row.workout.name,
-                                    subtitle = listOfNotNull(Formatting.date(row.workout.startedAtMs), Formatting.duration(row.durationSec), tonnageText(row.volumeKg), row.kcal?.let { stringResource(R.string.kcal_value, Formatting.kg(it.toDouble())) }).joinToString(" · "),
+                                    subtitle = listOfNotNull(Formatting.date(row.workout.startedAtMs), Formatting.length(row.durationSec), tonnageText(row.volumeKg), row.kcal?.let { stringResource(R.string.kcal_value, Formatting.kg(it.toDouble())) }).joinToString(" · "),
                                     trailing = if (row.records > 0) ({ Pill(stringResource(R.string.record_count, row.records), color = MaterialTheme.colorScheme.tertiary) }) else null,
                                     divider = i < s.history.lastIndex,
                                     onClick = { sheet = Sheet.ForWorkout(row.workout) },
@@ -169,7 +193,7 @@ fun TrainingScreen(go: Navigator) {
             val index = s.routines.indexOfFirst { it.id == r.id }
             SheetTitle(r.name)
             Column(Modifier.padding(bottom = 24.dp)) {
-                ListRow(stringResource(R.string.action_start_workout), leading = { IconTile(Icons.Rounded.PlayArrow) }) { sheet = null; vm.start(r, freeName); go.to(ActiveWorkoutRoute) }
+                ListRow(stringResource(R.string.action_start_workout), leading = { IconTile(Icons.Rounded.PlayArrow) }) { sheet = null; startRoutine(r) }
                 ListRow(stringResource(R.string.routine_edit), leading = { IconTile(Icons.Rounded.Edit) }) { sheet = null; go.to(RoutineEditorRoute(r.id)) }
                 if (index > 0) ListRow(stringResource(R.string.routine_move_up), leading = { IconTile(Icons.Rounded.KeyboardArrowUp, MaterialTheme.colorScheme.outline) }) { sheet = null; vm.moveRoutine(r, -1) }
                 if (index < s.routines.lastIndex) ListRow(stringResource(R.string.routine_move_down), leading = { IconTile(Icons.Rounded.KeyboardArrowDown, MaterialTheme.colorScheme.outline) }) { sheet = null; vm.moveRoutine(r, 1) }
@@ -191,6 +215,20 @@ fun TrainingScreen(go: Navigator) {
             }
         }
         null -> Unit
+    }
+
+    replacing?.let { routine ->
+        AlertDialog(
+            onDismissRequest = { replacing = null },
+            title = { Text(stringResource(R.string.active_running_title)) },
+            text = { Text(stringResource(R.string.active_running_body, s.activeName.orEmpty(), routine.name)) },
+            confirmButton = { TextButton(onClick = { replacing = null; go.to(ActiveWorkoutRoute) }) { Text(stringResource(R.string.action_resume_short)) } },
+            dismissButton = {
+                TextButton(onClick = { replacing = null; vm.replaceActive(routine, freeName); go.to(ActiveWorkoutRoute) }) {
+                    Text(stringResource(R.string.active_replace), color = MaterialTheme.colorScheme.error)
+                }
+            },
+        )
     }
 
     when (val n = naming) {

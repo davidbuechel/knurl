@@ -177,7 +177,7 @@ fun KpiRow(items: List<Kpi>, modifier: Modifier = Modifier, leading: (@Composabl
                 kpi.change?.let { change ->
                     // Green only for "more"; less is grey, not red: a lighter week is not a failure.
                     Text(
-                        when { change > 0 -> "▲ $change %"; change < 0 -> "▼ ${-change} %"; else -> "± 0 %" },
+                        when { change > 0 -> "▲ " + Formatting.percent(change); change < 0 -> "▼ " + Formatting.percent(-change); else -> "± " + Formatting.percent(0) },
                         style = MaterialTheme.typography.labelSmall,
                         color = if (change > 0) Knurl.colors.success else MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,

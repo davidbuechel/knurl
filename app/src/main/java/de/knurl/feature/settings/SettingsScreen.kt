@@ -262,15 +262,15 @@ private fun SettingsEditors(editor: Editor?, s: Settings, vm: SettingsViewModel,
     when (editor) {
         Editor.BAR -> NumberInputDialog(
             stringResource(R.string.settings_bar_weight_in, Formatting.symbol(s.unit)), weightNumber(s.barKg), decimal = true,
-            onDismiss = close, onConfirm = { v -> vm.update { it.copy(barKg = Formatting.fromUnit(v, s.unit)) }; close() },
+            range = 0.0..Math.round(Formatting.toUnit(50.0, s.unit)).toDouble(), onDismiss = close, onConfirm = { v -> vm.update { it.copy(barKg = Formatting.fromUnit(v, s.unit)) }; close() },
         )
         Editor.REST -> NumberInputDialog(
-            stringResource(R.string.settings_default_rest_seconds), "${s.defaultRestSec}", decimal = false,
-            onDismiss = close, onConfirm = { v -> vm.update { it.copy(defaultRestSec = v.toInt().coerceIn(15, 900)) }; close() },
+            stringResource(R.string.settings_default_rest_seconds), "${s.defaultRestSec}", decimal = false, range = 15.0..900.0,
+            onDismiss = close, onConfirm = { v -> vm.update { it.copy(defaultRestSec = v.toInt()) }; close() },
         )
         Editor.GOAL -> NumberInputDialog(
-            stringResource(R.string.settings_weekly_goal), "${s.weeklyGoal}", decimal = false,
-            onDismiss = close, onConfirm = { v -> vm.update { it.copy(weeklyGoal = v.toInt().coerceIn(1, 7)) }; close() },
+            stringResource(R.string.settings_weekly_goal), "${s.weeklyGoal}", decimal = false, range = 1.0..7.0,
+            onDismiss = close, onConfirm = { v -> vm.update { it.copy(weeklyGoal = v.toInt()) }; close() },
         )
         Editor.PLATES -> AlertDialog(
             onDismissRequest = close,
@@ -282,7 +282,7 @@ private fun SettingsEditors(editor: Editor?, s: Settings, vm: SettingsViewModel,
                         FilterChip(
                             selected = on,
                             onClick = { vm.update { it.copy(platesKg = (if (on) it.platesKg - plate else it.platesKg + plate).sortedDescending()) } },
-                            label = { Text("${Formatting.kg(plate)} ${Formatting.symbol(WeightUnit.KG)}") },
+                            label = { Text("${Formatting.kg(plate)}${Formatting.NBSP}${Formatting.symbol(WeightUnit.KG)}") },
                         )
                     }
                 }

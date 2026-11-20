@@ -111,7 +111,8 @@ fun RoutineEditorScreen(go: Navigator, routineId: String?, savedState: SavedStat
     // The field owns its text (a flow-bound field can lose letters when typing fast).
     var name by rememberSaveable { mutableStateOf(routine.name) }
     val leave = { if (vm.hasChanges()) confirmDiscard = true else go.back() }
-    BackHandler(onBack = leave)
+    // Only with unsaved changes: otherwise the back gesture plays its normal animation.
+    BackHandler(enabled = vm.hasChanges()) { confirmDiscard = true }
 
     LaunchedEffect(savedState) {
         savedState.getStateFlow<String?>(Navigator.RESULT_EXERCISE, null).collect { id ->

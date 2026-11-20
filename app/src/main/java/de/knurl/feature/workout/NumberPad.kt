@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import de.knurl.R
+import de.knurl.feature.common.Formatting
 
 /** What the pad edits and how. */
 data class PadTarget(
@@ -88,7 +89,7 @@ fun NumberPad(
                 Key(target.nextLabel, tap(onNext), primary = true)
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (target.decimal) Key(",", tap { onDigit('.') }) else Box(Modifier.weight(1f))
+                if (target.decimal) Key(Formatting.decimalSeparator().toString(), tap { onDigit('.') }) else Box(Modifier.weight(1f))
                 Key("0", tap { onDigit('0') })
                 KeyIcon(tap(onBackspace))
                 Box(Modifier.weight(1f))

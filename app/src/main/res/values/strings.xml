@@ -222,10 +222,7 @@
     <!-- Notifications -->
     <string name="rest_over_title">Rest is over</string>
     <string name="rest_over_body">Time for the next set.</string>
-    <string name="workout_notification_sets">%1$d of %2$d sets done</string>
-    <string name="workout_notification_rest">Rest · %1$d of %2$d sets done</string>
     <string name="reminder_training_title">Training day</string>
-    <string name="reminder_training_body">%1$d of %2$d workouts this week. Ready for the next one?</string>
     <string name="reminder_streak_title">One more for your streak</string>
     <string name="reminder_weekly_title">Your week</string>
     <string name="reminder_weekly_body">%1$s · %2$s · %3$s</string>
@@ -324,7 +321,6 @@
     <string name="table_last">Last</string>
     <string name="table_reps">Reps</string>
     <string name="workout_suggest_short">Today: %1$s, you hit every rep last time</string>
-    <string name="workout_progress">%1$s · %2$d/%3$d sets</string>
     <string name="superset_label">Superset %1$s</string>
     <string name="superset_leave">Remove from superset</string>
     <string name="superset_link_next">Superset with next exercise</string>
@@ -357,8 +353,8 @@
         <item quantity="other">last done %1$d days ago</item>
     </plurals>
     <plurals name="streak_weeks_label">
-        <item quantity="one">week streak</item>
-        <item quantity="other">weeks streak</item>
+        <item quantity="one">week in a row</item>
+        <item quantity="other">weeks in a row</item>
     </plurals>
 
     <!-- Exercise detail -->
@@ -558,8 +554,8 @@
         <item quantity="other">Finish %1$d workouts.</item>
     </plurals>
     <plurals name="ach_streak_title">
-        <item quantity="one">%1$d-week streak</item>
-        <item quantity="other">%1$d-week streak</item>
+        <item quantity="one">%1$d week in a row</item>
+        <item quantity="other">%1$d weeks in a row</item>
     </plurals>
     <plurals name="ach_streak_desc">
         <item quantity="one">Reach your weekly goal %1$d week in a row.</item>
@@ -631,4 +627,34 @@
     <string name="hr_value">Ø %1$d bpm · max %2$d bpm</string>
     <string name="hr_title">Heart rate</string>
     <string name="kcal_hint_hr">From heart rate, age, sex and body weight: much closer.</string>
+
+    <!-- Audit 2 -->
+    <string name="action_remove">Remove</string>
+    <string name="remove_exercise_title">Remove exercise?</string>
+    <string name="remove_exercise_body">%1$s and its logged sets will be removed from this workout.</string>
+    <string name="input_range">%1$s to %2$s</string>
+
+    <!-- Audit 2 -->
+    <string name="active_running_title">A workout is running</string>
+    <string name="active_running_body">%1$s is still running. Resume it, or discard it and start %2$s?</string>
+    <string name="active_replace">Discard and start</string>
+
+    <!-- Audit 2 -->
+    <string name="action_resume_short">Resume</string>
+    <plurals name="workout_notification_sets">
+        <item quantity="one">%1$d of %2$d set done</item>
+        <item quantity="other">%1$d of %2$d sets done</item>
+    </plurals>
+    <plurals name="workout_notification_rest">
+        <item quantity="one">Rest · %1$d of %2$d set done</item>
+        <item quantity="other">Rest · %1$d of %2$d sets done</item>
+    </plurals>
+    <plurals name="reminder_training_body">
+        <item quantity="one">%1$d of %2$d workout this week. Ready for it?</item>
+        <item quantity="other">%1$d of %2$d workouts this week. Ready for the next one?</item>
+    </plurals>
+    <plurals name="workout_progress">
+        <item quantity="one">%1$s · %2$d/%3$d set</item>
+        <item quantity="other">%1$s · %2$d/%3$d sets</item>
+    </plurals>
 </resources>
