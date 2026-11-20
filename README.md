@@ -3,7 +3,7 @@
 Gym-Tracking für Android: Übungen loggen, Gewichte pro Übung verfolgen, Fortschritt verstehen.
 Kotlin + Jetpack Compose, Modelle und Rechnungen in Kotlin Multiplatform (`:shared`) für eine spätere iOS-App.
 
-> „Knurl“ ist der Working Title. Benannt nach dem Rautenmuster auf dem Griff der Langhantel.
+> „Knurl“ ist der Working Title. Zeichen: ein geometrisches K, dessen oberer Arm in einer Hantelscheibe endet.
 
 ## Phase 1 (aktuell)
 - **Heute:** nächster Plan der Reihe nach, laufendes Training fortsetzen, Woche auf einen Blick, letzte Rekorde.
@@ -34,7 +34,7 @@ Alle Daten bleiben auf dem Gerät (`training.json` im App-Speicher). Die App hat
 app/      Android-App (Compose, Material 3)
   data/       TrainingRepository + JsonFileStore (lokal, atomar geschrieben)
   feature/    today, training, workout, exercises, progress, settings, common
-  ui/         theme (Farben, Typo, Shapes), brand (Knurl-Muster, Lade-/Leerzustände), navigation
+  ui/         theme (Farben, Typo, Shapes), brand (Zeichen, App-Icon, Lade-/Leerzustände), navigation
 shared/   Kotlin Multiplatform
   domain/model     Exercise, Workout, SetEntry, Routine
   domain/catalog   Übungskatalog (DE/EN), Startpläne
@@ -45,8 +45,8 @@ shared/   Kotlin Multiplatform
 ## Design
 Stahl-Neutrale, Kreide-Flächen, Kobalt (#2448E8) als Markenfarbe. Die Farben der Wettkampfscheiben
 (25 rot, 20 blau, 15 gelb, 10 grün, 5 grau) sind die Datenpalette. Hell- und Dunkelmodus folgen dem System.
-Schriften laut Konzept: Archivo (Display/Zahlen) und Inter (Text). Bis die Font-Dateien unter `res/font`
-liegen, nutzt `ui/theme/Type.kt` die System-Sans.
+Schriften: Archivo (Display und Zahlen, leicht breit) und Inter (Text), beide als variable Fonts unter
+`res/font`, Lizenzen (OFL) in `licenses/`.
 
 ## Stack
 AGP 9.5 (built-in Kotlin), Kotlin 2.4, Gradle 9.8, Compose BOM 2026.08, Material 3, Navigation Compose

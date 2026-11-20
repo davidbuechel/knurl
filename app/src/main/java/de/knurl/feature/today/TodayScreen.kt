@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -34,7 +33,6 @@ import de.knurl.feature.common.isGerman
 import de.knurl.feature.common.knurlViewModel
 import de.knurl.ui.brand.BrandEmptyState
 import de.knurl.ui.brand.BrandLoadingBox
-import de.knurl.ui.brand.KnurlBand
 import de.knurl.ui.navigation.ActiveWorkoutRoute
 import de.knurl.ui.navigation.ExerciseRoute
 import de.knurl.ui.navigation.Navigator
@@ -50,7 +48,6 @@ fun TodayScreen(go: Navigator) {
     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         item {
             ScreenTitle(stringResource(R.string.tab_today), eyebrow = Formatting.date(System.currentTimeMillis()))
-            KnurlBand(Modifier.width(180.dp))
         }
 
         item {

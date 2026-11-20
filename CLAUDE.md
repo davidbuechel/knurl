@@ -40,7 +40,10 @@ UI in German and English.
 
 ## Design
 - Steel neutrals, chalk surfaces, cobalt as the brand colour. Plate colours (`Knurl.colors.plate()`)
-  carry data only, never decoration. The knurl pattern appears only in icon, loading and empty states.
+  carry data only, never decoration.
+- The mark is the monogram K (`KnurlMark`, `KnurlAppIcon` in `ui/brand`); its geometry is shared with
+  `ic_launcher_foreground.xml` and `ic_notification.xml`. No knurl hatch pattern anywhere.
+- Fonts: Archivo (display, numbers) and Inter (text) as variable fonts; styles only via `KnurlTypography`.
 - Both themes are designed; every colour comes from `ui/theme`.
 
 ## Privacy (DSGVO)

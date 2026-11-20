@@ -32,7 +32,7 @@ import de.knurl.feature.common.SectionLabel
 import de.knurl.feature.common.Stepper
 import de.knurl.feature.common.knurlViewModel
 import de.knurl.ui.brand.BrandLoadingBox
-import de.knurl.ui.brand.KnurlMark
+import de.knurl.ui.brand.KnurlAppIcon
 
 class ProfileViewModel(private val training: TrainingRepository) : ViewModel() {
     val data = training.data
@@ -100,7 +100,7 @@ fun ProfileScreen() {
 
         item {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                KnurlMark(Modifier.size(40.dp))
+                KnurlAppIcon(Modifier.size(40.dp))
                 Column {
                     Text(stringResource(R.string.app_name), style = MaterialTheme.typography.titleMedium)
                     Text(
