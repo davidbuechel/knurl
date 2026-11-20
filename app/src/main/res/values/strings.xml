@@ -183,8 +183,6 @@
     <string name="legal_imprint">Imprint</string>
     <string name="legal_privacy">Privacy policy</string>
     <string name="legal_licenses">Open-source licences</string>
-    <string name="legal_imprint_body">The imprint will be added before Knurl is released.</string>
-    <string name="legal_privacy_body">Knurl stores your training under your own account in Firebase (Google, data centre Frankfurt). Only you can read it. Nothing is tracked or shared. Crash reports are only sent if you switch them on. You can export or delete all your data in Profile → Manage account. The full privacy policy will be added before release.</string>
     <string name="legal_licenses_body">Archivo and Inter: SIL Open Font License 1.1. AndroidX, Jetpack Compose, Kotlin and Firebase SDKs: Apache License 2.0.</string>
     <string name="profile_workouts">Workouts</string>
     <string name="profile_total_volume">Total volume</string>

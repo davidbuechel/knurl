@@ -181,8 +181,6 @@
     <string name="legal_imprint">Impressum</string>
     <string name="legal_privacy">Datenschutzerklärung</string>
     <string name="legal_licenses">Open-Source-Lizenzen</string>
-    <string name="legal_imprint_body">Das Impressum wird vor der Veröffentlichung von Knurl ergänzt.</string>
-    <string name="legal_privacy_body">Knurl speichert dein Training in deinem eigenen Konto bei Firebase (Google, Rechenzentrum Frankfurt). Nur du kannst es lesen. Nichts wird getrackt oder weitergegeben. Absturzberichte werden nur gesendet, wenn du sie einschaltest. Unter Profil → Konto verwalten kannst du alle Daten exportieren oder löschen. Die vollständige Datenschutzerklärung folgt vor der Veröffentlichung.</string>
     <string name="legal_licenses_body">Archivo und Inter: SIL Open Font License 1.1. AndroidX, Jetpack Compose, Kotlin und Firebase SDKs: Apache License 2.0.</string>
     <string name="profile_workouts">Trainings</string>
     <string name="profile_total_volume">Volumen gesamt</string>

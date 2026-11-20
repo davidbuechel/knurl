@@ -23,7 +23,7 @@ Kotlin + Jetpack Compose, Modelle und Rechnungen in Kotlin Multiplatform (`:shar
   Konto löschen, Export als JSON und CSV.
 - **Einstellungen:** Design (System/Hell/Dunkel), Sprache (System/Deutsch/Englisch), kg/lb, Stange, vorhandene
   Scheiben, Standardpause, Wochenziel, Bildschirm anlassen, Pausen-Vibration/-Ton, Benachrichtigungen einzeln,
-  Absturzberichte (aus bis eingeschaltet), Impressum/Datenschutz (Platzhalter).
+  Absturzberichte (aus bis eingeschaltet), Impressum/Datenschutz (aus `scripts/legal.py`, auch unter knurl-gym.web.app/impressum.html und /datenschutz.html).
 - **Benachrichtigungen:** Pausen-Alarm im Hintergrund, laufendes Training auf dem Sperrbildschirm (mit Countdown),
   Trainingserinnerung an gewählten Tagen, Serien-Erinnerung, Wochenrückblick, Push (FCM) für Konto und News.
   Details: `docs/notifications.md`.
