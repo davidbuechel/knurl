@@ -100,7 +100,7 @@
     <string name="settings_default_rest_seconds">Standardpause (Sekunden)</string>
     <string name="settings_weekly_goal">Einheiten pro Woche</string>
     <string name="settings_data">Deine Daten</string>
-    <string name="settings_data_local">Alles bleibt auf diesem Handy. Nichts wird hochgeladen, nichts wird getrackt.</string>
+    <string name="settings_data_local">Dein Training wird in deinem Konto gespeichert und funktioniert auch offline. Nichts wird getrackt.</string>
     <string name="settings_data_count">Gespeicherte Trainings: %1$d</string>
     <string name="settings_version">Version %1$s</string>
 
@@ -139,4 +139,7 @@
     <string name="equipment_smith">Multipresse</string>
     <string name="equipment_bodyweight">Körpergewicht</string>
     <string name="equipment_band">Band</string>
+    <string name="action_retry">Erneut versuchen</string>
+    <string name="first_start_offline_title">Einmal kurz online, bitte</string>
+    <string name="first_start_offline_body">Beim ersten Start richtet Knurl dein Konto ein, dafür braucht es einmal Internet. Danach funktioniert das Training auch offline.</string>
 </resources>

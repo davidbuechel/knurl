@@ -1,12 +1,13 @@
 package de.knurl
 
 import android.app.Application
-import de.knurl.data.TrainingData
-import de.knurl.data.local.JsonFileStore
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import de.knurl.data.firebase.AuthRepository
+import de.knurl.data.firebase.FirestoreTrainingStore
 import de.knurl.data.repository.TrainingRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import java.io.File
 import java.util.Locale
 
 class KnurlApp : Application() {
@@ -15,16 +16,20 @@ class KnurlApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        container = AppContainer(this)
+        container = AppContainer()
     }
 }
 
 /** Builds the app's long-lived objects once. Screens reach them through their ViewModels. */
-class AppContainer(app: Application) {
+class AppContainer {
     private val appScope = CoroutineScope(SupervisorJob())
 
+    val auth = AuthRepository(FirebaseAuth.getInstance(), appScope)
+
     val training = TrainingRepository(
-        store = JsonFileStore(File(app.filesDir, "training.json"), TrainingData.serializer()),
+        // Firestore keeps a persistent local cache by default: reads work offline, writes are queued.
+        store = FirestoreTrainingStore(FirebaseFirestore.getInstance()),
+        uid = auth.uid,
         scope = appScope,
         german = { Locale.getDefault().language == "de" },
     )

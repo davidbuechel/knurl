@@ -17,7 +17,8 @@ Kotlin + Jetpack Compose, Modelle und Rechnungen in Kotlin Multiplatform (`:shar
   Volumen der letzten 8 Wochen, Wochenserie.
 - **Profil:** Stangengewicht, Standardpause, Wochenziel.
 
-Alle Daten bleiben auf dem Gerät (`training.json` im App-Speicher). Die App hat keine Internet-Berechtigung.
+Daten liegen in Firebase (Projekt `knurl-gym`, Frankfurt) unter dem eigenen Konto. Jede Installation startet
+mit einem anonymen Konto; Training funktioniert dank Firestore-Cache auch offline. Details: `docs/firebase.md`.
 
 ## Fahrplan
 1. Loggen, offline ← *hier*
@@ -27,12 +28,14 @@ Alle Daten bleiben auf dem Gerät (`training.json` im App-Speicher). Die App hat
 ## Setup
 - Ordner in Android Studio öffnen, oder bauen mit `./gradlew assembleDebug`.
 - `local.properties` (SDK-Pfad) legt Android Studio selbst an; sie wird nicht committet.
-- Tests: `./gradlew testDebugUnitTest :shared:testAndroidHostTest`
+- `app/google-services.json` ist nicht im Repo; holen wie in `docs/firebase.md` beschrieben.
+- Tests: `./gradlew testDebugUnitTest :shared:testAndroidHostTest` und `cd firestore-tests && npm test`
+  (siehe `docs/testing.md`)
 
 ## Aufbau
 ```
 app/      Android-App (Compose, Material 3)
-  data/       TrainingRepository + JsonFileStore (lokal, atomar geschrieben)
+  data/       TrainingRepository (Quelle der Wahrheit), TrainingStore-Interface, firebase/ (Auth, Firestore)
   feature/    today, training, workout, exercises, progress, settings, common
   ui/         theme (Farben, Typo, Shapes), brand (Zeichen, App-Icon, Lade-/Leerzustände), navigation
 shared/   Kotlin Multiplatform
@@ -50,5 +53,5 @@ Schriften: Archivo (Display und Zahlen, leicht breit) und Inter (Text), beide al
 
 ## Stack
 AGP 9.5 (built-in Kotlin), Kotlin 2.4, Gradle 9.8, Compose BOM 2026.08, Material 3, Navigation Compose
-(typsichere Routen), kotlinx-serialization, kotlinx-datetime. Package `de.knurl` · minSdk 29 · targetSdk 36 ·
+(typsichere Routen), kotlinx-serialization, kotlinx-datetime, Firebase (Auth, Firestore). Package `de.knurl` · minSdk 29 · targetSdk 36 ·
 compileSdk 37. UI auf Deutsch und Englisch.

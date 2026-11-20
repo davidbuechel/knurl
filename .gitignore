@@ -17,3 +17,9 @@ keystore.properties
 *.keystore
 /keystore/
 google-services.json
+
+# Firebase / Node
+node_modules/
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*

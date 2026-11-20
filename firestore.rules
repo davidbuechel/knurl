@@ -1,0 +1,101 @@
+rules_version = '2';
+
+// Knurl: every document belongs to exactly one user and lives under users/{uid}.
+// Nobody reads or writes anyone else's data. Shapes are checked so a bug can't
+// fill the database with junk; deep contents (sets inside exercises) are the
+// app's job. Tests: firestore-tests/*.test.mjs.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function owner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function data() {
+      return request.resource.data;
+    }
+
+    function stampedNow() {
+      return data().updatedAt == request.time;
+    }
+
+    function text(value, min, max) {
+      return value is string && value.size() >= min && value.size() <= max;
+    }
+
+    function validProfile() {
+      return data().keys().hasOnly(['settings', 'schemaVersion', 'createdAt'])
+        && data().settings is map
+        && (!('schemaVersion' in data()) || data().schemaVersion is int);
+    }
+
+    function validWorkout(id) {
+      return data().keys().hasOnly(['id', 'name', 'routineId', 'startedAtMs', 'endedAtMs', 'exercises', 'updatedAt'])
+        && data().id == id
+        && text(data().name, 1, 100)
+        && data().startedAtMs is int
+        && (data().endedAtMs == null || data().endedAtMs is int)
+        && (data().routineId == null || data().routineId is string)
+        && data().exercises is list && data().exercises.size() <= 60
+        && stampedNow();
+    }
+
+    function validRoutine(id) {
+      return data().keys().hasOnly(['id', 'name', 'items', 'position', 'updatedAt'])
+        && data().id == id
+        && text(data().name, 1, 80)
+        && data().items is list && data().items.size() <= 60
+        && data().position is int
+        && stampedNow();
+    }
+
+    function validCustomExercise(id) {
+      return data().keys().hasOnly(['id', 'nameDe', 'nameEn', 'primary', 'secondary', 'equipment', 'pattern', 'isCustom', 'updatedAt'])
+        && data().id == id
+        && text(data().nameDe, 1, 80) && text(data().nameEn, 1, 80)
+        && data().isCustom == true
+        && stampedNow();
+    }
+
+    function validDevice() {
+      return data().keys().hasOnly(['token', 'platform', 'locale', 'updatedAt'])
+        && text(data().token, 1, 4096)
+        && data().platform in ['android', 'ios']
+        && text(data().locale, 2, 16)
+        && stampedNow();
+    }
+
+    match /users/{uid} {
+      allow read, delete: if owner(uid);
+      allow create, update: if owner(uid) && validProfile();
+
+      match /workouts/{id} {
+        allow read, delete: if owner(uid);
+        allow create, update: if owner(uid) && validWorkout(id);
+      }
+
+      match /routines/{id} {
+        allow read, delete: if owner(uid);
+        allow create, update: if owner(uid) && validRoutine(id);
+      }
+
+      match /customExercises/{id} {
+        allow read, delete: if owner(uid);
+        allow create, update: if owner(uid) && validCustomExercise(id);
+      }
+
+      // The running workout: exactly one document, deleted when the workout ends.
+      match /state/{doc} {
+        allow read, delete: if owner(uid) && doc == 'active';
+        allow create, update: if owner(uid) && doc == 'active' && validWorkout(data().id);
+      }
+
+      // One document per installation, for push messages.
+      match /devices/{installId} {
+        allow read, delete: if owner(uid);
+        allow create, update: if owner(uid) && validDevice();
+      }
+    }
+  }
+}

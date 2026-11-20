@@ -55,4 +55,6 @@ data class Routine(
     val id: String,
     val name: String,
     val items: List<RoutineItem>,
+    /** Order in the routine list; the "up next" suggestion follows it. */
+    val position: Int = 0,
 )

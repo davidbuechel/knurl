@@ -102,7 +102,7 @@
     <string name="settings_default_rest_seconds">Default rest (seconds)</string>
     <string name="settings_weekly_goal">Workouts per week</string>
     <string name="settings_data">Your data</string>
-    <string name="settings_data_local">Everything stays on this phone. Nothing is uploaded and nothing is tracked.</string>
+    <string name="settings_data_local">Your training is saved to your account and works offline. Nothing is tracked.</string>
     <string name="settings_data_count">Workouts saved: %1$d</string>
     <string name="settings_version">Version %1$s</string>
 
@@ -141,4 +141,7 @@
     <string name="equipment_smith">Smith machine</string>
     <string name="equipment_bodyweight">Bodyweight</string>
     <string name="equipment_band">Band</string>
+    <string name="action_retry">Try again</string>
+    <string name="first_start_offline_title">One moment online, please</string>
+    <string name="first_start_offline_body">Knurl sets up your account on the first start, which needs the internet once. After that, training works offline too.</string>
 </resources>

@@ -14,6 +14,7 @@ object StarterRoutines {
     fun all(german: Boolean): List<Routine> = listOf(
         Routine(
             id = "starter_push",
+            position = 0,
             name = "Push",
             items = listOf(
                 RoutineItem("bench_press", 3, strength, 180),
@@ -25,6 +26,7 @@ object StarterRoutines {
         ),
         Routine(
             id = "starter_pull",
+            position = 1,
             name = "Pull",
             items = listOf(
                 RoutineItem("lat_pulldown", 3, volume, 120),
@@ -36,6 +38,7 @@ object StarterRoutines {
         ),
         Routine(
             id = "starter_legs",
+            position = 2,
             name = if (german) "Beine" else "Legs",
             items = listOf(
                 RoutineItem("back_squat", 3, strength, 180),
@@ -47,6 +50,7 @@ object StarterRoutines {
         ),
         Routine(
             id = "starter_full_body",
+            position = 3,
             name = if (german) "Ganzkörper" else "Full body",
             items = listOf(
                 RoutineItem("back_squat", 3, strength, 180),
