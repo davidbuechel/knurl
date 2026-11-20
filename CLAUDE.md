@@ -62,8 +62,12 @@ calculations in Kotlin Multiplatform (`:shared`). Firebase backend (Auth, Firest
 ## Design
 - Steel neutrals, chalk surfaces, cobalt as the brand colour. Plate colours (`Knurl.colors.plate()`)
   carry data only, never decoration.
-- The mark is the monogram K (`KnurlMark`, `KnurlAppIcon` in `ui/brand`); its geometry is shared with
-  `ic_launcher_foreground.xml` and `ic_notification.xml`. No knurl hatch pattern anywhere.
+- The mark is three plates rising on a bar end (`KnurlMark`, `KnurlAppIcon` in `ui/brand`); geometry shared
+  with `ic_launcher_foreground.xml` and `ic_notification.xml`.
+- **One loading language, built from the mark:** `KnurlLoader` (plates load one by one), `KnurlProgress`
+  (determinate), `BrandLoadingBox`, `BrandBusyOverlay`, `BrandButtonLabel`. No stock spinners or progress bars.
+- **Building blocks** in `feature/common/DesignSystem.kt`: `ListGroup`/`ListRow`, `SectionHeader`, `KpiRow`,
+  `SegmentedTabs`, `HeroCard`, `WeekDots`, `Pill`. Surfaces have no border; no card inside a card.
 - Fonts: Archivo (display, numbers) and Inter (text) as variable fonts; styles only via `KnurlTypography`.
 - Both themes are designed; every colour comes from `ui/theme`.
 

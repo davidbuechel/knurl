@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.FitnessCenter
-import androidx.compose.material.icons.rounded.Insights
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Today
@@ -30,7 +29,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import de.knurl.R
 import de.knurl.feature.exercises.ExercisesScreen
-import de.knurl.feature.progress.ProgressScreen
 import de.knurl.feature.settings.ProfileScreen
 import de.knurl.feature.today.TodayScreen
 import de.knurl.feature.training.TrainingScreen
@@ -40,7 +38,6 @@ private enum class HomeTab(@StringRes val label: Int, val icon: ImageVector) {
     TODAY(R.string.tab_today, Icons.Rounded.Today),
     TRAINING(R.string.tab_training, Icons.Rounded.FitnessCenter),
     EXERCISES(R.string.tab_exercises, Icons.Rounded.Search),
-    PROGRESS(R.string.tab_progress, Icons.Rounded.Insights),
     PROFILE(R.string.tab_profile, Icons.Rounded.Person),
 }
 
@@ -73,7 +70,6 @@ fun HomeScreen(go: Navigator) {
                     HomeTab.TODAY -> TodayScreen(go)
                     HomeTab.TRAINING -> TrainingScreen(go)
                     HomeTab.EXERCISES -> ExercisesScreen(go, pickForWorkout = false)
-                    HomeTab.PROGRESS -> ProgressScreen()
                     HomeTab.PROFILE -> ProfileScreen(go)
                 }
             }

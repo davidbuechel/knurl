@@ -4,7 +4,6 @@
     <string name="tab_today">Heute</string>
     <string name="tab_training">Training</string>
     <string name="tab_exercises">Übungen</string>
-    <string name="tab_progress">Fortschritt</string>
     <string name="tab_profile">Profil</string>
 
     <!-- Actions -->
@@ -332,4 +331,8 @@
         <item quantity="one">%1$d Trainingstag</item>
         <item quantity="other">%1$d Trainingstage</item>
     </plurals>
+
+    <!-- Statistics -->
+    <string name="stats_title">Statistik</string>
+    <string name="stats_subtitle">Volumen, Muskeln, Serie, Kalender, Körpergewicht</string>
 </resources>

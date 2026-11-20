@@ -3,7 +3,7 @@
 Gym-Tracking für Android: Übungen loggen, Gewichte pro Übung verfolgen, Fortschritt verstehen.
 Kotlin + Jetpack Compose, Modelle und Rechnungen in Kotlin Multiplatform (`:shared`) für eine spätere iOS-App.
 
-> „Knurl“ ist der Working Title. Zeichen: ein geometrisches K, dessen oberer Arm in einer Hantelscheibe endet.
+> „Knurl“ ist der Working Title. Zeichen: drei aufsteigende Hantelscheiben auf einem Stangenende; dieselbe Form ist die Ladeanimation.
 
 ## Phase 1 (aktuell)
 - **Heute:** nächster Plan der Reihe nach, laufendes Training fortsetzen, Woche auf einen Blick, letzte Rekorde.

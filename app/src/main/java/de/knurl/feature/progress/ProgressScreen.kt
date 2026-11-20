@@ -13,7 +13,14 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,6 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.knurl.R
+import de.knurl.ui.navigation.Navigator
 import de.knurl.feature.common.tonnageText
 import de.knurl.domain.calc.HardSets
 import de.knurl.domain.model.Muscle
@@ -44,14 +52,23 @@ import java.util.Locale
 /** The bars run to this many sets; the target zone (10–20) sits inside. */
 private const val SCALE_MAX = 25.0
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProgressScreen() {
+fun ProgressScreen(go: Navigator) {
     val vm = knurlViewModel { ProgressViewModel(it.training) }
     val state by vm.state.collectAsStateWithLifecycle()
     val s = state ?: return BrandLoadingBox()
 
-    LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        item { ScreenTitle(stringResource(R.string.tab_progress), eyebrow = stringResource(R.string.progress_this_week)) }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.stats_title)) },
+                navigationIcon = { IconButton(onClick = go::back) { Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.action_back)) } },
+            )
+        },
+    ) { padding ->
+    LazyColumn(contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = padding.calculateTopPadding(), bottom = padding.calculateBottomPadding() + 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        item { SectionLabel(stringResource(R.string.progress_this_week)) }
 
         item {
             KnurlCard {
@@ -95,6 +112,7 @@ fun ProgressScreen() {
                 )
             }
         }
+    }
     }
 }
 

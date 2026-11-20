@@ -64,13 +64,13 @@ inline fun <reified VM : ViewModel> knurlViewModel(key: String? = null, noinline
 /** The one card style: white on steel in light mode, raised graphite in dark mode. */
 @Composable
 fun KnurlCard(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, content: @Composable ColumnScope.() -> Unit) {
+    // No border: fill and space only (DesignSystem.kt rules).
     val colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest)
-    val border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     val inner: @Composable ColumnScope.() -> Unit = {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp), content = content)
     }
-    if (onClick != null) Card(onClick, modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large, colors = colors, border = border, content = inner)
-    else Card(modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large, colors = colors, border = border, content = inner)
+    if (onClick != null) Card(onClick, modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large, colors = colors, content = inner)
+    else Card(modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large, colors = colors, content = inner)
 }
 
 /** Small uppercase label above a group, like "THIS WEEK". */

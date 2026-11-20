@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Insights
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -38,6 +39,7 @@ import de.knurl.ui.brand.KnurlAppIcon
 import de.knurl.ui.navigation.AccountRoute
 import de.knurl.ui.navigation.Navigator
 import de.knurl.ui.navigation.SettingsRoute
+import de.knurl.ui.navigation.StatsRoute
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -105,6 +107,9 @@ fun ProfileScreen(go: Navigator) {
 
         item {
             KnurlCard {
+                LinkRow(Icons.Outlined.Insights, stringResource(R.string.stats_title), stringResource(R.string.stats_subtitle)) {
+                    go.to(StatsRoute)
+                }
                 LinkRow(Icons.Outlined.Settings, stringResource(R.string.settings_title), stringResource(R.string.settings_subtitle)) {
                     go.to(SettingsRoute)
                 }

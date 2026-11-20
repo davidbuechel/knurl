@@ -1,26 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The Knurl mark: a geometric K whose upper arm ends in a plate. Same geometry as ui/brand/Brand.kt,
-     scaled into the adaptive icon's safe zone so no launcher mask crops it. -->
+<!-- The Knurl mark: three plates rising on a bar end. Same geometry as ui/brand/Brand.kt, inside the safe zone. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <group
-        android:pivotX="54"
-        android:pivotY="54"
-        android:scaleX="0.72"
-        android:scaleY="0.72"
-        android:translateY="1.5">
-        <path
-            android:fillColor="#00000000"
-            android:strokeColor="#FFFFFFFF"
-            android:strokeWidth="10"
-            android:strokeLineCap="round"
-            android:strokeLineJoin="round"
-            android:pathData="M40,33 L40,75 M40,58 L63,35 M50,50 L67,75" />
-        <path
-            android:fillColor="#FFFFFFFF"
-            android:pathData="M68,31 m-7.5,0 a7.5,7.5 0 1,0 15,0 a7.5,7.5 0 1,0 -15,0" />
+    <group android:pivotX="54" android:pivotY="54" android:scaleX="0.8" android:scaleY="0.8">
+        <path android:fillColor="#FFFFFFFF" android:pathData="M31.5,45.0 A5.5,5.5 0 0 1 37,50.5 L37,57.5 A5.5,5.5 0 0 1 26,57.5 L26,50.5 A5.5,5.5 0 0 1 31.5,45.0 Z" />
+        <path android:fillColor="#FFFFFFFF" android:pathData="M49.0,37.0 A5.5,5.5 0 0 1 54.5,42.5 L54.5,65.5 A5.5,5.5 0 0 1 43.5,65.5 L43.5,42.5 A5.5,5.5 0 0 1 49.0,37.0 Z" />
+        <path android:fillColor="#FFFFFFFF" android:pathData="M66.5,29.0 A5.5,5.5 0 0 1 72,34.5 L72,73.5 A5.5,5.5 0 0 1 61,73.5 L61,34.5 A5.5,5.5 0 0 1 66.5,29.0 Z" />
+        <path android:fillColor="#FFFFFFFF" android:pathData="M72,51 L83,51 A3,3 0 0 1 83,57 L72,57 Z" />
     </group>
 </vector>
