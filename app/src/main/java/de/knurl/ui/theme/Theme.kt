@@ -87,6 +87,10 @@ data class KnurlColors(
     val warning: Color,
     /** Supersets: the bracket and label that tie exercises together. */
     val superset: Color,
+    /** Medals for achievements: only there. */
+    val bronze: Color,
+    val silver: Color,
+    val gold: Color,
 ) {
     /** Colour of a competition plate by its weight; small change plates are steel grey. */
     fun plate(kg: Double): Color = when {
@@ -102,12 +106,14 @@ private val LightExtra = KnurlColors(
     plate25 = Color(0xFFD93A30), plate20 = Color(0xFF2B5BD7), plate15 = Color(0xFFE9B724),
     plate10 = Color(0xFF1E9455), plate5 = Color(0xFFC9CED6),
     success = Color(0xFF1E9455), warning = Color(0xFFC98A00), superset = Color(0xFF7C4DFF),
+    bronze = Color(0xFFB0703C), silver = Color(0xFF8A96A8), gold = Color(0xFFC99A14),
 )
 
 private val DarkExtra = KnurlColors(
     plate25 = Color(0xFFFF6A5E), plate20 = Color(0xFF6D93FF), plate15 = Color(0xFFFFD055),
     plate10 = Color(0xFF3FCB83), plate5 = Color(0xFF8D96A3),
     success = Color(0xFF3FCB83), warning = Color(0xFFFFC24D), superset = Color(0xFFB39DFF),
+    bronze = Color(0xFFD9925A), silver = Color(0xFFB8C2D0), gold = Color(0xFFF2C744),
 )
 
 val LocalKnurlColors = staticCompositionLocalOf { LightExtra }

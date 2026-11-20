@@ -22,6 +22,10 @@ Kotlin + Jetpack Compose, Modelle und Rechnungen in Kotlin Multiplatform (`:shar
 - **Statistik:** Woche/Monat/Jahr mit Vergleich zum Vorzeitraum bis zum selben Tag, Muskel-Heatmap (vorn/hinten),
   harte Sätze pro Muskel mit Zielbereich 10–20, größte Steigerungen, Volumen-Verlauf, Wochenserie;
   Körpergewicht und Trainingskalender als eigene Seiten.
+- **Erfolge:** 31 Medaillen (Bronze/Silber/Gold) für Trainings, Serien, Volumen, Kraft-Meilensteine bei Bankdrücken,
+  Kniebeuge und Kreuzheben, Rekorde und mehr; abgeleitet aus dem Verlauf, nie gespeichert. Wochenziel als Ring auf „Heute“.
+- **Monatsrückblick:** „Dein Oktober“ mit Volumen, Zeit, Rekorden, Lieblingsübung, größtem Schritt, Muskelkarte und
+  Freischaltungen, als Bild teilbar; in der ersten Woche eines Monats auf „Heute“, sonst über den Kalender.
 - **Profil und Konto:** anonymer Start, Konto sichern mit Google oder E-Mail (Daten bleiben), Anmelden, Abmelden,
   Konto löschen, Export als JSON und CSV.
 - **Einstellungen:** Design (System/Hell/Dunkel), Sprache (System/Deutsch/Englisch), kg/lb, Stange, vorhandene
@@ -37,7 +41,7 @@ mit einem anonymen Konto; Training funktioniert dank Firestore-Cache auch offlin
 ## Fahrplan
 1. Loggen, offline, Konto, Benachrichtigungen ✓
 2. Redesign, Onboarding, Supersätze ✓
-3. Eigene Übungen ✓, Statistik ✓, Erfolge und Monatsrückblick, kcal-Schätzung, Health Connect ← *hier*
+3. Eigene Übungen ✓, Statistik ✓, Erfolge und Monatsrückblick ✓, kcal-Schätzung, Health Connect ← *hier*
 4. Wear OS, iOS über `:shared`
 
 ## Setup

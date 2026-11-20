@@ -32,6 +32,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import de.knurl.R
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material3.TextButton
 import de.knurl.domain.model.BodyWeight
 import de.knurl.feature.common.Formatting
 import de.knurl.feature.common.KnurlCard
@@ -90,7 +94,7 @@ fun BodyWeightCard(entries: List<BodyWeight>, onAdd: (Double) -> Unit) {
 
 /** A month at a glance: every training day is a filled dot. */
 @Composable
-fun TrainingCalendarCard(trainingDays: Set<LocalDate>) {
+fun TrainingCalendarCard(trainingDays: Set<LocalDate>, onRecap: (YearMonth) -> Unit = {}) {
     var month by rememberSaveable { mutableStateOf(YearMonth.now().toString()) }
     val shown = YearMonth.parse(month)
     val locale = LocalConfiguration.current.locales[0]
@@ -153,6 +157,12 @@ fun TrainingCalendarCard(trainingDays: Set<LocalDate>) {
                         }
                     }
                 }
+            }
+        }
+        if (inMonth > 0) {
+            TextButton(onClick = { onRecap(shown) }, modifier = Modifier.fillMaxWidth()) {
+                Icon(Icons.Rounded.AutoAwesome, contentDescription = null, modifier = Modifier.size(18.dp))
+                Text(stringResource(R.string.recap_open), modifier = Modifier.padding(start = 6.dp))
             }
         }
     }

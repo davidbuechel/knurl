@@ -58,6 +58,8 @@ data class TodayState(
     val streakWeeks: Int,
     val recentRecords: List<RecordRow>,
     val hour: Int,
+    /** Year and month of last month's review, shown in the first week of a month if there was training. */
+    val recap: Pair<Int, Int>?,
 )
 
 class TodayViewModel(private val training: TrainingRepository) : ViewModel() {
@@ -90,6 +92,10 @@ class TodayViewModel(private val training: TrainingRepository) : ViewModel() {
             streakWeeks = Weeks.streak(data.workouts, today, zone, data.settings.weeklyGoal),
             recentRecords = History.records(data.workouts).takeLast(4).reversed().map { RecordRow(it, training.exercise(it.exerciseId)) },
             hour = java.time.LocalTime.now().hour,
+            recap = java.time.YearMonth.now().minusMonths(1).let { last ->
+                val trained = data.workouts.any { java.time.YearMonth.from(java.time.Instant.ofEpochMilli(it.startedAtMs).atZone(java.time.ZoneId.systemDefault())) == last }
+                if (today.day <= 7 && trained) last.year to last.monthValue else null
+            },
         )
     }
 

@@ -524,4 +524,81 @@
 
     <!-- Exercise progress -->
     <string name="reps_range">%1$d–%2$d Wiederholungen</string>
+
+    <!-- Achievements -->
+    <string name="achievements_title">Erfolge</string>
+    <string name="achievements_hint">Medaillen für Meilensteine</string>
+    <string name="achievements_count">%1$d von %2$d freigeschaltet</string>
+    <string name="achievement_unlocked_on">Freigeschaltet am %1$s</string>
+    <string name="achievement_progress">%1$s von %2$s</string>
+    <string name="tier_bronze">Bronze</string>
+    <string name="tier_silver">Silber</string>
+    <string name="tier_gold">Gold</string>
+    <string name="ach_first_workout">Erstes Training</string>
+    <string name="ach_session_volume_title">%1$s in einem Training</string>
+    <string name="ach_session_volume_desc">Bewege %1$s in einem einzigen Training.</string>
+    <string name="ach_total_volume_title">%1$s insgesamt</string>
+    <string name="ach_total_volume_desc">Bewege %1$s über alle deine Trainings.</string>
+    <string name="ach_lift_title">%1$s %2$s</string>
+    <string name="ach_lift_desc">Erreiche ein geschätztes 1RM von %1$s.</string>
+    <string name="ach_superset_title">Erster Supersatz</string>
+    <string name="ach_superset_desc">Schließe ein Training mit Supersatz ab.</string>
+    <string name="ach_early_title">Frühaufsteher</string>
+    <string name="ach_early_desc">Starte ein Training vor 7 Uhr.</string>
+    <string name="ach_hyrox_title">Hyrox-Station</string>
+    <string name="ach_hyrox_desc">Mach eine Station: Schlitten, Wall Balls, SkiErg, Carry oder Burpees.</string>
+    <string name="summary_unlocked">Freigeschaltet</string>
+    <plurals name="ach_workouts_title">
+        <item quantity="one">%1$d Training</item>
+        <item quantity="other">%1$d Trainings</item>
+    </plurals>
+    <plurals name="ach_workouts_desc">
+        <item quantity="one">Schließe %1$d Training ab.</item>
+        <item quantity="other">Schließe %1$d Trainings ab.</item>
+    </plurals>
+    <plurals name="ach_streak_title">
+        <item quantity="one">%1$d Woche in Folge</item>
+        <item quantity="other">%1$d Wochen in Folge</item>
+    </plurals>
+    <plurals name="ach_streak_desc">
+        <item quantity="one">Erreiche dein Wochenziel %1$d Woche in Folge.</item>
+        <item quantity="other">Erreiche dein Wochenziel %1$d Wochen in Folge.</item>
+    </plurals>
+    <plurals name="ach_records_title">
+        <item quantity="one">%1$d Rekord</item>
+        <item quantity="other">%1$d Rekorde</item>
+    </plurals>
+    <plurals name="ach_records_desc">
+        <item quantity="one">Stelle %1$d persönlichen Rekord auf.</item>
+        <item quantity="other">Stelle %1$d persönliche Rekorde auf.</item>
+    </plurals>
+    <plurals name="ach_weighins_title">
+        <item quantity="one">%1$d Mal gewogen</item>
+        <item quantity="other">%1$d Mal gewogen</item>
+    </plurals>
+    <plurals name="ach_weighins_desc">
+        <item quantity="one">Trage %1$d Mal dein Körpergewicht ein.</item>
+        <item quantity="other">Trage %1$d Mal dein Körpergewicht ein.</item>
+    </plurals>
+
+    <!-- Month in review -->
+    <string name="recap_title">Monatsrückblick</string>
+    <string name="recap_eyebrow">Knurl · %1$d</string>
+    <string name="recap_headline">Dein %1$s</string>
+    <string name="recap_share">Teilen</string>
+    <string name="recap_share_title">Mein %1$s im Gym</string>
+    <string name="recap_unlocked">Diesen Monat freigeschaltet</string>
+    <string name="recap_gain">Größter Schritt: %1$s → %2$s</string>
+    <string name="recap_ready_title">Dein %1$s ist fertig</string>
+    <string name="recap_ready_body">Volumen, Lieblingsübung, größter Schritt</string>
+    <string name="recap_open">Monatsrückblick</string>
+    <string name="today_goal">Wochenziel</string>
+    <plurals name="recap_summary">
+        <item quantity="one">%1$d Training an %2$d Tagen</item>
+        <item quantity="other">%1$d Trainings an %2$d Tagen</item>
+    </plurals>
+    <plurals name="recap_favorite">
+        <item quantity="one">Lieblingsübung · %1$d Satz</item>
+        <item quantity="other">Lieblingsübung · %1$d Sätze</item>
+    </plurals>
 </resources>

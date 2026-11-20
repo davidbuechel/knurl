@@ -33,7 +33,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import de.knurl.feature.achievements.AchievementsScreen
 import de.knurl.feature.exercises.CustomExerciseScreen
+import de.knurl.feature.recap.MonthRecapScreen
 import de.knurl.feature.exercises.ExerciseDetailScreen
 import de.knurl.feature.exercises.ExercisesScreen
 import de.knurl.feature.home.HomeScreen
@@ -53,6 +55,8 @@ import kotlinx.serialization.Serializable
 @Serializable data object BodyWeightRoute
 @Serializable data object CalendarRoute
 @Serializable data object AccountRoute
+@Serializable data object AchievementsRoute
+@Serializable data class RecapRoute(val year: Int, val month: Int)
 @Serializable data class LegalRoute(val page: LegalPage)
 
 /** The only way screens move: `go.to(route)` and `go.back()`. */
@@ -134,6 +138,8 @@ private fun Destinations(nav: NavHostController, go: Navigator) {
         composable<BodyWeightRoute> { BodyWeightScreen(go) }
         composable<CalendarRoute> { CalendarScreen(go) }
         composable<AccountRoute> { AccountScreen(go) }
+        composable<AchievementsRoute> { AchievementsScreen(go) }
+        composable<RecapRoute> { entry -> entry.toRoute<RecapRoute>().let { MonthRecapScreen(go, it.year, it.month) } }
         composable<LegalRoute> { entry -> LegalScreen(go, entry.toRoute<LegalRoute>().page) }
     }
 }

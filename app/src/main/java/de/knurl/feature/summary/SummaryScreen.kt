@@ -48,6 +48,13 @@ import de.knurl.feature.common.HeroCard
 import de.knurl.feature.common.Pill
 import de.knurl.ui.brand.KnurlProgress
 import de.knurl.R
+import de.knurl.ui.navigation.AchievementsRoute
+import de.knurl.ui.brand.Medal
+import de.knurl.feature.achievements.description
+import de.knurl.feature.achievements.title
+import de.knurl.feature.achievements.achievements
+import de.knurl.domain.achievements.Achievements
+import de.knurl.domain.achievements.AchievementStatus
 import de.knurl.domain.model.SetEntry
 import de.knurl.feature.common.estimateText
 import de.knurl.data.repository.TrainingRepository
@@ -93,6 +100,8 @@ data class SummaryState(
     val savedAsRoutine: Boolean,
     /** Exercises whose top set beat the previous session: heavier, or more reps at the same weight. */
     val gains: List<Gain>,
+    /** Achievements this very workout unlocked. */
+    val unlocked: List<AchievementStatus>,
 )
 
 /** One exercise that went up: today's top set against last time's. */
@@ -117,6 +126,7 @@ class SummaryViewModel(private val training: TrainingRepository, private val wor
             records = History.records(data.workouts).filter { it.workoutId == workout.id },
             routine = workout.routineId?.let { id -> data.routines.firstOrNull { it.id == id } },
             savedAsRoutine = saved,
+            unlocked = Achievements.unlockedBy(workout.id, data.achievements()),
             gains = workout.exercises.mapNotNull { item ->
                 val before = History.sessions(item.exerciseId, data.workouts.filter { it.startedAtMs < workout.startedAtMs }).lastOrNull()?.sets
                     ?: return@mapNotNull null
@@ -179,6 +189,23 @@ fun SummaryScreen(go: Navigator, workoutId: String) {
             }
             if (s.records.isNotEmpty()) {
                 item { RecordMoment(s.records.size) }
+            }
+
+            if (s.unlocked.isNotEmpty()) {
+                item { SectionHeader(stringResource(R.string.summary_unlocked)) }
+                item {
+                    ListGroup {
+                        s.unlocked.forEachIndexed { i, status ->
+                            ListRow(
+                                status.achievement.title(),
+                                subtitle = status.achievement.description(),
+                                leading = { Medal(status.achievement.kind, status.achievement.tier, true, 1f, size = 44.dp) },
+                                divider = i < s.unlocked.lastIndex,
+                                onClick = { go.to(AchievementsRoute) },
+                            )
+                        }
+                    }
+                }
             }
 
             if (s.gains.isNotEmpty()) {

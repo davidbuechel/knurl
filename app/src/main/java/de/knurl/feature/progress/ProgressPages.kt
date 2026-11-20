@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.knurl.R
+import de.knurl.ui.navigation.RecapRoute
 import de.knurl.feature.common.Formatting
 import de.knurl.feature.common.ListGroup
 import de.knurl.feature.common.ListRow
@@ -96,6 +97,6 @@ fun CalendarScreen(go: Navigator) {
     val state by vm.state.collectAsStateWithLifecycle()
     ProgressPage(go, stringResource(R.string.calendar)) {
         val s = state ?: return@ProgressPage item { BrandLoadingBox() }
-        item { TrainingCalendarCard(s.trainingDays) }
+        item { TrainingCalendarCard(s.trainingDays, onRecap = { go.to(RecapRoute(it.year, it.monthValue)) }) }
     }
 }

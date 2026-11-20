@@ -37,6 +37,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import de.knurl.R
+import de.knurl.ui.navigation.AchievementsRoute
+import de.knurl.ui.theme.Knurl
+import androidx.compose.material.icons.rounded.MilitaryTech
+import de.knurl.domain.achievements.Achievements
+import de.knurl.feature.achievements.achievements
 import de.knurl.data.firebase.AuthRepository
 import de.knurl.data.firebase.AuthState
 import de.knurl.data.repository.TrainingRepository
@@ -77,6 +82,8 @@ data class ProfileState(
     val firstWorkoutMs: Long?,
     val latestWeightKg: Double?,
     val trainingDaysThisMonth: Int,
+    val achievementsUnlocked: Int,
+    val achievementsTotal: Int,
 )
 
 class ProfileViewModel(training: TrainingRepository, private val auth: AuthRepository) : ViewModel() {
@@ -91,6 +98,8 @@ class ProfileViewModel(training: TrainingRepository, private val auth: AuthRepos
             records = History.records(data.workouts).size,
             firstWorkoutMs = data.workouts.minOfOrNull { it.startedAtMs },
             latestWeightKg = data.bodyWeights.lastOrNull()?.weightKg,
+            achievementsUnlocked = data.achievements().count { it.unlocked },
+            achievementsTotal = Achievements.all.size,
             trainingDaysThisMonth = data.workouts.map { Instant.ofEpochMilli(it.startedAtMs).atZone(zone).toLocalDate() }
                 .filter { YearMonth.from(it) == month }.toSet().size,
         )
@@ -162,6 +171,16 @@ fun ProfileScreen(go: Navigator) {
         item {
             ListGroup {
                 ListRow(stringResource(R.string.stats_title), subtitle = stringResource(R.string.stats_subtitle_short), leading = { IconTile(Icons.Rounded.Insights) }) { go.to(StatsRoute) }
+                ListRow(
+                    stringResource(R.string.achievements_title),
+                    subtitle = stringResource(R.string.achievements_hint),
+                    leading = { IconTile(Icons.Rounded.MilitaryTech, Knurl.colors.gold) },
+                    trailing = {
+                        Text("${s.achievementsUnlocked}/${s.achievementsTotal}", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.outline)
+                    },
+                    onClick = { go.to(AchievementsRoute) },
+                )
                 ListRow(
                     stringResource(R.string.body_weight),
                     leading = { IconTile(Icons.Rounded.MonitorWeight, MaterialTheme.colorScheme.secondary) },

@@ -526,4 +526,81 @@
 
     <!-- Exercise progress -->
     <string name="reps_range">%1$d–%2$d reps</string>
+
+    <!-- Achievements -->
+    <string name="achievements_title">Achievements</string>
+    <string name="achievements_hint">Medals for milestones</string>
+    <string name="achievements_count">%1$d of %2$d unlocked</string>
+    <string name="achievement_unlocked_on">Unlocked on %1$s</string>
+    <string name="achievement_progress">%1$s of %2$s</string>
+    <string name="tier_bronze">Bronze</string>
+    <string name="tier_silver">Silver</string>
+    <string name="tier_gold">Gold</string>
+    <string name="ach_first_workout">First workout</string>
+    <string name="ach_session_volume_title">%1$s in one workout</string>
+    <string name="ach_session_volume_desc">Move %1$s in a single workout.</string>
+    <string name="ach_total_volume_title">%1$s in total</string>
+    <string name="ach_total_volume_desc">Move %1$s across all your workouts.</string>
+    <string name="ach_lift_title">%1$s %2$s</string>
+    <string name="ach_lift_desc">Reach an estimated 1RM of %1$s.</string>
+    <string name="ach_superset_title">First superset</string>
+    <string name="ach_superset_desc">Finish a workout with a superset.</string>
+    <string name="ach_early_title">Early bird</string>
+    <string name="ach_early_desc">Start a workout before 7 am.</string>
+    <string name="ach_hyrox_title">Hyrox station</string>
+    <string name="ach_hyrox_desc">Do a station: sled, wall balls, SkiErg, carry or burpees.</string>
+    <string name="summary_unlocked">Unlocked</string>
+    <plurals name="ach_workouts_title">
+        <item quantity="one">%1$d workout</item>
+        <item quantity="other">%1$d workouts</item>
+    </plurals>
+    <plurals name="ach_workouts_desc">
+        <item quantity="one">Finish %1$d workout.</item>
+        <item quantity="other">Finish %1$d workouts.</item>
+    </plurals>
+    <plurals name="ach_streak_title">
+        <item quantity="one">%1$d-week streak</item>
+        <item quantity="other">%1$d-week streak</item>
+    </plurals>
+    <plurals name="ach_streak_desc">
+        <item quantity="one">Reach your weekly goal %1$d week in a row.</item>
+        <item quantity="other">Reach your weekly goal %1$d weeks in a row.</item>
+    </plurals>
+    <plurals name="ach_records_title">
+        <item quantity="one">%1$d record</item>
+        <item quantity="other">%1$d records</item>
+    </plurals>
+    <plurals name="ach_records_desc">
+        <item quantity="one">Set %1$d personal record.</item>
+        <item quantity="other">Set %1$d personal records.</item>
+    </plurals>
+    <plurals name="ach_weighins_title">
+        <item quantity="one">%1$d weigh-in</item>
+        <item quantity="other">%1$d weigh-ins</item>
+    </plurals>
+    <plurals name="ach_weighins_desc">
+        <item quantity="one">Log your body weight %1$d time.</item>
+        <item quantity="other">Log your body weight %1$d times.</item>
+    </plurals>
+
+    <!-- Month in review -->
+    <string name="recap_title">Month in review</string>
+    <string name="recap_eyebrow">Knurl · %1$d</string>
+    <string name="recap_headline">Your %1$s</string>
+    <string name="recap_share">Share</string>
+    <string name="recap_share_title">My %1$s at the gym</string>
+    <string name="recap_unlocked">Unlocked this month</string>
+    <string name="recap_gain">Biggest step: %1$s → %2$s</string>
+    <string name="recap_ready_title">Your %1$s is ready</string>
+    <string name="recap_ready_body">Volume, favourite exercise, biggest step</string>
+    <string name="recap_open">Month in review</string>
+    <string name="today_goal">Weekly goal</string>
+    <plurals name="recap_summary">
+        <item quantity="one">%1$d workout on %2$d days</item>
+        <item quantity="other">%1$d workouts on %2$d days</item>
+    </plurals>
+    <plurals name="recap_favorite">
+        <item quantity="one">Favourite · %1$d set</item>
+        <item quantity="other">Favourite · %1$d sets</item>
+    </plurals>
 </resources>

@@ -33,6 +33,20 @@ import de.knurl.ui.theme.Knurl
 import de.knurl.ui.navigation.StatsRoute
 import de.knurl.feature.common.weightText
 import de.knurl.R
+import de.knurl.ui.navigation.RecapRoute
+import de.knurl.feature.common.IconTile
+import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
+import androidx.compose.animation.core.animateFloatAsState
 import de.knurl.feature.common.estimateText
 import de.knurl.feature.common.Formatting
 import de.knurl.feature.common.HeroCard
@@ -81,6 +95,21 @@ fun TodayScreen(go: Navigator) {
                     ),
                     style = MaterialTheme.typography.headlineLarge,
                 )
+            }
+        }
+
+        s.recap?.let { (year, month) ->
+            item {
+                val name = java.time.Month.of(month).getDisplayName(TextStyle.FULL_STANDALONE, locale)
+                ListGroup {
+                    ListRow(
+                        stringResource(R.string.recap_ready_title, name),
+                        subtitle = stringResource(R.string.recap_ready_body),
+                        leading = { IconTile(Icons.Rounded.AutoAwesome, Knurl.colors.gold) },
+                        divider = false,
+                        onClick = { go.to(RecapRoute(year, month)) },
+                    )
+                }
             }
         }
 
@@ -135,8 +164,8 @@ fun TodayScreen(go: Navigator) {
         }
         item {
             KpiRow(
-                listOf(
-                    Kpi("${s.weekSessions}/${s.weeklyGoal}", stringResource(R.string.stat_sessions)),
+                leading = { GoalRingTile(s.weekSessions, s.weeklyGoal) },
+                items = listOf(
                     Kpi(tonnageText(s.weekVolumeKg), stringResource(R.string.stat_volume), s.weekVolumeChange?.takeIf { s.weekVolumeKg > 0 }),
                     Kpi("${s.streakWeeks}", pluralStringResource(R.plurals.streak_weeks_label, s.streakWeeks)),
                 ),
@@ -192,5 +221,33 @@ private fun HeroButton(text: String, onClick: () -> Unit) {
     ) {
         Icon(Icons.Rounded.PlayArrow, contentDescription = null)
         Text(text, style = MaterialTheme.typography.titleMedium)
+    }
+}
+
+/**
+ * The weekly goal as a ring: workouts done against the goal, green once it is met. Sits where the
+ * first number of the row would be.
+ */
+@Composable
+private fun RowScope.GoalRingTile(done: Int, goal: Int) {
+    val progress by animateFloatAsState((done / goal.coerceAtLeast(1).toFloat()).coerceIn(0f, 1f), label = "goal")
+    val met = done >= goal
+    val track = MaterialTheme.colorScheme.surfaceContainerHigh
+    val fill = if (met) Knurl.colors.success else MaterialTheme.colorScheme.primary
+    Column(
+        Modifier.weight(1f).clip(MaterialTheme.shapes.large).background(MaterialTheme.colorScheme.surfaceContainerLowest).padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
+            Canvas(Modifier.fillMaxSize()) {
+                val stroke = 4.5.dp.toPx()
+                val arc = Size(size.width - stroke, size.height - stroke)
+                val topLeft = Offset(stroke / 2, stroke / 2)
+                drawArc(track, 0f, 360f, false, topLeft, arc, style = Stroke(stroke))
+                drawArc(fill, -90f, 360f * progress, false, topLeft, arc, style = Stroke(stroke, cap = StrokeCap.Round))
+            }
+            Text("$done/$goal", style = MaterialTheme.typography.labelMedium)
+        }
+        Text(stringResource(R.string.today_goal), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
     }
 }

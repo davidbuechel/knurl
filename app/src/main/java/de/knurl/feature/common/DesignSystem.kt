@@ -164,8 +164,9 @@ data class Kpi(val value: String, val label: String, val change: Int? = null)
 
 /** Three key numbers side by side, each on its own quiet tile. */
 @Composable
-fun KpiRow(items: List<Kpi>, modifier: Modifier = Modifier) {
+fun KpiRow(items: List<Kpi>, modifier: Modifier = Modifier, leading: (@Composable RowScope.() -> Unit)? = null) {
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        leading?.invoke(this)
         items.forEach { kpi ->
             Column(
                 Modifier.weight(1f).clip(MaterialTheme.shapes.large).background(MaterialTheme.colorScheme.surfaceContainerLowest).padding(14.dp),
