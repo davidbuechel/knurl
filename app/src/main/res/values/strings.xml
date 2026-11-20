@@ -607,6 +607,28 @@
     <string name="kcal_value">≈ %1$s kcal</string>
     <string name="kcal_title">Calories</string>
     <string name="stat_kcal">kcal</string>
-    <string name="kcal_hint">An estimate from duration, density and body weight, about ±25 %. A watch via Health Connect makes it more precise.</string>
+    <string name="kcal_hint">Estimated from duration, density and body weight (±25 %).</string>
     <string name="kcal_missing">Log your body weight and Knurl estimates the energy you used.</string>
+
+    <!-- Health Connect -->
+    <string name="settings_section_connections">Connections</string>
+    <string name="health_title">Health Connect</string>
+    <string name="health_unavailable">Not available on this device.</string>
+    <string name="health_install">Install or update it to connect your watch and scale.</string>
+    <string name="health_workouts">Share workouts</string>
+    <string name="health_workouts_hint">Finished workouts with duration and estimated kcal go to Health Connect.</string>
+    <string name="health_heart_rate">Heart rate from your watch</string>
+    <string name="health_heart_rate_hint">Average and peak in the summary, and kcal from heart rate.</string>
+    <string name="health_weight">Sync body weight</string>
+    <string name="health_weight_hint">Weights from your scale or watch come in, yours go out.</string>
+    <string name="health_manage">Manage permissions</string>
+    <string name="profile_birth_year">Year of birth</string>
+    <string name="profile_sex">Sex</string>
+    <string name="profile_sex_none">No answer</string>
+    <string name="profile_sex_female">Female</string>
+    <string name="profile_sex_male">Male</string>
+    <string name="profile_body_hint">Optional. Only used to estimate energy from your heart rate; without it Knurl uses duration and body weight.</string>
+    <string name="hr_value">Ø %1$d bpm · max %2$d bpm</string>
+    <string name="hr_title">Heart rate</string>
+    <string name="kcal_hint_hr">From heart rate, age, sex and body weight: much closer.</string>
 </resources>

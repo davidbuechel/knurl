@@ -81,6 +81,21 @@ class AppPreferences(context: Context) {
 
     fun setCrashReports(on: Boolean) = putBoolean(KEY_CRASH_REPORTS, on, _crashReports)
 
+    private val _healthWorkouts = MutableStateFlow(prefs.getBoolean(KEY_HEALTH_WORKOUTS, false))
+    /** Health Connect: write finished workouts and their energy. Off until switched on (and allowed). */
+    val healthWorkouts: StateFlow<Boolean> = _healthWorkouts.asStateFlow()
+    fun setHealthWorkouts(on: Boolean) = putBoolean(KEY_HEALTH_WORKOUTS, on, _healthWorkouts)
+
+    private val _healthHeartRate = MutableStateFlow(prefs.getBoolean(KEY_HEALTH_HEART_RATE, false))
+    /** Health Connect: read the heart rate during a workout. */
+    val healthHeartRate: StateFlow<Boolean> = _healthHeartRate.asStateFlow()
+    fun setHealthHeartRate(on: Boolean) = putBoolean(KEY_HEALTH_HEART_RATE, on, _healthHeartRate)
+
+    private val _healthWeight = MutableStateFlow(prefs.getBoolean(KEY_HEALTH_WEIGHT, false))
+    /** Health Connect: keep body weight in step both ways. */
+    val healthWeight: StateFlow<Boolean> = _healthWeight.asStateFlow()
+    fun setHealthWeight(on: Boolean) = putBoolean(KEY_HEALTH_WEIGHT, on, _healthWeight)
+
     /** Whether we already asked for the notification permission (once; after that only from Settings). */
     var notificationsAsked: Boolean
         get() = prefs.getBoolean(KEY_NOTIFICATIONS_ASKED, false)
@@ -109,5 +124,8 @@ class AppPreferences(context: Context) {
         const val KEY_INSTALL_ID = "installId"
         const val KEY_LOG_RIR = "logRir"
         const val KEY_NOTIFICATIONS_ASKED = "notificationsAsked"
+        const val KEY_HEALTH_WORKOUTS = "healthWorkouts"
+        const val KEY_HEALTH_HEART_RATE = "healthHeartRate"
+        const val KEY_HEALTH_WEIGHT = "healthWeight"
     }
 }

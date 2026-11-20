@@ -605,6 +605,28 @@
     <string name="kcal_value">≈ %1$s kcal</string>
     <string name="kcal_title">Kalorien</string>
     <string name="stat_kcal">kcal</string>
-    <string name="kcal_hint">Geschätzt aus Dauer, Dichte und Körpergewicht, etwa ±25 %. Mit einer Uhr über Health Connect wird es genauer.</string>
+    <string name="kcal_hint">Geschätzt aus Dauer, Dichte und Körpergewicht (±25 %).</string>
     <string name="kcal_missing">Trag dein Körpergewicht ein, dann schätzt Knurl deinen Verbrauch.</string>
+
+    <!-- Health Connect -->
+    <string name="settings_section_connections">Verbindungen</string>
+    <string name="health_title">Health Connect</string>
+    <string name="health_unavailable">Auf diesem Gerät nicht verfügbar.</string>
+    <string name="health_install">Installieren oder aktualisieren, um Uhr und Waage zu verbinden.</string>
+    <string name="health_workouts">Trainings teilen</string>
+    <string name="health_workouts_hint">Beendete Trainings mit Dauer und geschätzten kcal gehen an Health Connect.</string>
+    <string name="health_heart_rate">Herzfrequenz deiner Uhr</string>
+    <string name="health_heart_rate_hint">Durchschnitt und Spitze in der Zusammenfassung, kcal aus der Herzfrequenz.</string>
+    <string name="health_weight">Körpergewicht abgleichen</string>
+    <string name="health_weight_hint">Gewichte von Waage oder Uhr kommen rein, deine gehen raus.</string>
+    <string name="health_manage">Berechtigungen verwalten</string>
+    <string name="profile_birth_year">Geburtsjahr</string>
+    <string name="profile_sex">Geschlecht</string>
+    <string name="profile_sex_none">Keine Angabe</string>
+    <string name="profile_sex_female">Weiblich</string>
+    <string name="profile_sex_male">Männlich</string>
+    <string name="profile_body_hint">Freiwillig. Nur für die kcal aus der Herzfrequenz; ohne Angabe rechnet Knurl mit Dauer und Körpergewicht.</string>
+    <string name="hr_value">Ø %1$d bpm · max %2$d bpm</string>
+    <string name="hr_title">Herzfrequenz</string>
+    <string name="kcal_hint_hr">Aus Herzfrequenz, Alter, Geschlecht und Körpergewicht: deutlich genauer.</string>
 </resources>

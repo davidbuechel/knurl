@@ -44,7 +44,13 @@ data class Settings(
     val onboardingDone: Boolean = false,
     val goal: Goal? = null,
     val experience: Experience? = null,
+    /** Optional, only for energy from heart rate (Keytel needs age and sex). Never required. */
+    val birthYear: Int? = null,
+    val sex: Sex? = null,
 )
+
+@Serializable
+enum class Sex { FEMALE, MALE }
 
 /** Each kind of notification can be switched off on its own; each is its own Android channel too. */
 @Serializable

@@ -15,8 +15,10 @@ appcompat = "1.7.1"
 credentials = "1.6.0"
 googleid = "1.1.0"
 coil = "3.3.0"
+healthConnect = "1.1.0"
 
 [libraries]
+androidx-health-connect = { group = "androidx.health.connect", name = "connect-client", version.ref = "healthConnect" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }

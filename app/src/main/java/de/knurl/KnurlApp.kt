@@ -14,6 +14,7 @@ import de.knurl.core.settings.AppPreferences
 import de.knurl.core.workout.RestTimer
 import de.knurl.data.firebase.AuthRepository
 import de.knurl.data.firebase.FirestoreTrainingStore
+import de.knurl.core.health.HealthSync
 import de.knurl.data.repository.TrainingRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -51,7 +52,8 @@ class KnurlApp : Application() {
         override fun onActivityStarted(activity: Activity) { started++; inForeground = true }
         override fun onActivityStopped(activity: Activity) { started--; inForeground = started > 0 }
         override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = Unit
-        override fun onActivityResumed(activity: Activity) = Unit
+        // Health Connect permissions change in system settings: look again whenever the app comes back.
+        override fun onActivityResumed(activity: Activity) = container.health.refresh()
         override fun onActivityPaused(activity: Activity) = Unit
         override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
         override fun onActivityDestroyed(activity: Activity) = Unit
@@ -83,6 +85,8 @@ class AppContainer(val app: Application) {
     val catalogReady: StateFlow<Boolean> = _catalogReady.asStateFlow()
 
     val push = PushRegistration(auth, preferences, firestore, scope)
+
+    val health = HealthSync(app, preferences, scope).also { training.listener = it; it.training = training }
 
     init {
         scope.launch(Dispatchers.IO) {

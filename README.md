@@ -24,6 +24,8 @@ Kotlin + Jetpack Compose, Modelle und Rechnungen in Kotlin Multiplatform (`:shar
   Körpergewicht und Trainingskalender als eigene Seiten.
 - **kcal:** Schätzung pro Training aus Dauer, Satzdichte, Anteil HIIT/Hyrox und Körpergewicht (MET, etwa ±25 %),
   in Zusammenfassung, Verlauf und Statistik; ohne Körpergewicht keine Fantasiezahl, sondern ein Hinweis.
+- **Health Connect:** Trainings mit kcal teilen, Herzfrequenz der Uhr lesen (Ø/max, kcal nach Keytel mit freiwilligem
+  Alter/Geschlecht), Körpergewicht mit Waage und Uhr abgleichen; jeder Teil einzeln einschaltbar. Details: `docs/health-connect.md`.
 - **Erfolge:** 31 Medaillen (Bronze/Silber/Gold) für Trainings, Serien, Volumen, Kraft-Meilensteine bei Bankdrücken,
   Kniebeuge und Kreuzheben, Rekorde und mehr; abgeleitet aus dem Verlauf, nie gespeichert. Wochenziel als Ring auf „Heute“.
 - **Monatsrückblick:** „Dein Oktober“ mit Volumen, Zeit, Rekorden, Lieblingsübung, größtem Schritt, Muskelkarte und
@@ -43,7 +45,7 @@ mit einem anonymen Konto; Training funktioniert dank Firestore-Cache auch offlin
 ## Fahrplan
 1. Loggen, offline, Konto, Benachrichtigungen ✓
 2. Redesign, Onboarding, Supersätze ✓
-3. Eigene Übungen ✓, Statistik ✓, Erfolge und Monatsrückblick ✓, kcal-Schätzung ✓, Health Connect ← *hier*
+3. Eigene Übungen ✓, Statistik ✓, Erfolge und Monatsrückblick ✓, kcal-Schätzung ✓, Health Connect ✓
 4. Wear OS, iOS über `:shared`
 
 ## Setup

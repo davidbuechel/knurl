@@ -48,6 +48,13 @@ import de.knurl.feature.common.HeroCard
 import de.knurl.feature.common.Pill
 import de.knurl.ui.brand.KnurlProgress
 import de.knurl.R
+import androidx.compose.material.icons.outlined.MonitorHeart
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.mapNotNull
+import de.knurl.data.Sex
+import de.knurl.core.health.HeartRate
+import de.knurl.core.health.HealthSync
 import de.knurl.ui.navigation.BodyWeightRoute
 import androidx.compose.material.icons.outlined.Whatshot
 import androidx.compose.material.icons.Icons
@@ -109,16 +116,29 @@ data class SummaryState(
     val unlocked: List<AchievementStatus>,
     /** Estimated energy, null without a body weight. */
     val kcal: Int?,
+    val heartRate: HeartRate?,
+    /** Energy from the heart rate (with age and sex), not from the MET estimate. */
+    val kcalFromHeartRate: Int?,
 )
 
 /** One exercise that went up: today's top set against last time's. */
 data class Gain(val exerciseId: String, val delta: SetDelta, val now: SetEntry, val before: SetEntry)
 
-class SummaryViewModel(private val training: TrainingRepository, private val workoutId: String) : ViewModel() {
+class SummaryViewModel(private val training: TrainingRepository, private val health: HealthSync, private val workoutId: String) : ViewModel() {
 
     private val saved = MutableStateFlow(false)
 
-    val state: StateFlow<SummaryState?> = combine(training.data.filterNotNull(), saved) { data, saved ->
+    /** Heart rate from a watch (Health Connect), read once the workout is there. */
+    private val heart = MutableStateFlow<HeartRate?>(null)
+
+    init {
+        viewModelScope.launch {
+            val workout = training.data.filterNotNull().mapNotNull { d -> d.workouts.firstOrNull { it.id == workoutId } }.first()
+            heart.value = health.heartRate(workout)
+        }
+    }
+
+    val state: StateFlow<SummaryState?> = combine(training.data.filterNotNull(), saved, heart) { data, saved, hr ->
         val workout = data.workouts.firstOrNull { it.id == workoutId } ?: return@combine null
         val previous = data.workouts
             .filter { it.id != workout.id && it.startedAtMs < workout.startedAtMs }
@@ -134,7 +154,9 @@ class SummaryViewModel(private val training: TrainingRepository, private val wor
             routine = workout.routineId?.let { id -> data.routines.firstOrNull { it.id == id } },
             savedAsRoutine = saved,
             unlocked = Achievements.unlockedBy(workout.id, data.achievements()),
-            kcal = Calories.estimate(workout, data.bodyWeights),
+            heartRate = hr,
+            kcalFromHeartRate = kcalFromHeart(workout, hr, data),
+            kcal = kcalFromHeart(workout, hr, data) ?: Calories.estimate(workout, data.bodyWeights),
             gains = workout.exercises.mapNotNull { item ->
                 val before = History.sessions(item.exerciseId, data.workouts.filter { it.startedAtMs < workout.startedAtMs }).lastOrNull()?.sets
                     ?: return@mapNotNull null
@@ -143,6 +165,13 @@ class SummaryViewModel(private val training: TrainingRepository, private val wor
             }.distinctBy { it.exerciseId },
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    private fun kcalFromHeart(workout: Workout, hr: HeartRate?, data: de.knurl.data.TrainingData): Int? {
+        hr ?: return null
+        val weight = Calories.bodyWeightAt(workout.startedAtMs, data.bodyWeights) ?: return null
+        val age = data.settings.birthYear?.let { java.time.Year.now().value - it }
+        return Calories.fromHeartRate(hr.averageBpm.toDouble(), Calories.activeMinutes(workout), weight, age, data.settings.sex?.let { it == Sex.MALE })
+    }
 
     fun exercise(id: String) = training.exercise(id)
 
@@ -166,7 +195,7 @@ class SummaryViewModel(private val training: TrainingRepository, private val wor
 /** After a workout: what was done, what improved, and whether to keep it as a routine. */
 @Composable
 fun SummaryScreen(go: Navigator, workoutId: String) {
-    val vm = knurlViewModel(key = "summary-$workoutId") { SummaryViewModel(it.training, workoutId) }
+    val vm = knurlViewModel(key = "summary-$workoutId") { SummaryViewModel(it.training, it.health, workoutId) }
     val state by vm.state.collectAsStateWithLifecycle()
     var naming by rememberSaveable { mutableStateOf(false) }
     val german = isGerman()
@@ -197,10 +226,17 @@ fun SummaryScreen(go: Navigator, workoutId: String) {
             }
             item {
                 ListGroup {
+                    s.heartRate?.let { hr ->
+                        ListRow(
+                            stringResource(R.string.hr_title),
+                            subtitle = stringResource(R.string.hr_value, hr.averageBpm.toInt(), hr.maxBpm.toInt()),
+                            leading = { IconTile(Icons.Outlined.MonitorHeart, MaterialTheme.colorScheme.tertiary) },
+                        )
+                    }
                     if (s.kcal != null) {
                         ListRow(
                             stringResource(R.string.kcal_value, Formatting.kg(s.kcal.toDouble())),
-                            subtitle = stringResource(R.string.kcal_hint),
+                            subtitle = stringResource(if (s.kcalFromHeartRate != null) R.string.kcal_hint_hr else R.string.kcal_hint),
                             leading = { IconTile(Icons.Outlined.Whatshot, Knurl.colors.warning) },
                             divider = false,
                         )

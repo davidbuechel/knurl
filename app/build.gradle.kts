@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     // Per-app language (AppCompatDelegate.setApplicationLocales) and night mode outside Compose.
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.health.connect)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)

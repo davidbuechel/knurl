@@ -76,19 +76,22 @@ Für Push-Nachrichten speichern wir pro Gerät ein Firebase-Cloud-Messaging-Toke
 6. Absturzberichte
 Nur wenn du sie in den Einstellungen einschaltest, sendet Firebase Crashlytics bei einem Absturz technische Angaben (Gerätemodell, Android-Version, App-Version, Fehlerverlauf). Rechtsgrundlage: Einwilligung, Art. 6 Abs. 1 lit. a DSGVO. Du kannst sie jederzeit in den Einstellungen widerrufen.
 
-7. Übungsbilder und Webseiten
+7. Health Connect
+Nur wenn du es in den Einstellungen unter Verbindungen einschaltest und Android die Berechtigung erteilst, tauscht Knurl Daten mit Health Connect auf deinem Gerät aus: Knurl schreibt beendete Trainings (Zeitraum, Art, Name, geschätzte kcal), liest die Herzfrequenz während eines Trainings und gleicht dein Körpergewicht in beide Richtungen ab. Die Herzfrequenz wird nur auf dem Gerät für die Anzeige und die kcal-Schätzung genutzt und nicht in die Cloud übertragen; aus Health Connect übernommene Gewichte werden wie selbst eingetragene in deinem Konto gespeichert. Für die kcal aus der Herzfrequenz kannst du freiwillig Geburtsjahr und Geschlecht angeben; sie liegen in deinen Einstellungen. Rechtsgrundlage: deine Einwilligung, Art. 6 Abs. 1 lit. a und Art. 9 Abs. 2 lit. a DSGVO. Du kannst sie jederzeit in Knurl oder in Health Connect widerrufen. Daten aus Health Connect werden nicht für Werbung genutzt und nicht an Dritte weitergegeben.
+
+8. Übungsbilder und Webseiten
 Übungsfotos und diese Seiten liefert Firebase Hosting aus. Dabei verarbeitet Google technisch notwendig deine IP-Adresse. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einer funktionierenden Auslieferung).
 
-8. Empfänger und Drittlandübermittlung
+9. Empfänger und Drittlandübermittlung
 Auftragsverarbeiter ist Google (Firebase). Daten liegen in der EU (Frankfurt); einzelne Dienste von Google können Daten in die USA übermitteln. Grundlage dafür sind der EU-US Data Privacy Framework, unter dem Google zertifiziert ist, und die Standardvertragsklauseln der EU-Kommission.
 
-9. Speicherdauer
+10. Speicherdauer
 Wir speichern deine Daten, solange dein Konto besteht. Wenn du dein Konto in der App löschst, werden alle Trainingsdaten und das Konto sofort gelöscht; Sicherungen bei Google werden innerhalb der dort üblichen Fristen überschrieben. Absturzberichte löscht Crashlytics nach 90 Tagen.
 
-10. Deine Rechte
+11. Deine Rechte
 Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch (Art. 15–21 DSGVO) sowie auf Widerruf einer Einwilligung. Export (JSON, CSV) und Löschung kannst du direkt in der App unter Profil → Konto & Daten auslösen. Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel in dem Bundesland, in dem du wohnst.
 
-11. Kontakt
+12. Kontakt
 Fragen zum Datenschutz: {c['email']}"""
 
 PRIVACY_EN = f"""Last updated: {UPDATED_EN}
@@ -111,19 +114,22 @@ For push messages we store a Firebase Cloud Messaging token, the platform and th
 6. Crash reports
 Only if you switch them on in the settings, Firebase Crashlytics sends technical details when the app crashes (device model, Android version, app version, stack trace). Legal basis: consent, Art. 6 (1) (a) GDPR. You can withdraw it in the settings at any time.
 
-7. Exercise photos and web pages
+7. Health Connect
+Only if you switch it on in the settings under Connections and Android grants the permission, Knurl exchanges data with Health Connect on your phone: it writes finished workouts (time span, type, name, estimated kcal), reads your heart rate during a workout and syncs your body weight both ways. Heart rate is only used on the phone for display and the kcal estimate and is never uploaded; weights taken from Health Connect are stored in your account like ones you entered. For kcal from heart rate you may add your year of birth and sex; they are kept in your settings. Legal basis: your consent, Art. 6 (1) (a) and Art. 9 (2) (a) GDPR. You can withdraw it at any time in Knurl or in Health Connect. Data from Health Connect is never used for advertising and never shared with third parties.
+
+8. Exercise photos and web pages
 Exercise photos and these pages are served by Firebase Hosting, which technically processes your IP address. Legal basis: Art. 6 (1) (f) GDPR (legitimate interest in working delivery).
 
-8. Recipients and transfers outside the EU
+9. Recipients and transfers outside the EU
 Our processor is Google (Firebase). Data is stored in the EU (Frankfurt); some Google services may transfer data to the USA, based on the EU-US Data Privacy Framework, under which Google is certified, and the European Commission's standard contractual clauses.
 
-9. Retention
+10. Retention
 We keep your data as long as your account exists. When you delete your account in the app, all training data and the account are deleted at once; Google's backups are overwritten within its usual periods. Crashlytics deletes crash reports after 90 days.
 
-10. Your rights
+11. Your rights
 You have the right of access, rectification, erasure, restriction, data portability and objection (Art. 15–21 GDPR) and to withdraw consent. You can export (JSON, CSV) and delete your data directly in the app under Profile → Account & data. You can also lodge a complaint with a data protection supervisory authority.
 
-11. Contact
+12. Contact
 Privacy questions: {c['email']}"""
 
 

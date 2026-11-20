@@ -147,6 +147,8 @@ fun SettingsScreen(go: Navigator) {
             item { SectionHeader(stringResource(R.string.settings_section_notifications)) }
             item { NotificationGroups(s, vm, onDays = { editor = Editor.DAYS }, onTime = { editor = Editor.TIME }) }
 
+            item { HealthSettings(s, vm) }
+
             item { SectionHeader(stringResource(R.string.settings_section_privacy)) }
             item {
                 ListGroup {

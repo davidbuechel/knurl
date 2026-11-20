@@ -28,6 +28,14 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
 
+/** Told about finished and changed workouts and body weight, e.g. to mirror them to Health Connect. */
+interface WorkoutListener {
+    fun workoutSaved(workout: Workout, bodyWeights: List<BodyWeight>)
+    fun workoutDeleted(id: String)
+    fun weightAdded(entry: BodyWeight)
+    fun weightDeleted(id: String)
+}
+
 /**
  * The single source of truth the screens read. It follows the signed-in user: on every account
  * change it opens that user's store, creates the profile on first sight and mirrors the data.
@@ -49,6 +57,9 @@ class TrainingRepository(
     val data: StateFlow<TrainingData?> = _data.asStateFlow()
 
     private var current: UserTrainingStore? = null
+
+    /** Set once by the app container; null in tests. */
+    var listener: WorkoutListener? = null
 
     /** The running workout as this device knows it; local edits win over echoes. */
     private var active: Workout? = null
@@ -158,6 +169,7 @@ class TrainingRepository(
         this.active = null
         _data.value = data.copy(active = null, workouts = if (saved != null) data.workouts + saved else data.workouts)
         current?.finishActive(saved)
+        saved?.let { listener?.workoutSaved(it, data.bodyWeights) }
         return saved
     }
 
@@ -168,10 +180,12 @@ class TrainingRepository(
     /** Saves a changed past workout (edit history). */
     fun saveWorkout(workout: Workout) {
         current?.saveWorkout(workout)
+        listener?.workoutSaved(workout, _data.value?.bodyWeights.orEmpty())
     }
 
     fun deleteWorkout(id: String) {
         current?.deleteWorkout(id)
+        listener?.workoutDeleted(id)
     }
 
     fun routine(id: String): Routine? = _data.value?.routines?.firstOrNull { it.id == id }
@@ -216,11 +230,19 @@ class TrainingRepository(
     }
 
     fun addBodyWeight(weightKg: Double, atMs: Long = now()) {
-        current?.saveBodyWeight(BodyWeight(newId(), atMs, weightKg))
+        val entry = BodyWeight(newId(), atMs, weightKg)
+        current?.saveBodyWeight(entry)
+        listener?.weightAdded(entry)
+    }
+
+    /** A weight that came from elsewhere (Health Connect): saved as is, not mirrored back. */
+    fun importBodyWeight(entry: BodyWeight) {
+        current?.saveBodyWeight(entry)
     }
 
     fun deleteBodyWeight(id: String) {
         current?.deleteBodyWeight(id)
+        listener?.weightDeleted(id)
     }
 
     /** True for a new account: nothing answered, no routines, no workouts. Older accounts never see it. */

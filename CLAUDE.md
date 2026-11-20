@@ -43,6 +43,11 @@ calculations in Kotlin Multiplatform (`:shared`). Firebase backend (Auth, Firest
   Screens add no transitions.
 - **Notifications:** every kind is a `Channel` with a switch in `NotificationSettings`; add both,
   plus a row in `docs/notifications.md`. The rest timer is app-wide (`RestTimer`), never screen state.
+- **Health Connect** (`core/health/HealthSync.kt`): one switch per kind of data, off until turned on and
+  only on while granted; heart rate never leaves the phone. New data kinds need a manifest permission,
+  a row in `docs/health-connect.md` and the privacy policy (`scripts/legal.py`).
+- **Derived, not stored:** records, achievements, kcal and month reviews are computed from the history in
+  `:shared` (`History`, `Achievements`, `Calories`, `MonthRecaps`); never write them to Firestore.
 - **ViewModels via `knurlViewModel { ... }`**, dependencies from `AppContainer`.
 - **All formatting in `Formatting`** (locale-aware numbers, durations, dates). Weights on screen go
   through `weightText` / `setText` / `tonnageText` (feature/common/Units.kt), which follow the chosen
