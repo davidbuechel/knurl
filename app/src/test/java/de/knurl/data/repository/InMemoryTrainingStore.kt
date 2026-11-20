@@ -38,6 +38,10 @@ class InMemoryUserStore : UserTrainingStore {
         if (saved != null) state.value = state.value.copy(workouts = state.value.workouts + saved)
     }
 
+    override fun saveWorkout(workout: Workout) {
+        state.value = state.value.copy(workouts = state.value.workouts.filterNot { it.id == workout.id } + workout)
+    }
+
     override fun deleteWorkout(id: String) {
         state.value = state.value.copy(workouts = state.value.workouts.filterNot { it.id == id })
     }

@@ -81,6 +81,10 @@ private class FirestoreUserStore(private val user: DocumentReference) : UserTrai
         batch.commit().logFailure("finish workout")
     }
 
+    override fun saveWorkout(workout: Workout) {
+        workouts.document(workout.id).set(withUpdatedAt(Workout.serializer(), workout)).logFailure("save workout")
+    }
+
     override fun deleteWorkout(id: String) {
         workouts.document(id).delete().logFailure("delete workout")
     }

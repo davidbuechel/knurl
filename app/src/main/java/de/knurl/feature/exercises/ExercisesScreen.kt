@@ -46,7 +46,7 @@ import de.knurl.ui.navigation.Navigator
 
 /**
  * The exercise library. One screen for both uses: as a tab it opens an exercise's details,
- * with [pickForWorkout] it adds the tapped exercise to the running workout and goes back.
+ * with [pickForWorkout] it hands the tapped exercise back to the screen that asked (workout, routine editor).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,8 +86,7 @@ fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean) {
             items(state.rows, key = { it.exercise.id }) { row ->
                 KnurlCard(onClick = {
                     if (pickForWorkout) {
-                        vm.addToWorkout(row.exercise.id)
-                        go.back()
+                        go.backWithResult(Navigator.RESULT_EXERCISE, row.exercise.id)
                     } else {
                         go.to(ExerciseRoute(row.exercise.id))
                     }

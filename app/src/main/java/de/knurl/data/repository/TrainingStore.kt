@@ -31,6 +31,7 @@ interface UserTrainingStore {
     fun saveActive(workout: Workout?)
     /** Saves the finished workout (if any) and clears the running one in one step. */
     fun finishActive(saved: Workout?)
+    fun saveWorkout(workout: Workout)
     fun deleteWorkout(id: String)
     fun saveRoutine(routine: Routine)
     fun deleteRoutine(id: String)

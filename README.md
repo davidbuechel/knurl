@@ -7,7 +7,9 @@ Kotlin + Jetpack Compose, Modelle und Rechnungen in Kotlin Multiplatform (`:shar
 
 ## Phase 1 (aktuell)
 - **Heute:** nächster Plan der Reihe nach, laufendes Training fortsetzen, Woche auf einen Blick, letzte Rekorde.
-- **Training:** Startpläne (Push, Pull, Beine, Ganzkörper), freies Training, Verlauf mit Löschen.
+- **Training:** Startpläne, eigene Pläne anlegen und bearbeiten (Übungen, Reihenfolge, Sätze, Wdh.-Bereich, Pause),
+  duplizieren, verschieben, löschen mit Rückgängig. Freies Training oder jedes vergangene Training als Plan speichern.
+  Vergangene Trainings bearbeiten. Zusammenfassung nach dem Training mit Rekorden und Vergleich zum letzten Mal.
 - **Live-Workout:** Sätze mit Gewicht/Wdh.-Steppern (Antippen zum Eintippen), Aufwärm- und Drop-Sätze,
   Abhaken mit Haptik, Pausentimer, „Zuletzt“-Werte, Progressionsvorschlag. Gewichtsänderungen laufen an
   offene Folgesätze weiter.

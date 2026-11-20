@@ -15,6 +15,8 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.knurl.data.WeightUnit
 import de.knurl.feature.account.AccountScreen
+import de.knurl.feature.routines.RoutineEditorScreen
+import de.knurl.feature.summary.SummaryScreen
 import de.knurl.feature.common.LocalWeightUnit
 import de.knurl.feature.common.appContainer
 import de.knurl.feature.legal.LegalPage
@@ -35,6 +37,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable data object HomeRoute
 @Serializable data object ActiveWorkoutRoute
+@Serializable data class EditWorkoutRoute(val id: String)
+@Serializable data class SummaryRoute(val workoutId: String)
+@Serializable data class RoutineEditorRoute(val id: String? = null)
 @Serializable data object PickExerciseRoute
 @Serializable data class ExerciseRoute(val id: String)
 @Serializable data object SettingsRoute
@@ -46,6 +51,21 @@ class Navigator(private val nav: NavHostController) {
     fun <T : Any> to(route: T) = nav.navigate(route) { launchSingleTop = true }
     fun back() {
         nav.popBackStack()
+    }
+
+    /** Goes back and hands the previous screen a value (e.g. the exercise picked). */
+    fun backWithResult(key: String, value: String) {
+        nav.previousBackStackEntry?.savedStateHandle?.set(key, value)
+        nav.popBackStack()
+    }
+
+    /** Replaces the current screen, so back skips it (workout → summary). */
+    fun <T : Any> replace(route: T) = nav.navigate(route) {
+        nav.currentDestination?.id?.let { popUpTo(it) { inclusive = true } }
+    }
+
+    companion object {
+        const val RESULT_EXERCISE = "pickedExercise"
     }
 }
 
@@ -87,7 +107,10 @@ private fun Destinations(nav: NavHostController, go: Navigator) {
         popExitTransition = ScreenMotion.popExit,
     ) {
         composable<HomeRoute> { HomeScreen(go) }
-        composable<ActiveWorkoutRoute> { ActiveWorkoutScreen(go) }
+        composable<ActiveWorkoutRoute> { entry -> ActiveWorkoutScreen(go, entry.savedStateHandle) }
+        composable<EditWorkoutRoute> { entry -> ActiveWorkoutScreen(go, entry.savedStateHandle, editWorkoutId = entry.toRoute<EditWorkoutRoute>().id) }
+        composable<SummaryRoute> { entry -> SummaryScreen(go, entry.toRoute<SummaryRoute>().workoutId) }
+        composable<RoutineEditorRoute> { entry -> RoutineEditorScreen(go, entry.toRoute<RoutineEditorRoute>().id, entry.savedStateHandle) }
         composable<PickExerciseRoute> { ExercisesScreen(go, pickForWorkout = true) }
         composable<ExerciseRoute> { entry -> ExerciseDetailScreen(go, entry.toRoute<ExerciseRoute>().id) }
         composable<SettingsRoute> { SettingsScreen(go) }

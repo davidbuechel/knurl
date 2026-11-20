@@ -46,7 +46,19 @@ class TrainingViewModel(private val training: TrainingRepository) : ViewModel() 
 
     fun start(routine: Routine?, freeName: String) = training.startWorkout(routine, freeName)
 
-    fun delete(workoutId: String) = training.deleteWorkout(workoutId)
+    fun deleteWorkout(workout: Workout) = training.deleteWorkout(workout.id)
+
+    fun restoreWorkout(workout: Workout) = training.saveWorkout(workout)
+
+    fun saveAsRoutine(workout: Workout, name: String) = training.saveAsRoutine(workout, name)
+
+    fun deleteRoutine(routine: Routine) = training.deleteRoutine(routine.id)
+
+    fun restoreRoutine(routine: Routine) = training.saveRoutine(routine)
+
+    fun duplicateRoutine(routine: Routine, name: String) = training.duplicateRoutine(routine, name)
+
+    fun moveRoutine(routine: Routine, by: Int) = training.moveRoutine(routine.id, by)
 
     fun exerciseName(id: String, german: Boolean) = training.exercise(id)?.name(german) ?: id
 }

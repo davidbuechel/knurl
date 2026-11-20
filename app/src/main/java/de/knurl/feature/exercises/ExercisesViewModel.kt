@@ -45,6 +45,4 @@ class ExercisesViewModel(private val training: TrainingRepository, private val g
     fun toggleMuscle(value: Muscle) {
         muscle.value = if (muscle.value == value) null else value
     }
-
-    fun addToWorkout(exerciseId: String) = training.addExerciseToActive(exerciseId)
 }

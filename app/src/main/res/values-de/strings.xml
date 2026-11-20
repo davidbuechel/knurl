@@ -46,8 +46,6 @@
     <string name="training_routines">Pläne</string>
     <string name="training_history">Verlauf</string>
     <string name="history_line">%1$s · %2$s · %3$d Sätze · %4$s</string>
-    <string name="delete_workout_title">Training löschen?</string>
-    <string name="delete_workout_body">Die Sätze zählen dann nicht mehr für Statistik und Rekorde. Das lässt sich nicht rückgängig machen.</string>
 
     <!-- Exercises -->
     <string name="exercises_search">Übungen suchen</string>
@@ -120,8 +118,8 @@
     <string name="muscle_biceps">Bizeps</string>
     <string name="muscle_triceps">Trizeps</string>
     <string name="muscle_forearms">Unterarme</string>
-    <string name="muscle_quads">Beinstrecker</string>
-    <string name="muscle_hamstrings">Beinbeuger</string>
+    <string name="muscle_quads">Quadrizeps</string>
+    <string name="muscle_hamstrings">Beinbizeps</string>
     <string name="muscle_glutes">Gesäß</string>
     <string name="muscle_calves">Waden</string>
     <string name="muscle_core">Rumpf</string>
@@ -257,4 +255,41 @@
     <string name="notify_blocked_hint">Erlaube sie in den Android-Einstellungen, damit Knurl dich erinnern kann</string>
     <string name="notify_exact">Pausen-Alarm auf die Sekunde</string>
     <string name="notify_exact_hint">Erlaube genaue Alarme, damit der Pausen-Alarm nie zu spät kommt</string>
+
+    <!-- Routines and summary -->
+    <string name="action_save">Speichern</string>
+    <string name="action_undo">Rückgängig</string>
+    <string name="action_discard_changes">Änderungen verwerfen</string>
+    <string name="deleted">Gelöscht</string>
+    <string name="edit_save_title">Änderungen speichern?</string>
+    <string name="edit_discard_title">Änderungen verwerfen?</string>
+    <string name="edit_discard_body">Das Training bleibt, wie es war.</string>
+    <string name="history_edit">Bearbeiten</string>
+    <string name="routine_new">Neuer Plan</string>
+    <string name="routine_edit">Plan bearbeiten</string>
+    <string name="routine_new_name">Mein Plan</string>
+    <string name="routine_name">Name</string>
+    <string name="routine_duplicate">Duplizieren</string>
+    <string name="routine_copy_name">%1$s (Kopie)</string>
+    <string name="routine_move_up">Nach oben</string>
+    <string name="routine_move_down">Nach unten</string>
+    <string name="routine_sets">Sätze</string>
+    <string name="routine_reps">Wiederholungen</string>
+    <string name="routine_rest">Pause</string>
+    <string name="routine_empty_title">Noch keine Übungen</string>
+    <string name="routine_empty_body">Tippe auf „Übung hinzufügen“, um den Plan zu bauen.</string>
+    <string name="routines_empty_title">Noch keine Pläne</string>
+    <string name="routines_empty_body">Leg einen an oder speichere ein freies Training danach als Plan.</string>
+    <string name="summary_title">Stark</string>
+    <string name="summary_duration">Dauer</string>
+    <string name="summary_sets">Sätze</string>
+    <string name="summary_more_volume">%1$d %% mehr Volumen als letztes Mal</string>
+    <string name="summary_less_volume">%1$d %% weniger Volumen als letztes Mal</string>
+    <string name="summary_records">Neue Rekorde</string>
+    <string name="summary_routine">Plan</string>
+    <string name="summary_save_hint">Willst du dieses Training wiederholen? Speichere es als Plan.</string>
+    <string name="summary_save_routine">Als Plan speichern</string>
+    <string name="summary_update_hint">Soll „%1$s“ die Übungen und Sätze von heute übernehmen?</string>
+    <string name="summary_update_routine">Plan aktualisieren</string>
+    <string name="summary_routine_saved">Plan gespeichert</string>
 </resources>

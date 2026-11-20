@@ -81,6 +81,8 @@ import de.knurl.ui.brand.BrandEmptyState
 import de.knurl.ui.brand.BrandLoadingBox
 import de.knurl.ui.navigation.Navigator
 import de.knurl.ui.navigation.PickExerciseRoute
+import de.knurl.ui.navigation.SummaryRoute
+import androidx.lifecycle.SavedStateHandle
 import de.knurl.ui.theme.Knurl
 
 /** Which number the type-in dialog is editing. */
@@ -88,13 +90,27 @@ private data class Typing(val exercise: Int, val set: Int, val weight: Boolean)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ActiveWorkoutScreen(go: Navigator) {
-    val vm = knurlViewModel { ActiveWorkoutViewModel(it.training, it.restTimer) }
+fun ActiveWorkoutScreen(go: Navigator, savedState: SavedStateHandle, editWorkoutId: String? = null) {
+    val vm = knurlViewModel(key = "workout-$editWorkoutId") { ActiveWorkoutViewModel(it.training, it.restTimer, editWorkoutId) }
     val state by vm.state.collectAsStateWithLifecycle()
     val unit = LocalWeightUnit.current
-    KeepScreenOn()
-    AskForNotificationsOnce()
-    RestOverFeedback(state?.restLeftSec, onDone = vm::restFinished)
+    val editing = editWorkoutId != null
+    if (!editing) {
+        KeepScreenOn()
+        AskForNotificationsOnce()
+        RestOverFeedback(state?.restLeftSec, onDone = vm::restFinished)
+    }
+    // The library hands the picked exercise back here.
+    LaunchedEffect(savedState) {
+        savedState.getStateFlow<String?>(Navigator.RESULT_EXERCISE, null).collect { id ->
+            if (id != null) {
+                vm.addExercise(id)
+                savedState[Navigator.RESULT_EXERCISE] = null
+            }
+        }
+    }
+    /** Set once we leave on purpose, so the "workout is gone" check below does not navigate twice. */
+    var leaving by remember { mutableStateOf(false) }
     var confirmFinish by rememberSaveable { mutableStateOf(false) }
     var confirmDiscard by rememberSaveable { mutableStateOf(false) }
     var menuOpen by rememberSaveable { mutableStateOf(false) }
@@ -102,7 +118,7 @@ fun ActiveWorkoutScreen(go: Navigator) {
 
     val s = state
     // Finished or discarded (here or elsewhere): there is nothing left to show.
-    LaunchedEffect(s?.workout == null && s != null) { if (s != null && s.workout == null) go.back() }
+    LaunchedEffect(s?.workout == null && s != null) { if (s != null && s.workout == null && !leaving) go.back() }
 
     Scaffold(
         topBar = {
@@ -111,7 +127,7 @@ fun ActiveWorkoutScreen(go: Navigator) {
                     Column {
                         Text(s?.workout?.name.orEmpty(), style = MaterialTheme.typography.titleLarge)
                         Text(
-                            Formatting.duration(s?.elapsedSec ?: 0),
+                            if (editing) s?.workout?.let { Formatting.date(it.startedAtMs) }.orEmpty() else Formatting.duration(s?.elapsedSec ?: 0),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -123,14 +139,14 @@ fun ActiveWorkoutScreen(go: Navigator) {
                     }
                 },
                 actions = {
-                    Button(onClick = { confirmFinish = true }) { Text(stringResource(R.string.action_finish)) }
+                    Button(onClick = { confirmFinish = true }) { Text(stringResource(if (editing) R.string.action_save else R.string.action_finish)) }
                     Box {
                         IconButton(onClick = { menuOpen = true }) {
                             Icon(Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.action_more))
                         }
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.action_discard_workout)) },
+                                text = { Text(stringResource(if (editing) R.string.action_discard_changes else R.string.action_discard_workout)) },
                                 onClick = { menuOpen = false; confirmDiscard = true },
                             )
                         }
@@ -188,20 +204,25 @@ fun ActiveWorkoutScreen(go: Navigator) {
     if (confirmFinish) {
         val undone = s?.cards?.sumOf { c -> c.sets.count { !it.done } } ?: 0
         ConfirmDialog(
-            title = stringResource(R.string.finish_title),
+            title = stringResource(if (editing) R.string.edit_save_title else R.string.finish_title),
             body = if (undone > 0) stringResource(R.string.finish_body_undone, undone) else stringResource(R.string.finish_body),
-            confirm = stringResource(R.string.action_finish),
+            confirm = stringResource(if (editing) R.string.action_save else R.string.action_finish),
             onDismiss = { confirmFinish = false },
-            onConfirm = { confirmFinish = false; vm.finish() },
+            onConfirm = {
+                confirmFinish = false
+                leaving = true
+                val savedId = vm.finish()
+                if (!editing && savedId != null) go.replace(SummaryRoute(savedId)) else go.back()
+            },
         )
     }
     if (confirmDiscard) {
         ConfirmDialog(
-            title = stringResource(R.string.discard_title),
-            body = stringResource(R.string.discard_body),
+            title = stringResource(if (editing) R.string.edit_discard_title else R.string.discard_title),
+            body = stringResource(if (editing) R.string.edit_discard_body else R.string.discard_body),
             confirm = stringResource(R.string.action_discard),
             onDismiss = { confirmDiscard = false },
-            onConfirm = { confirmDiscard = false; vm.discard() },
+            onConfirm = { confirmDiscard = false; leaving = true; vm.discard(); go.back() },
         )
     }
 }

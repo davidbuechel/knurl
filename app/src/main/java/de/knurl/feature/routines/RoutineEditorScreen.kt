@@ -1,0 +1,195 @@
+package de.knurl.feature.routines
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import de.knurl.R
+import de.knurl.data.repository.TrainingRepository
+import de.knurl.domain.RoutineEditing
+import de.knurl.domain.model.RepRange
+import de.knurl.domain.model.Routine
+import de.knurl.domain.model.RoutineItem
+import de.knurl.feature.common.Formatting
+import de.knurl.feature.common.KnurlCard
+import de.knurl.feature.common.Stepper
+import de.knurl.feature.common.isGerman
+import de.knurl.feature.common.knurlViewModel
+import de.knurl.feature.common.subtitle
+import de.knurl.ui.brand.BrandEmptyState
+import de.knurl.ui.navigation.Navigator
+import de.knurl.ui.navigation.PickExerciseRoute
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+
+/** Edits a copy of the routine; nothing is saved until "Save". */
+class RoutineEditorViewModel(private val training: TrainingRepository, routineId: String?, defaultName: String) : ViewModel() {
+
+    private val defaultRest = training.data.value?.settings?.defaultRestSec ?: 120
+
+    private val _routine = MutableStateFlow(routineId?.let(training::routine) ?: training.newRoutine(defaultName))
+    val routine: StateFlow<Routine> = _routine.asStateFlow()
+
+    fun exercise(id: String) = training.exercise(id)
+
+    fun rename(name: String) = _routine.update { it.copy(name = name.take(80)) }
+    fun add(exerciseId: String) = _routine.update { RoutineEditing.add(it, exerciseId, defaultRest) }
+    fun remove(index: Int) = _routine.update { RoutineEditing.remove(it, index) }
+    fun move(index: Int, by: Int) = _routine.update { RoutineEditing.move(it, index, by) }
+    fun update(index: Int, transform: (RoutineItem) -> RoutineItem) = _routine.update { RoutineEditing.update(it, index, transform) }
+
+    fun save() = training.saveRoutine(_routine.value.copy(name = _routine.value.name.trim()))
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RoutineEditorScreen(go: Navigator, routineId: String?, savedState: SavedStateHandle) {
+    val defaultName = stringResource(R.string.routine_new_name)
+    val vm = knurlViewModel(key = "routine-$routineId") { RoutineEditorViewModel(it.training, routineId, defaultName) }
+    val routine by vm.routine.collectAsStateWithLifecycle()
+    val german = isGerman()
+
+    LaunchedEffect(savedState) {
+        savedState.getStateFlow<String?>(Navigator.RESULT_EXERCISE, null).collect { id ->
+            if (id != null) {
+                vm.add(id)
+                savedState[Navigator.RESULT_EXERCISE] = null
+            }
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(if (routineId == null) R.string.routine_new else R.string.routine_edit)) },
+                navigationIcon = {
+                    IconButton(onClick = go::back) {
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.action_back))
+                    }
+                },
+                actions = {
+                    Button(
+                        onClick = { vm.save(); go.back() },
+                        enabled = routine.name.isNotBlank() && routine.items.isNotEmpty(),
+                        modifier = Modifier.padding(end = 8.dp),
+                    ) { Text(stringResource(R.string.action_save)) }
+                },
+            )
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = { go.to(PickExerciseRoute) },
+                icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
+                text = { Text(stringResource(R.string.action_add_exercise)) },
+            )
+        },
+    ) { padding ->
+        LazyColumn(
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = padding.calculateTopPadding() + 4.dp, bottom = padding.calculateBottomPadding() + 96.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            item {
+                OutlinedTextField(
+                    value = routine.name,
+                    onValueChange = vm::rename,
+                    label = { Text(stringResource(R.string.routine_name)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                )
+            }
+            if (routine.items.isEmpty()) {
+                item { BrandEmptyState(stringResource(R.string.routine_empty_title), stringResource(R.string.routine_empty_body)) }
+            }
+            itemsIndexed(routine.items) { index, item ->
+                val exercise = vm.exercise(item.exerciseId)
+                KnurlCard {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text(exercise?.name(german) ?: item.exerciseId, style = MaterialTheme.typography.titleMedium)
+                            exercise?.let { Text(it.subtitle(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                        }
+                        IconButton(onClick = { vm.move(index, -1) }, enabled = index > 0) {
+                            Icon(Icons.Rounded.KeyboardArrowUp, contentDescription = stringResource(R.string.routine_move_up))
+                        }
+                        IconButton(onClick = { vm.move(index, 1) }, enabled = index < routine.items.lastIndex) {
+                            Icon(Icons.Rounded.KeyboardArrowDown, contentDescription = stringResource(R.string.routine_move_down))
+                        }
+                        IconButton(onClick = { vm.remove(index) }) {
+                            Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.action_remove_exercise))
+                        }
+                    }
+                    EditorRow(stringResource(R.string.routine_sets)) {
+                        Stepper("${item.sets}", { vm.update(index) { it.copy(sets = (it.sets - 1).coerceAtLeast(1)) } }, { vm.update(index) { it.copy(sets = (it.sets + 1).coerceAtMost(10)) } }, {})
+                    }
+                    EditorRow(stringResource(R.string.routine_reps)) {
+                        Stepper(
+                            "${item.repRange.min}–${item.repRange.max}",
+                            onMinus = { vm.update(index) { it.copy(repRange = it.repRange.shift(-1)) } },
+                            onPlus = { vm.update(index) { it.copy(repRange = it.repRange.shift(1)) } },
+                            onType = {},
+                        )
+                    }
+                    EditorRow(stringResource(R.string.routine_rest)) {
+                        Stepper(
+                            Formatting.duration(item.restSec.toLong()),
+                            onMinus = { vm.update(index) { it.copy(restSec = (it.restSec - 15).coerceAtLeast(15)) } },
+                            onPlus = { vm.update(index) { it.copy(restSec = (it.restSec + 15).coerceAtMost(600)) } },
+                            onType = {},
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EditorRow(label: String, control: @Composable () -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+        Row(Modifier.width(190.dp)) { control() }
+    }
+}
+
+/** Moves the rep range by one step along common ranges (3–5, 5–8, 8–12, 12–15, 15–20). */
+private fun RepRange.shift(by: Int): RepRange {
+    val ranges = listOf(RepRange(1, 3), RepRange(3, 5), RepRange(5, 8), RepRange(6, 10), RepRange(8, 12), RepRange(10, 15), RepRange(12, 15), RepRange(15, 20))
+    val index = ranges.indexOf(this).takeIf { it >= 0 } ?: ranges.indexOfFirst { it.min >= min }.coerceAtLeast(0)
+    return ranges[(index + by).coerceIn(ranges.indices)]
+}

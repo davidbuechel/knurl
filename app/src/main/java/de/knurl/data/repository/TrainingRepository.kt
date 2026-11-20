@@ -3,6 +3,7 @@ package de.knurl.data.repository
 import android.util.Log
 import de.knurl.data.Settings
 import de.knurl.data.TrainingData
+import de.knurl.domain.RoutineEditing
 import de.knurl.domain.WorkoutPlanning
 import de.knurl.domain.catalog.ExerciseCatalog
 import de.knurl.domain.catalog.StarterRoutines
@@ -105,7 +106,7 @@ class TrainingRepository(
         setActive(active.copy(exercises = active.exercises + planned))
     }
 
-    /** Saves the ticked-off sets. A workout with nothing ticked off is simply dropped. */
+    /** Saves the ticked-off sets and returns what was saved; a workout with nothing ticked off is dropped. */
     fun finishActive(): Workout? {
         val data = _data.value ?: return null
         val active = data.active ?: return null
@@ -118,9 +119,22 @@ class TrainingRepository(
 
     fun discardActive() = setActive(null)
 
+    fun workout(id: String): Workout? = _data.value?.workouts?.firstOrNull { it.id == id }
+
+    /** Saves a changed past workout (edit history). */
+    fun saveWorkout(workout: Workout) {
+        current?.saveWorkout(workout)
+    }
+
     fun deleteWorkout(id: String) {
         current?.deleteWorkout(id)
     }
+
+    fun routine(id: String): Routine? = _data.value?.routines?.firstOrNull { it.id == id }
+
+    /** A new, empty routine at the end of the list. Not saved until the editor saves it. */
+    fun newRoutine(name: String): Routine =
+        RoutineEditing.empty(newId(), name, RoutineEditing.nextPosition(_data.value?.routines.orEmpty()))
 
     fun saveRoutine(routine: Routine) {
         current?.saveRoutine(routine)
@@ -128,6 +142,26 @@ class TrainingRepository(
 
     fun deleteRoutine(id: String) {
         current?.deleteRoutine(id)
+    }
+
+    /** Turns a workout into a new routine at the end of the list; returns it. */
+    fun saveAsRoutine(workout: Workout, name: String): Routine {
+        val routine = RoutineEditing.fromWorkout(newId(), name, workout, RoutineEditing.nextPosition(_data.value?.routines.orEmpty()))
+        saveRoutine(routine)
+        return routine
+    }
+
+    fun duplicateRoutine(routine: Routine, name: String) =
+        saveRoutine(RoutineEditing.duplicate(routine, newId(), name, RoutineEditing.nextPosition(_data.value?.routines.orEmpty())))
+
+    /** Moves a routine one place up or down in the list. */
+    fun moveRoutine(id: String, by: Int) {
+        val routines = _data.value?.routines ?: return
+        val index = routines.indexOfFirst { it.id == id }
+        val target = index + by
+        if (index < 0 || target !in routines.indices) return
+        val reordered = routines.toMutableList().apply { add(target, removeAt(index)) }
+        RoutineEditing.reorder(reordered).filter { r -> routines.first { it.id == r.id }.position != r.position }.forEach(::saveRoutine)
     }
 
     fun updateSettings(transform: (Settings) -> Settings) {

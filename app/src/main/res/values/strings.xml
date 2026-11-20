@@ -48,8 +48,6 @@
     <string name="training_routines">Routines</string>
     <string name="training_history">History</string>
     <string name="history_line">%1$s · %2$s · %3$d sets · %4$s</string>
-    <string name="delete_workout_title">Delete workout?</string>
-    <string name="delete_workout_body">Its sets will no longer count towards your stats and records. This cannot be undone.</string>
 
     <!-- Exercises -->
     <string name="exercises_search">Search exercises</string>
@@ -259,4 +257,41 @@
     <string name="notify_blocked_hint">Allow them in Android\'s settings so Knurl can remind you</string>
     <string name="notify_exact">Rest alarm to the second</string>
     <string name="notify_exact_hint">Allow exact alarms so the rest alarm is never late</string>
+
+    <!-- Routines and summary -->
+    <string name="action_save">Save</string>
+    <string name="action_undo">Undo</string>
+    <string name="action_discard_changes">Discard changes</string>
+    <string name="deleted">Deleted</string>
+    <string name="edit_save_title">Save changes?</string>
+    <string name="edit_discard_title">Discard changes?</string>
+    <string name="edit_discard_body">The workout stays as it was.</string>
+    <string name="history_edit">Edit</string>
+    <string name="routine_new">New routine</string>
+    <string name="routine_edit">Edit routine</string>
+    <string name="routine_new_name">My routine</string>
+    <string name="routine_name">Name</string>
+    <string name="routine_duplicate">Duplicate</string>
+    <string name="routine_copy_name">%1$s (copy)</string>
+    <string name="routine_move_up">Move up</string>
+    <string name="routine_move_down">Move down</string>
+    <string name="routine_sets">Sets</string>
+    <string name="routine_reps">Reps</string>
+    <string name="routine_rest">Rest</string>
+    <string name="routine_empty_title">No exercises yet</string>
+    <string name="routine_empty_body">Tap “Add exercise” to build the routine.</string>
+    <string name="routines_empty_title">No routines yet</string>
+    <string name="routines_empty_body">Create one, or keep a free workout as a routine afterwards.</string>
+    <string name="summary_title">Well done</string>
+    <string name="summary_duration">Duration</string>
+    <string name="summary_sets">Sets</string>
+    <string name="summary_more_volume">%1$d%% more volume than last time</string>
+    <string name="summary_less_volume">%1$d%% less volume than last time</string>
+    <string name="summary_records">New records</string>
+    <string name="summary_routine">Routine</string>
+    <string name="summary_save_hint">Want to repeat this workout? Keep it as a routine.</string>
+    <string name="summary_save_routine">Save as routine</string>
+    <string name="summary_update_hint">Should “%1$s” take over today\'s exercises and sets?</string>
+    <string name="summary_update_routine">Update routine</string>
+    <string name="summary_routine_saved">Routine saved</string>
 </resources>
