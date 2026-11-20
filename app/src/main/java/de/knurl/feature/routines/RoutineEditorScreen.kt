@@ -16,6 +16,12 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import androidx.compose.material.icons.rounded.Link
+import androidx.compose.material.icons.rounded.LinkOff
+import androidx.compose.material3.TextButton
+import androidx.compose.foundation.border
+import de.knurl.feature.common.Pill
+import de.knurl.ui.theme.Knurl
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -72,6 +78,8 @@ class RoutineEditorViewModel(private val training: TrainingRepository, routineId
     fun remove(index: Int) = _routine.update { RoutineEditing.remove(it, index) }
     fun move(index: Int, by: Int) = _routine.update { RoutineEditing.move(it, index, by) }
     fun update(index: Int, transform: (RoutineItem) -> RoutineItem) = _routine.update { RoutineEditing.update(it, index, transform) }
+    fun linkWithNext(index: Int) = _routine.update { RoutineEditing.linkWithNext(it, index) }
+    fun unlink(index: Int) = _routine.update { RoutineEditing.unlink(it, index) }
 
     fun save() = training.saveRoutine(_routine.value.copy(name = _routine.value.name.trim()))
 }
@@ -138,7 +146,12 @@ fun RoutineEditorScreen(go: Navigator, routineId: String?, savedState: SavedStat
             }
             itemsIndexed(routine.items) { index, item ->
                 val exercise = vm.exercise(item.exerciseId)
-                KnurlCard {
+                val startsSuperset = item.group != null && routine.items.getOrNull(index - 1)?.group != item.group
+                if (startsSuperset) {
+                    val letter = 'A' + (routine.items.take(index + 1).mapNotNull { it.group }.distinct().size - 1)
+                    Pill(stringResource(R.string.superset_label, letter.toString()), color = Knurl.colors.superset, modifier = Modifier.padding(bottom = 6.dp))
+                }
+                KnurlCard(modifier = if (item.group != null) Modifier.border(2.dp, Knurl.colors.superset.copy(alpha = 0.5f), MaterialTheme.shapes.large) else Modifier) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
                             Text(exercise?.name(german) ?: item.exerciseId, style = MaterialTheme.typography.titleMedium)
@@ -164,6 +177,16 @@ fun RoutineEditorScreen(go: Navigator, routineId: String?, savedState: SavedStat
                             onPlus = { vm.update(index) { it.copy(repRange = it.repRange.shift(1)) } },
                             onType = {},
                         )
+                    }
+                    if (index < routine.items.lastIndex || item.group != null) {
+                        val linkedToNext = item.group != null && routine.items.getOrNull(index + 1)?.group == item.group
+                        TextButton(onClick = { if (linkedToNext) vm.unlink(index + 1) else if (index < routine.items.lastIndex) vm.linkWithNext(index) else vm.unlink(index) }) {
+                            Icon(if (linkedToNext) Icons.Rounded.LinkOff else Icons.Rounded.Link, contentDescription = null, tint = Knurl.colors.superset)
+                            Text(
+                                stringResource(if (linkedToNext) R.string.superset_unlink_next else if (index < routine.items.lastIndex) R.string.superset_link_next else R.string.superset_leave),
+                                color = Knurl.colors.superset,
+                            )
+                        }
                     }
                     EditorRow(stringResource(R.string.routine_rest)) {
                         Stepper(

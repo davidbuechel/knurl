@@ -28,6 +28,8 @@ data class WorkoutExercise(
     val repRange: RepRange = RepRange.Hypertrophy,
     val restSec: Int = 120,
     val note: String = "",
+    /** Superset: neighbouring exercises with the same group are done in rounds. Null = on its own. */
+    val group: Int? = null,
 )
 
 @Serializable
@@ -50,6 +52,8 @@ data class RoutineItem(
     val sets: Int,
     val repRange: RepRange = RepRange.Hypertrophy,
     val restSec: Int = 120,
+    /** Superset group, see [WorkoutExercise.group]. */
+    val group: Int? = null,
 )
 
 @Serializable

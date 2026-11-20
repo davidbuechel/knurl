@@ -20,7 +20,7 @@ object WorkoutPlanning {
         routineId = routine.id,
         startedAtMs = nowMs,
         exercises = routine.items.map { item ->
-            plannedExercise(item.exerciseId, item.sets, item.repRange, item.restSec, history, lookup)
+            plannedExercise(item.exerciseId, item.sets, item.repRange, item.restSec, history, lookup).copy(group = item.group)
         },
     )
 

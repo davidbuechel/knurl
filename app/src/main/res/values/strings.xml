@@ -337,4 +337,22 @@
     <!-- Statistics -->
     <string name="stats_title">Statistics</string>
     <string name="stats_subtitle">Volume, muscles, streak, calendar, body weight</string>
+
+    <!-- Workout logger -->
+    <string name="pad_close">Close keypad</string>
+    <string name="pad_delete">Delete</string>
+    <string name="pad_weight">%1$s · Set %2$d · Weight</string>
+    <string name="pad_reps">%1$s · Set %2$d · Reps</string>
+    <string name="pad_next">Next</string>
+    <string name="pad_done_set">Done ✓</string>
+    <string name="table_set">Set</string>
+    <string name="table_last">Last</string>
+    <string name="table_reps">Reps</string>
+    <string name="workout_suggest_short">Today: %1$s, you hit every rep last time</string>
+    <string name="workout_progress">%1$s · %2$d/%3$d sets</string>
+    <string name="superset_label">Superset %1$s</string>
+    <string name="superset_leave">Remove from superset</string>
+    <string name="superset_link_next">Superset with next exercise</string>
+    <string name="workout_all_done">All sets done · Finish workout</string>
+    <string name="superset_unlink_next">Split from next exercise</string>
 </resources>

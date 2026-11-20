@@ -24,10 +24,20 @@ class RestTimer(private val context: Context, private val now: () -> Long = Syst
     /** When the current rest ends, or null when no rest runs. */
     val endsAtMs: StateFlow<Long?> = _endsAtMs.asStateFlow()
 
-    fun start(seconds: Int) = set(now() + seconds * 1000L)
+    private val _totalMs = MutableStateFlow(0L)
+    /** Length of the current rest including added time, for the progress shown while resting. */
+    val totalMs: StateFlow<Long> = _totalMs.asStateFlow()
+
+    fun start(seconds: Int) {
+        _totalMs.value = seconds * 1000L
+        set(now() + seconds * 1000L)
+    }
 
     fun add(seconds: Int) {
-        _endsAtMs.value?.let { set(it + seconds * 1000L) }
+        _endsAtMs.value?.let {
+            _totalMs.value += seconds * 1000L
+            set(it + seconds * 1000L)
+        }
     }
 
     fun stop() {

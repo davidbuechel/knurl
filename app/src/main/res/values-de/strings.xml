@@ -335,4 +335,22 @@
     <!-- Statistics -->
     <string name="stats_title">Statistik</string>
     <string name="stats_subtitle">Volumen, Muskeln, Serie, Kalender, Körpergewicht</string>
+
+    <!-- Workout logger -->
+    <string name="pad_close">Tastatur schließen</string>
+    <string name="pad_delete">Löschen</string>
+    <string name="pad_weight">%1$s · Satz %2$d · Gewicht</string>
+    <string name="pad_reps">%1$s · Satz %2$d · Wiederholungen</string>
+    <string name="pad_next">Weiter</string>
+    <string name="pad_done_set">Fertig ✓</string>
+    <string name="table_set">Satz</string>
+    <string name="table_last">Zuletzt</string>
+    <string name="table_reps">Wdh</string>
+    <string name="workout_suggest_short">Heute: %1$s, letztes Mal alle Wdh geschafft</string>
+    <string name="workout_progress">%1$s · %2$d/%3$d Sätze</string>
+    <string name="superset_label">Supersatz %1$s</string>
+    <string name="superset_leave">Aus Supersatz lösen</string>
+    <string name="superset_link_next">Supersatz mit nächster Übung</string>
+    <string name="workout_all_done">Alle Sätze erledigt · Training beenden</string>
+    <string name="superset_unlink_next">Von nächster Übung trennen</string>
 </resources>

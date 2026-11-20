@@ -25,6 +25,7 @@ object RoutineEditing {
                 sets = item.sets.count { it.kind != SetKind.WARMUP }.coerceAtLeast(1),
                 repRange = item.repRange,
                 restSec = item.restSec,
+                group = item.group,
             )
         },
     )
@@ -52,6 +53,19 @@ object RoutineEditing {
 
     fun update(routine: Routine, index: Int, transform: (RoutineItem) -> RoutineItem) =
         routine.copy(items = routine.items.mapIndexed { i, item -> if (i == index) transform(item) else item })
+
+    /** Pairs an item with the next one as a superset (or adds the next one to its superset). */
+    fun linkWithNext(routine: Routine, index: Int): Routine {
+        if (index !in 0 until routine.items.lastIndex) return routine
+        val groups = Supersets.link(routine.items.map { it.group }, index)
+        return routine.copy(items = routine.items.mapIndexed { i, item -> item.copy(group = groups[i]) })
+    }
+
+    /** Takes an item out of its superset. */
+    fun unlink(routine: Routine, index: Int): Routine {
+        val groups = Supersets.unlink(routine.items.map { it.group }, index)
+        return routine.copy(items = routine.items.mapIndexed { i, item -> item.copy(group = groups[i]) })
+    }
 
     /** Positions 0..n-1 in the given order, for the routine list. */
     fun reorder(routines: List<Routine>): List<Routine> = routines.mapIndexed { i, r -> r.copy(position = i) }

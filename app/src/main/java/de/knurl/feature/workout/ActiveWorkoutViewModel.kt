@@ -4,7 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.knurl.core.workout.RestTimer
 import de.knurl.data.repository.TrainingRepository
+import de.knurl.domain.SetRef
+import de.knurl.domain.WorkoutFlow
 import de.knurl.domain.WorkoutPlanning
+import de.knurl.domain.linkWithNext
+import de.knurl.domain.unlink
 import de.knurl.domain.addSet
 import de.knurl.domain.calc.Warmup
 import de.knurl.domain.prependWarmups
@@ -38,7 +42,14 @@ data class ExerciseCard(
     val suggestion: Progression.Suggestion?,
     val weightStepKg: Double,
     val note: String,
+    /** Superset group of this exercise, or null. */
+    val group: Int?,
 )
+
+/** The cell being edited with the number pad. */
+enum class Field { WEIGHT, REPS }
+
+data class Focus(val ref: SetRef, val field: Field)
 
 data class ActiveWorkoutState(
     /** Null once the workout has been finished or discarded; the screen then closes. */
@@ -49,6 +60,11 @@ data class ActiveWorkoutState(
     val restLeftSec: Long?,
     /** Editing a finished workout from the history instead of logging the running one. */
     val editing: Boolean,
+    val focus: Focus?,
+    /** Length of the running rest, for its progress. */
+    val restTotalSec: Long,
+    val doneSets: Int,
+    val totalSets: Int,
 )
 
 /**
@@ -64,6 +80,9 @@ class ActiveWorkoutViewModel(
 
     private val editing = MutableStateFlow(editWorkoutId?.let { id -> training.workout(id)?.markAllDone() })
 
+    /** Where the number pad points. Starts on the first open set of a running workout. */
+    private val focus = MutableStateFlow<Focus?>(null)
+
     private val ticker = flow {
         while (true) {
             emit(now())
@@ -72,8 +91,11 @@ class ActiveWorkoutViewModel(
     }
 
     val state: StateFlow<ActiveWorkoutState?> =
-        combine(training.data.filterNotNull(), editing, rest.endsAtMs, ticker) { data, edited, restEnd, nowMs ->
+        combine(training.data.filterNotNull(), editing, rest.endsAtMs, ticker, focus) { data, edited, restEnd, nowMs, focused ->
             val workout = if (editWorkoutId != null) edited else data.active
+            val (done, total) = workout?.let(WorkoutFlow::progress) ?: (0 to 0)
+            // A focus that points past the end (set removed) is dropped.
+            val validFocus = focused?.takeIf { f -> workout?.exercises?.getOrNull(f.ref.exercise)?.sets?.getOrNull(f.ref.set) != null }
             val history = data.workouts.filter { it.id != workout?.id }
             ActiveWorkoutState(
                 workout = workout,
@@ -88,11 +110,16 @@ class ActiveWorkoutViewModel(
                         suggestion = exercise?.let { Progression.suggest(last, item.repRange, it.equipment) },
                         weightStepKg = exercise?.let { Progression.increment(it.equipment) }?.takeIf { it > 0 } ?: 2.5,
                         note = item.note,
+                        group = item.group,
                     )
                 },
                 elapsedSec = workout?.let { ((it.endedAtMs ?: nowMs) - it.startedAtMs) / 1000 } ?: 0,
                 restLeftSec = if (editWorkoutId != null) null else restEnd?.let { ((it - nowMs) / 1000).takeIf { left -> left >= 0 } },
                 editing = editWorkoutId != null,
+                focus = validFocus,
+                restTotalSec = rest.totalMs.value / 1000,
+                doneSets = done,
+                totalSets = total,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
@@ -114,13 +141,47 @@ class ActiveWorkoutViewModel(
 
     fun setReps(exercise: Int, set: Int, reps: Int) = edit { w -> w.updateSet(exercise, set) { it.copy(reps = reps) } }
 
-    /** Ticking a set off starts the rest timer for that exercise (not when editing the history). */
+    /**
+     * Ticking a set off: starts the rest (after the last exercise of a superset round, not when
+     * editing the history) and moves the focus to the next open set in workout order.
+     */
     fun toggleDone(exercise: Int, set: Int) {
-        val item = current()?.exercises?.getOrNull(exercise) ?: return
+        val workout = current() ?: return
+        val item = workout.exercises.getOrNull(exercise) ?: return
         val nowDone = item.sets.getOrNull(set)?.done?.not() ?: return
+        val ref = SetRef(exercise, set)
         edit { w -> w.updateSet(exercise, set) { it.copy(done = nowDone) } }
-        if (editWorkoutId == null) if (nowDone) rest.start(item.restSec) else rest.stop()
+        if (editWorkoutId == null) {
+            if (nowDone && WorkoutFlow.restsAfter(workout, ref)) rest.start(item.restSec) else if (!nowDone) rest.stop()
+        }
+        if (nowDone) {
+            val after = current() ?: return
+            focus.value = WorkoutFlow.nextFocus(after, ref)?.let { Focus(it, Field.WEIGHT) }
+        }
     }
+
+    fun focus(exercise: Int, set: Int, field: Field) {
+        focus.value = Focus(SetRef(exercise, set), field)
+    }
+
+    fun clearFocus() {
+        focus.value = null
+    }
+
+    /** "Next" on the pad: weight → reps of the same set; reps → tick the set and go on. */
+    fun next() {
+        val f = focus.value ?: return
+        if (f.field == Field.WEIGHT) focus.value = f.copy(field = Field.REPS)
+        else {
+            val set = current()?.exercises?.getOrNull(f.ref.exercise)?.sets?.getOrNull(f.ref.set) ?: return
+            if (!set.done) toggleDone(f.ref.exercise, f.ref.set)
+            else focus.value = current()?.let { WorkoutFlow.nextFocus(it, f.ref) }?.let { Focus(it, Field.WEIGHT) }
+        }
+    }
+
+    fun linkWithNext(exercise: Int) = edit { it.linkWithNext(exercise) }
+
+    fun unlink(exercise: Int) = edit { it.unlink(exercise) }
 
     /** Working → warm-up → drop set → working. */
     fun cycleKind(exercise: Int, set: Int) = edit { w ->
