@@ -43,7 +43,8 @@ calculations in Kotlin Multiplatform (`:shared`). Firebase backend (Auth, Firest
   kg/lb unit (`LocalWeightUnit`); typed weights are converted back with `Formatting.fromUnit`.
 - **Two kinds of settings:** account-wide in `Settings` (Firestore, follows the person), device-only in
   `AppPreferences` (theme, language via AppCompat, screen on, rest feedback, crash-report consent).
-- **Exercise IDs are permanent.** Workouts reference them; never rename or reuse one.
+- **Exercise IDs are permanent.** Workouts reference them; never rename or reuse one. The catalog is
+  generated (`docs/exercises.md`); edit `ExerciseCatalog.core` or the import script, not the JSON.
 - **Data access only through `TrainingRepository`**; it talks to a `TrainingStore`
   (`FirestoreTrainingStore` in the app, `InMemoryTrainingStore` in tests). Screens never touch Firebase.
 - **The running workout is local-first**: applied in the repository, written behind. Never feed

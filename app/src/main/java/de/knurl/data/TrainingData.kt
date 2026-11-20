@@ -31,6 +31,8 @@ data class Settings(
     /** Plates the person's gym has, for the plate calculator. Always kilograms. */
     val platesKg: List<Double> = PlateCalculator.standardPlatesKg,
     val notifications: NotificationSettings = NotificationSettings(),
+    /** Starred exercises, shown first in the library. */
+    val favoriteExercises: List<String> = emptyList(),
 )
 
 /** Each kind of notification can be switched off on its own; each is its own Android channel too. */

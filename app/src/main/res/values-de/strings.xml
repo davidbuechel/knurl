@@ -48,7 +48,6 @@
     <string name="history_line">%1$s · %2$s · %3$d Sätze · %4$s</string>
 
     <!-- Exercises -->
-    <string name="exercises_search">Übungen suchen</string>
     <string name="exercises_pick_title">Übung hinzufügen</string>
     <string name="detail_e1rm">Geschätztes 1RM</string>
     <string name="detail_no_data">Noch keine Sätze. Dein geschätztes Maximum erscheint nach dem ersten Training.</string>
@@ -292,4 +291,24 @@
     <string name="summary_update_hint">Soll „%1$s“ die Übungen und Sätze von heute übernehmen?</string>
     <string name="summary_update_routine">Plan aktualisieren</string>
     <string name="summary_routine_saved">Plan gespeichert</string>
+
+    <!-- Exercise library -->
+    <string name="equipment_other">Sonstiges</string>
+    <string name="level_beginner">Einsteiger</string>
+    <string name="level_intermediate">Fortgeschritten</string>
+    <string name="level_expert">Profi</string>
+    <string name="action_clear">Leeren</string>
+    <string name="exercises_search_hint">Übung, Muskel oder Kürzel</string>
+    <string name="filter_equipment">Gerät</string>
+    <string name="filter_level">Level</string>
+    <string name="filter_all">Alle</string>
+    <string name="filter_clear">Filter zurücksetzen</string>
+    <string name="exercises_favorites">Favoriten</string>
+    <string name="exercises_recent">Zuletzt trainiert</string>
+    <string name="exercises_all">Alle Übungen (%1$d)</string>
+    <string name="exercises_found">%1$d gefunden</string>
+    <string name="favorite_add">Zu Favoriten</string>
+    <string name="favorite_remove">Aus Favoriten entfernen</string>
+    <string name="detail_how_to">Ausführung</string>
+    <string name="detail_instructions_english">Die deutsche Anleitung folgt, hier die englische Fassung.</string>
 </resources>

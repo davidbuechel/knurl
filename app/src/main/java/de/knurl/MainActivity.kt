@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
         val container = (application as KnurlApp).container
         // Keep the splash up until the account is ready and the first data is read (cache: milliseconds).
         splash.setKeepOnScreenCondition {
-            container.auth.state.value != AuthState.Offline && container.training.data.value == null
+            container.auth.state.value != AuthState.Offline && (container.training.data.value == null || !container.catalogReady.value)
         }
         enableEdgeToEdge()
         setContent {

@@ -27,7 +27,11 @@ data class ExerciseDetailState(
     val bestVolumeKg: Double?,
     val plateTargetKg: Double,
     val plates: PlateCalculator.Load?,
+    /** Target and bar as the plate calculator uses them, in the chosen unit (pounds rounded to 5). */
+    val plateTargetInUnit: Double,
+    val barInUnit: Double,
     val barKg: Double,
+    val favorite: Boolean,
 )
 
 class ExerciseDetailViewModel(private val training: TrainingRepository, private val exerciseId: String) : ViewModel() {
@@ -51,9 +55,14 @@ class ExerciseDetailViewModel(private val training: TrainingRepository, private 
             bestVolumeKg = sessions.maxOfOrNull { it.volumeKg },
             plateTargetKg = plateWeight,
             plates = if (exercise.equipment.usesPlates()) plates(plateWeight, bar, data.settings) else null,
+            plateTargetInUnit = inUnit(plateWeight, data.settings.unit, roundTo = 5.0),
+            barInUnit = inUnit(bar, data.settings.unit, roundTo = 1.0),
             barKg = bar,
+            favorite = exerciseId in data.settings.favoriteExercises,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    fun toggleFavorite() = training.toggleFavorite(exerciseId)
 
     fun changePlateTarget(deltaKg: Double) {
         val current = state.value?.plateTargetKg ?: return
@@ -64,13 +73,17 @@ class ExerciseDetailViewModel(private val training: TrainingRepository, private 
     private fun plates(targetKg: Double, barKg: Double, settings: Settings): PlateCalculator.Load =
         if (settings.unit == WeightUnit.LB) {
             PlateCalculator.load(
-                targetKg = Math.round(Formatting.toUnit(targetKg, WeightUnit.LB) / 5) * 5.0,
-                barKg = Math.round(Formatting.toUnit(barKg, WeightUnit.LB)).toDouble(),
+                targetKg = inUnit(targetKg, WeightUnit.LB, roundTo = 5.0),
+                barKg = inUnit(barKg, WeightUnit.LB, roundTo = 1.0),
                 platesKg = PlateCalculator.standardPlatesLb,
             )
         } else {
             PlateCalculator.load(targetKg, barKg, settings.platesKg)
         }
+
+    /** Kilograms stay as they are; pounds are rounded to what can be loaded. */
+    private fun inUnit(kg: Double, unit: WeightUnit, roundTo: Double): Double =
+        if (unit == WeightUnit.LB) Math.round(Formatting.toUnit(kg, unit) / roundTo) * roundTo else kg
 
     private fun Equipment.usesPlates() = this == Equipment.BARBELL || this == Equipment.SMITH || this == Equipment.EZ_BAR
 }

@@ -13,8 +13,10 @@ Kotlin + Jetpack Compose, Modelle und Rechnungen in Kotlin Multiplatform (`:shar
 - **Live-Workout:** Sätze mit Gewicht/Wdh.-Steppern (Antippen zum Eintippen), Aufwärm- und Drop-Sätze,
   Abhaken mit Haptik, Pausentimer, „Zuletzt“-Werte, Progressionsvorschlag. Gewichtsänderungen laufen an
   offene Folgesätze weiter.
-- **Übungen:** 58 Übungen mit Muskel und Gerät, Suche und Muskelfilter. Detail: geschätztes 1RM mit Verlauf,
-  Bestwerte, Scheibenrechner, alle Einheiten.
+- **Übungen:** rund 740 Übungen mit Fotos (Start/Ende) und Anleitung, Suche in beiden Sprachen mit Kürzeln,
+  Muskelnamen und Tippfehler-Toleranz, Filter nach Muskel, Gerät und Level, Favoriten und „Zuletzt trainiert“.
+  Detail: Bewegungsbilder, Muskeln, geschätztes 1RM mit Verlauf, Bestwerte, Scheibenrechner, alle Einheiten.
+  Details: `docs/exercises.md`.
 - **Fortschritt:** Einheiten, Volumen, Rekorde der Woche, harte Sätze pro Muskel mit Zielbereich 10–20,
   Volumen der letzten 8 Wochen, Wochenserie.
 - **Profil und Konto:** anonymer Start, Konto sichern mit Google oder E-Mail (Daten bleiben), Anmelden, Abmelden,

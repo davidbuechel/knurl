@@ -32,14 +32,37 @@ import de.knurl.domain.model.MovementPattern.LUNGE
 import de.knurl.domain.model.MovementPattern.SQUAT
 import de.knurl.domain.model.MovementPattern.VERTICAL_PULL
 import de.knurl.domain.model.MovementPattern.VERTICAL_PUSH
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 /**
- * The built-in exercises, bilingual. IDs are stable forever: workouts reference them.
- * Add new exercises at the end of their group; never rename or reuse an ID.
+ * The exercise catalog. [core] is our own list (also the source for scripts/import_exercises.py);
+ * the full catalog of about 740 exercises with photos and instructions is loaded from the app's
+ * assets with [load]. IDs are stable forever: workouts reference them. Never rename or reuse one.
  */
 object ExerciseCatalog {
 
-    val all: List<Exercise> = listOf(
+    private val json = Json { ignoreUnknownKeys = true }
+
+    @Serializable
+    private class CatalogFile(val version: Int, val exercises: List<Exercise>)
+
+    private var loaded: List<Exercise>? = null
+    private var byId: Map<String, Exercise> = emptyMap()
+
+    /** Everything known: the full catalog once loaded, otherwise the core list. */
+    val all: List<Exercise> get() = loaded ?: core
+
+    fun find(id: String): Exercise? = byId[id] ?: coreById[id]
+
+    /** Reads the catalog file (assets/exercises.json). Core exercises keep working if this fails. */
+    fun load(text: String) {
+        val exercises = json.decodeFromString(CatalogFile.serializer(), text).exercises
+        loaded = exercises
+        byId = exercises.associateBy { it.id }
+    }
+
+    val core: List<Exercise> = listOf(
         // Chest
         ex("bench_press", "Bankdrücken", "Bench press", CHEST, BARBELL, HORIZONTAL_PUSH, TRICEPS, SHOULDERS),
         ex("incline_bench_press", "Schrägbankdrücken", "Incline bench press", CHEST, BARBELL, HORIZONTAL_PUSH, SHOULDERS, TRICEPS),
@@ -111,9 +134,7 @@ object ExerciseCatalog {
         ex("ab_wheel", "Bauchroller", "Ab wheel rollout", CORE, BODYWEIGHT, CORE_PATTERN),
     )
 
-    private val byId: Map<String, Exercise> = all.associateBy { it.id }
-
-    fun find(id: String): Exercise? = byId[id]
+    private val coreById: Map<String, Exercise> = core.associateBy { it.id }
 
     private fun ex(
         id: String,

@@ -81,6 +81,10 @@ class TrainingRepository(
 
     fun allExercises(): List<Exercise> = ExerciseCatalog.all + _data.value?.customExercises.orEmpty()
 
+    fun toggleFavorite(exerciseId: String) = updateSettings { s ->
+        s.copy(favoriteExercises = if (exerciseId in s.favoriteExercises) s.favoriteExercises - exerciseId else s.favoriteExercises + exerciseId)
+    }
+
     /** Starts a workout unless one is already running, in which case nothing changes. */
     fun startWorkout(routine: Routine?, freeName: String) {
         val data = _data.value ?: return

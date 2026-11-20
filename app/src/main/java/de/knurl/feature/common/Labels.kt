@@ -7,6 +7,7 @@ import androidx.compose.ui.res.stringResource
 import de.knurl.R
 import de.knurl.domain.model.Equipment
 import de.knurl.domain.model.Exercise
+import de.knurl.domain.model.ExerciseLevel
 import de.knurl.domain.model.Muscle
 
 @StringRes
@@ -35,6 +36,7 @@ fun Equipment.label(): Int = when (this) {
     Equipment.SMITH -> R.string.equipment_smith
     Equipment.BODYWEIGHT -> R.string.equipment_bodyweight
     Equipment.BAND -> R.string.equipment_band
+    Equipment.OTHER -> R.string.equipment_other
 }
 
 /** True when the app runs in German; exercise names come from the catalog in both languages. */
@@ -47,3 +49,10 @@ fun Exercise.displayName(): String = name(isGerman())
 /** "Brust · Langhantel" */
 @Composable
 fun Exercise.subtitle(): String = "${stringResource(primary.label())} · ${stringResource(equipment.label())}"
+
+@StringRes
+fun ExerciseLevel.label(): Int = when (this) {
+    ExerciseLevel.BEGINNER -> R.string.level_beginner
+    ExerciseLevel.INTERMEDIATE -> R.string.level_intermediate
+    ExerciseLevel.EXPERT -> R.string.level_expert
+}

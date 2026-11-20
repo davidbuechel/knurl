@@ -26,6 +26,7 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
+        buildConfigField("String", "EXERCISE_IMAGES_URL", "\"https://knurl-gym.web.app/exercises\"")
     }
 
     signingConfigs {
@@ -84,6 +85,9 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services)
     implementation(libs.googleid)
+    // Exercise photos from Firebase Hosting, cached on the device.
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

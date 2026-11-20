@@ -9,6 +9,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.StarOutline
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
@@ -37,7 +40,8 @@ import de.knurl.feature.common.SectionLabel
 import de.knurl.feature.common.TrendChart
 import de.knurl.feature.common.displayName
 import de.knurl.feature.common.knurlViewModel
-import de.knurl.feature.common.subtitle
+import de.knurl.feature.common.isGerman
+import de.knurl.feature.common.label
 import de.knurl.ui.brand.BrandEmptyState
 import de.knurl.ui.brand.BrandLoadingBox
 import de.knurl.ui.navigation.Navigator
@@ -49,6 +53,7 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
     val vm = knurlViewModel(key = "exercise-$exerciseId") { ExerciseDetailViewModel(it.training, exerciseId) }
     val state by vm.state.collectAsStateWithLifecycle()
     val unit = LocalWeightUnit.current
+    val german = isGerman()
 
     Scaffold(
         topBar = {
@@ -59,6 +64,16 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
                         Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
+                actions = {
+                    val favorite = state?.favorite == true
+                    IconButton(onClick = vm::toggleFavorite) {
+                        Icon(
+                            if (favorite) Icons.Rounded.Star else Icons.Rounded.StarOutline,
+                            contentDescription = stringResource(if (favorite) R.string.favorite_remove else R.string.favorite_add),
+                            tint = if (favorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                },
             )
         },
     ) { padding ->
@@ -67,7 +82,15 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = padding.calculateTopPadding() + 4.dp, bottom = padding.calculateBottomPadding() + 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            item { Text(s.exercise.subtitle(), color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            item { ExerciseMotion(s.exercise) }
+            item {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    AssistChip(onClick = {}, label = { Text(stringResource(s.exercise.primary.label())) })
+                    s.exercise.secondary.forEach { muscle -> AssistChip(onClick = {}, label = { Text(stringResource(muscle.label())) }) }
+                    AssistChip(onClick = {}, label = { Text(stringResource(s.exercise.equipment.label())) })
+                    AssistChip(onClick = {}, label = { Text(stringResource(s.exercise.level.label())) })
+                }
+            }
 
             item {
                 KnurlCard {
@@ -102,11 +125,11 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
             s.plates?.let { load ->
                 item {
                     KnurlCard {
-                        SectionLabel(stringResource(R.string.detail_plates, weightText(s.plateTargetKg)))
+                        SectionLabel(stringResource(R.string.detail_plates, "${Formatting.kg(s.plateTargetInUnit)} ${Formatting.symbol(unit)}"))
                         PlateBar(load.perSide, unit)
                         Text(
-                            if (load.perSide.isEmpty()) stringResource(R.string.plates_empty_bar, weightText(s.barKg))
-                            else stringResource(R.string.plates_per_side, load.perSide.joinToString(" + ") { Formatting.kg(it) }, weightText(s.barKg)),
+                            if (load.perSide.isEmpty()) stringResource(R.string.plates_empty_bar, "${Formatting.kg(s.barInUnit)} ${Formatting.symbol(unit)}")
+                            else stringResource(R.string.plates_per_side, load.perSide.joinToString(" + ") { Formatting.kg(it) }, "${Formatting.kg(s.barInUnit)} ${Formatting.symbol(unit)}"),
                             style = MaterialTheme.typography.bodyMedium,
                         )
                         if (!load.isExact) {
@@ -119,6 +142,22 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
                                     Text((if (delta < 0) "−" else "+") + Formatting.kg(kotlin.math.abs(delta)))
                                 }
                             }
+                        }
+                    }
+                }
+            }
+
+            val steps = s.exercise.instructions(german)
+            if (steps.isNotEmpty()) item {
+                KnurlCard {
+                    SectionLabel(stringResource(R.string.detail_how_to))
+                    if (german && s.exercise.instructionsDe.isEmpty()) {
+                        Text(stringResource(R.string.detail_instructions_english), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    steps.forEachIndexed { index, step ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Text("${index + 1}", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                            Text(step, style = MaterialTheme.typography.bodyMedium)
                         }
                     }
                 }

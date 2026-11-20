@@ -50,7 +50,6 @@
     <string name="history_line">%1$s · %2$s · %3$d sets · %4$s</string>
 
     <!-- Exercises -->
-    <string name="exercises_search">Search exercises</string>
     <string name="exercises_pick_title">Add exercise</string>
     <string name="detail_e1rm">Estimated 1RM</string>
     <string name="detail_no_data">No sets logged yet. Your estimated max appears after the first workout.</string>
@@ -294,4 +293,24 @@
     <string name="summary_update_hint">Should “%1$s” take over today\'s exercises and sets?</string>
     <string name="summary_update_routine">Update routine</string>
     <string name="summary_routine_saved">Routine saved</string>
+
+    <!-- Exercise library -->
+    <string name="equipment_other">Other</string>
+    <string name="level_beginner">Beginner</string>
+    <string name="level_intermediate">Intermediate</string>
+    <string name="level_expert">Expert</string>
+    <string name="action_clear">Clear</string>
+    <string name="exercises_search_hint">Exercise, muscle or shorthand</string>
+    <string name="filter_equipment">Equipment</string>
+    <string name="filter_level">Level</string>
+    <string name="filter_all">All</string>
+    <string name="filter_clear">Clear filters</string>
+    <string name="exercises_favorites">Favourites</string>
+    <string name="exercises_recent">Recently trained</string>
+    <string name="exercises_all">All exercises (%1$d)</string>
+    <string name="exercises_found">%1$d found</string>
+    <string name="favorite_add">Add to favourites</string>
+    <string name="favorite_remove">Remove from favourites</string>
+    <string name="detail_how_to">How to</string>
+    <string name="detail_instructions_english">German instructions are on the way; here is the English version.</string>
 </resources>

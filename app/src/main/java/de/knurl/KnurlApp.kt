@@ -16,7 +16,13 @@ import de.knurl.data.firebase.AuthRepository
 import de.knurl.data.firebase.FirestoreTrainingStore
 import de.knurl.data.repository.TrainingRepository
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import android.util.Log
+import de.knurl.domain.catalog.ExerciseCatalog
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
@@ -72,9 +78,18 @@ class AppContainer(val app: Application) {
 
     val restTimer = RestTimer(app)
 
+    private val _catalogReady = MutableStateFlow(false)
+    /** True once the full exercise catalog is read from assets; the core list works before that. */
+    val catalogReady: StateFlow<Boolean> = _catalogReady.asStateFlow()
+
     val push = PushRegistration(auth, preferences, firestore, scope)
 
     init {
+        scope.launch(Dispatchers.IO) {
+            runCatching { ExerciseCatalog.load(app.assets.open("exercises.json").bufferedReader().use { it.readText() }) }
+                .onFailure { Log.e("Catalog", "Could not load exercises.json; using the core list", it) }
+            _catalogReady.value = true
+        }
         WorkoutNotifier(app, training, restTimer, scope)
         // Reminders follow the account's notification settings.
         scope.launch {

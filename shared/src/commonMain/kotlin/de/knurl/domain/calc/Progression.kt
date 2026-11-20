@@ -16,6 +16,7 @@ object Progression {
         Equipment.BARBELL, Equipment.EZ_BAR, Equipment.SMITH, Equipment.MACHINE, Equipment.CABLE -> 2.5
         Equipment.DUMBBELL, Equipment.KETTLEBELL -> 2.0
         Equipment.BODYWEIGHT, Equipment.BAND -> 0.0
+        Equipment.OTHER -> 1.0
     }
 
     /** Suggestion for the next session from the last session's sets, or null without a working set to go on. */
