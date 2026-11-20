@@ -10,9 +10,13 @@ data class ExerciseFilter(
     val muscle: Muscle? = null,
     val equipment: Equipment? = null,
     val level: ExerciseLevel? = null,
+    /** Only the person's own exercises. */
+    val customOnly: Boolean = false,
 ) {
+    /** Archived own exercises never show up in the library or the search. */
     fun matches(e: Exercise) =
-        (muscle == null || e.primary == muscle) && (equipment == null || e.equipment == equipment) && (level == null || e.level == level)
+        !e.archived && (!customOnly || e.isCustom) &&
+            (muscle == null || e.primary == muscle) && (equipment == null || e.equipment == equipment) && (level == null || e.level == level)
 }
 
 /**

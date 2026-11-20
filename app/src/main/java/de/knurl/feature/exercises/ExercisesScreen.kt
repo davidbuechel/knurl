@@ -42,6 +42,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.SavedStateHandle
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Button
+import androidx.compose.material.icons.rounded.Add
+import de.knurl.ui.navigation.CustomExerciseRoute
+import androidx.compose.runtime.saveable.rememberSaveable
 import de.knurl.R
 import de.knurl.domain.model.Equipment
 import de.knurl.domain.model.ExerciseLevel
@@ -67,28 +74,52 @@ import de.knurl.ui.navigation.Navigator
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean) {
+fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean, savedState: SavedStateHandle? = null) {
     val german = isGerman()
     val vm = knurlViewModel(key = "exercises-$pickForWorkout") { ExercisesViewModel(it.training, german, it.catalogReady) }
     val state by vm.state.collectAsStateWithLifecycle()
     val open: (String) -> Unit = { id ->
         if (pickForWorkout) go.backWithResult(Navigator.RESULT_EXERCISE, id) else go.to(ExerciseRoute(id))
     }
+    // An own exercise created from the picker comes back here and goes straight on to whoever asked.
+    if (savedState != null) {
+        LaunchedEffect(savedState) {
+            savedState.getStateFlow<String?>(Navigator.RESULT_EXERCISE, null).collect { id ->
+                if (id != null) {
+                    savedState[Navigator.RESULT_EXERCISE] = null
+                    go.backWithResult(Navigator.RESULT_EXERCISE, id)
+                }
+            }
+        }
+    }
+    // The field owns its text; the list follows. Bound to the computed state, fast typing would lose letters.
+    var query by rememberSaveable { mutableStateOf(state.query) }
+    val setQuery: (String) -> Unit = { query = it; vm.setQuery(it) }
+    val create: () -> Unit = { go.to(CustomExerciseRoute(name = query, pick = pickForWorkout)) }
     val favoritesTitle = stringResource(R.string.exercises_favorites)
+    val customTitle = stringResource(R.string.exercises_custom)
     val recentTitle = stringResource(R.string.exercises_recent)
 
     val content: @Composable (Modifier) -> Unit = { modifier ->
         LazyColumn(modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
-            if (!pickForWorkout) item { ScreenTitle(stringResource(R.string.tab_exercises), Modifier.padding(bottom = 10.dp)) }
+            if (!pickForWorkout) item {
+                Row(Modifier.padding(bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                    ScreenTitle(stringResource(R.string.tab_exercises), Modifier.weight(1f))
+                    FilledTonalButton(onClick = create) {
+                        Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Text(stringResource(R.string.custom_add))
+                    }
+                }
+            }
             item {
                 OutlinedTextField(
-                    value = state.query,
-                    onValueChange = vm::setQuery,
+                    value = query,
+                    onValueChange = setQuery,
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
                     trailingIcon = {
-                        if (state.query.isNotEmpty()) IconButton(onClick = { vm.setQuery("") }) {
+                        if (query.isNotEmpty()) IconButton(onClick = { setQuery("") }) {
                             Icon(Icons.Rounded.Clear, contentDescription = stringResource(R.string.action_clear))
                         }
                     },
@@ -104,6 +135,9 @@ fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean) {
                     item {
                         ChoiceChip(stringResource(R.string.filter_level), state.filter.level?.let { stringResource(it.label()) }, ExerciseLevel.entries, { stringResource(it.label()) }, vm::setLevel)
                     }
+                    item {
+                        FilterChip(selected = state.filter.customOnly, onClick = vm::toggleCustomOnly, label = { Text(stringResource(R.string.filter_custom)) })
+                    }
                     items(Muscle.entries) { muscle ->
                         FilterChip(selected = state.filter.muscle == muscle, onClick = { vm.toggleMuscle(muscle) }, label = { Text(stringResource(muscle.label())) })
                     }
@@ -111,6 +145,7 @@ fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean) {
             }
             if (state.browsing) {
                 section("fav", favoritesTitle, state.favorites, open)
+                section("custom", customTitle, state.custom, open)
                 section("recent", recentTitle, state.recent, open)
                 item { SectionHeader(stringResource(R.string.exercises_all, state.rows.size), Modifier.padding(top = 14.dp, bottom = 8.dp)) }
             } else {
@@ -122,7 +157,16 @@ fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean) {
                 }
             }
             if (state.rows.isEmpty()) {
-                item { BrandEmptyState(stringResource(R.string.empty_search_title), stringResource(R.string.empty_search_body), icon = Icons.Rounded.Search) }
+                item {
+                    if (query.isNotBlank()) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+                            BrandEmptyState(stringResource(R.string.empty_search_title), stringResource(R.string.custom_create_body), icon = Icons.Rounded.Search)
+                            Button(onClick = create) { Text(stringResource(R.string.custom_create_named, query.trim())) }
+                        }
+                    } else {
+                        BrandEmptyState(stringResource(R.string.empty_search_title), stringResource(R.string.empty_search_body), icon = Icons.Rounded.Search)
+                    }
+                }
             }
             itemsIndexed(state.rows, key = { _, row -> "all-" + row.exercise.id }) { i, row ->
                 ExerciseListRow(row, i, state.rows.size, onClick = { open(row.exercise.id) })

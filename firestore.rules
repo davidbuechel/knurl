@@ -59,11 +59,30 @@ service cloud.firestore {
         && stampedNow();
     }
 
+    // Every field of the app's Exercise model is written (defaults included). Own exercises carry
+    // no instructions or hosted photos; their photo lives in exercisePhotos.
     function validCustomExercise(id) {
-      return data().keys().hasOnly(['id', 'nameDe', 'nameEn', 'primary', 'secondary', 'equipment', 'pattern', 'isCustom', 'updatedAt'])
+      return data().keys().hasOnly(['id', 'nameDe', 'nameEn', 'primary', 'secondary', 'equipment', 'pattern', 'isCustom',
+                                    'level', 'instructionsEn', 'instructionsDe', 'images', 'note', 'archived', 'updatedAt'])
         && data().id == id
         && text(data().nameDe, 1, 80) && text(data().nameEn, 1, 80)
+        && data().primary is string && data().equipment is string && data().pattern is string
+        && (!('secondary' in data()) || (data().secondary is list && data().secondary.size() <= 3))
+        && (!('note' in data()) || text(data().note, 0, 500))
+        && (!('archived' in data()) || data().archived is bool)
+        && (!('instructionsEn' in data()) || (data().instructionsEn is list && data().instructionsEn.size() == 0))
+        && (!('instructionsDe' in data()) || (data().instructionsDe is list && data().instructionsDe.size() == 0))
+        && (!('images' in data()) || data().images == 0)
         && data().isCustom == true
+        && stampedNow();
+    }
+
+    // A small WebP of an own exercise (480 px, base64 about 50 KB; the cap leaves room). Only for an
+    // exercise that exists.
+    function validExercisePhoto(uid, id) {
+      return data().keys().hasOnly(['webp', 'updatedAt'])
+        && text(data().webp, 1, 200000)
+        && exists(/databases/$(database)/documents/users/$(uid)/customExercises/$(id))
         && stampedNow();
     }
 
@@ -97,6 +116,11 @@ service cloud.firestore {
       match /customExercises/{id} {
         allow read, delete: if owner(uid);
         allow create, update: if owner(uid) && validCustomExercise(id);
+      }
+
+      match /exercisePhotos/{id} {
+        allow read, delete: if owner(uid);
+        allow create, update: if owner(uid) && validExercisePhoto(uid, id);
       }
 
       // The running workout: exactly one document, deleted when the workout ends.

@@ -5,6 +5,7 @@ import de.knurl.data.Settings
 import de.knurl.data.TrainingData
 import de.knurl.domain.RoutineEditing
 import de.knurl.domain.WorkoutPlanning
+import de.knurl.domain.catalog.CustomExercises
 import de.knurl.domain.catalog.ExerciseCatalog
 import de.knurl.domain.catalog.Experience
 import de.knurl.domain.catalog.Goal
@@ -85,6 +86,40 @@ class TrainingRepository(
         ExerciseCatalog.find(id) ?: _data.value?.customExercises?.firstOrNull { it.id == id }
 
     fun allExercises(): List<Exercise> = ExerciseCatalog.all + _data.value?.customExercises.orEmpty()
+
+    /** A fresh id for a new own exercise; prefixed so it can never clash with a catalog id. */
+    fun newCustomExerciseId(): String = "custom_" + newId()
+
+    /**
+     * Saves an own exercise. [photo] is a base64 WebP, [removePhoto] drops the current one; the
+     * exercise goes first because the photo rule checks that it exists.
+     */
+    fun saveCustomExercise(exercise: Exercise, photo: String? = null, removePhoto: Boolean = false) {
+        val store = current ?: return
+        store.saveCustomExercise(exercise.copy(isCustom = true))
+        when {
+            photo != null -> store.savePhoto(exercise.id, photo)
+            removePhoto -> store.savePhoto(exercise.id, null)
+        }
+    }
+
+    /**
+     * Removes an own exercise. If the history or a plan uses it, it is only archived (hidden from
+     * the library, name kept); otherwise it is deleted with its photo. Also leaves the favourites.
+     */
+    fun removeCustomExercise(id: String) {
+        val data = _data.value ?: return
+        val exercise = data.customExercises.firstOrNull { it.id == id } ?: return
+        if (CustomExercises.isUsed(id, data.workouts, data.routines, data.active)) {
+            current?.saveCustomExercise(exercise.copy(archived = true))
+            current?.savePhoto(id, null)
+        } else {
+            current?.deleteCustomExercise(id)
+        }
+        if (id in data.settings.favoriteExercises) updateSettings { it.copy(favoriteExercises = it.favoriteExercises - id) }
+    }
+
+    fun photo(exerciseId: String): String? = _data.value?.exercisePhotos?.get(exerciseId)
 
     fun toggleFavorite(exerciseId: String) = updateSettings { s ->
         s.copy(favoriteExercises = if (exerciseId in s.favoriteExercises) s.favoriteExercises - exerciseId else s.favoriteExercises + exerciseId)

@@ -52,6 +52,28 @@ await check("owner logs body weight", assertSucceeds(setDoc(doc(alice, `users/${
 await check("body weight must be plausible", assertFails(setDoc(doc(alice, `users/${ALICE}/bodyWeights/b2`), weight("b2", { weightKg: -1 }))));
 await check("someone else cannot read body weight", assertFails(getDoc(doc(bob, `users/${ALICE}/bodyWeights/b1`))));
 
+console.log("own exercises and photos");
+const custom = (id, overrides = {}) => ({
+  id, nameDe: "Landmine Press", nameEn: "Landmine Press", primary: "SHOULDERS", secondary: ["TRICEPS"], equipment: "BARBELL",
+  pattern: "VERTICAL_PUSH", isCustom: true, level: "BEGINNER", instructionsEn: [], instructionsDe: [], images: 0,
+  note: "", archived: false, updatedAt: serverTimestamp(), ...overrides,
+});
+await check("owner saves an own exercise (all model fields)", assertSucceeds(setDoc(doc(alice, `users/${ALICE}/customExercises/c1`), custom("c1"))));
+await check("own exercise must be marked custom", assertFails(setDoc(doc(alice, `users/${ALICE}/customExercises/c2`), custom("c2", { isCustom: false }))));
+await check("note has a length limit", assertFails(setDoc(doc(alice, `users/${ALICE}/customExercises/c3`), custom("c3", { note: "x".repeat(501) }))));
+await check("at most three secondary muscles", assertFails(setDoc(doc(alice, `users/${ALICE}/customExercises/c4`), custom("c4", { secondary: ["A", "B", "C", "D"] }))));
+await check("no hosted images for own exercises", assertFails(setDoc(doc(alice, `users/${ALICE}/customExercises/c5`), custom("c5", { images: 2 }))));
+await check("archiving is allowed", assertSucceeds(setDoc(doc(alice, `users/${ALICE}/customExercises/c1`), custom("c1", { archived: true }))));
+await check("someone else cannot read my exercises", assertFails(getDoc(doc(bob, `users/${ALICE}/customExercises/c1`))));
+const photo = (overrides = {}) => ({ webp: "UklGRg==", updatedAt: serverTimestamp(), ...overrides });
+await check("owner saves a photo for an own exercise", assertSucceeds(setDoc(doc(alice, `users/${ALICE}/exercisePhotos/c1`), photo())));
+await check("no photo without the exercise", assertFails(setDoc(doc(alice, `users/${ALICE}/exercisePhotos/nope`), photo())));
+await check("photo has a size limit", assertFails(setDoc(doc(alice, `users/${ALICE}/exercisePhotos/c1`), photo({ webp: "x".repeat(200001) }))));
+await check("photo takes no other fields", assertFails(setDoc(doc(alice, `users/${ALICE}/exercisePhotos/c1`), photo({ caption: "me" }))));
+await check("someone else cannot see my photo", assertFails(getDoc(doc(bob, `users/${ALICE}/exercisePhotos/c1`))));
+await check("someone else cannot write my photo", assertFails(setDoc(doc(bob, `users/${ALICE}/exercisePhotos/c1`), photo())));
+await check("owner deletes the photo", assertSucceeds(deleteDoc(doc(alice, `users/${ALICE}/exercisePhotos/c1`))));
+
 console.log("devices");
 const device = (overrides = {}) => ({ token: "fcm-token", platform: "android", locale: "de", updatedAt: serverTimestamp(), ...overrides });
 await check("owner registers a device", assertSucceeds(setDoc(doc(alice, `users/${ALICE}/devices/install1`), device())));

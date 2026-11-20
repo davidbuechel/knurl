@@ -29,6 +29,17 @@
             </intent-filter>
         </activity>
 
+        <!-- Camera shots for own exercises and shared pictures (res/xml/file_paths.xml). -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <receiver android:name=".core.workout.RestOverReceiver" android:exported="false" />
         <receiver android:name=".core.notifications.ReminderReceiver" android:exported="false" />
         <receiver android:name=".core.notifications.BootReceiver" android:exported="false">

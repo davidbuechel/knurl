@@ -30,6 +30,10 @@ data class Exercise(
     val instructionsDe: List<String> = emptyList(),
     /** Number of photos served at exercises/{id}/{n}.webp (0, 1 or 2: start and end position). */
     val images: Int = 0,
+    /** Own exercises: the person's own cues, shown instead of instructions. */
+    val note: String = "",
+    /** Own exercises that were removed but still appear in the history keep their name this way. */
+    val archived: Boolean = false,
 ) {
     fun name(german: Boolean): String = if (german) nameDe else nameEn
 

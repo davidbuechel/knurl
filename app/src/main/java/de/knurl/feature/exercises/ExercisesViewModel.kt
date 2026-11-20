@@ -27,6 +27,7 @@ data class ExercisesState(
     /** Shown above the list while nothing is searched or filtered. */
     val favorites: List<ExerciseRow> = emptyList(),
     val recent: List<ExerciseRow> = emptyList(),
+    val custom: List<ExerciseRow> = emptyList(),
     val rows: List<ExerciseRow> = emptyList(),
 ) {
     val browsing: Boolean get() = query.isBlank() && filter == ExerciseFilter()
@@ -55,8 +56,9 @@ class ExercisesViewModel(
         ExercisesState(
             query = q,
             filter = f,
-            favorites = data.settings.favoriteExercises.mapNotNull(training::exercise).map(::row),
-            recent = recentIds.mapNotNull(training::exercise).map(::row),
+            favorites = data.settings.favoriteExercises.mapNotNull(training::exercise).filterNot { it.archived }.map(::row),
+            recent = recentIds.mapNotNull(training::exercise).filterNot { it.archived }.map(::row),
+            custom = data.customExercises.filterNot { it.archived }.sortedBy { it.name(german).lowercase() }.map(::row),
             rows = ordered.map(::row),
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ExercisesState())
@@ -68,6 +70,7 @@ class ExercisesViewModel(
     fun toggleMuscle(value: Muscle) = filter.update { it.copy(muscle = if (it.muscle == value) null else value) }
     fun setEquipment(value: Equipment?) = filter.update { it.copy(equipment = value) }
     fun setLevel(value: ExerciseLevel?) = filter.update { it.copy(level = value) }
+    fun toggleCustomOnly() = filter.update { it.copy(customOnly = !it.customOnly) }
     fun clearFilters() {
         filter.value = ExerciseFilter()
     }

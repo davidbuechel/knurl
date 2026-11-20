@@ -108,6 +108,8 @@ fun RoutineEditorScreen(go: Navigator, routineId: String?, savedState: SavedStat
     val routine by vm.routine.collectAsStateWithLifecycle()
     val german = isGerman()
     var confirmDiscard by rememberSaveable { mutableStateOf(false) }
+    // The field owns its text (a flow-bound field can lose letters when typing fast).
+    var name by rememberSaveable { mutableStateOf(routine.name) }
     val leave = { if (vm.hasChanges()) confirmDiscard = true else go.back() }
     BackHandler(onBack = leave)
 
@@ -152,8 +154,8 @@ fun RoutineEditorScreen(go: Navigator, routineId: String?, savedState: SavedStat
         ) {
             item {
                 OutlinedTextField(
-                    value = routine.name,
-                    onValueChange = vm::rename,
+                    value = name,
+                    onValueChange = { name = it.take(80); vm.rename(it) },
                     label = { Text(stringResource(R.string.routine_name)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),

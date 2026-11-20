@@ -1,6 +1,15 @@
 package de.knurl.feature.exercises
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.material3.Text
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import de.knurl.core.image.ExercisePhotos
+import de.knurl.feature.common.appContainer
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,16 +55,40 @@ import kotlinx.coroutines.delay
 fun Exercise.imageUrl(index: Int): String? =
     if (index < images) "${BuildConfig.EXERCISE_IMAGES_URL}/$id/$index.webp" else null
 
-/** Small square photo for lists; the mark stands in when there is no photo. */
+/** The photo of an own exercise, decoded once; null without one. Follows changes from other devices. */
+@Composable
+fun rememberOwnPhoto(exercise: Exercise): ImageBitmap? {
+    if (!exercise.isCustom) return null
+    val training = appContainer().training
+    val base64 by remember(exercise.id) {
+        training.data.map { it?.exercisePhotos?.get(exercise.id) }.distinctUntilChanged()
+    }.collectAsStateWithLifecycle(training.photo(exercise.id))
+    return remember(base64) { base64?.let(ExercisePhotos::decode) }
+}
+
+/**
+ * Small square photo for lists. Own exercises show their photo or their initial on a cobalt tile;
+ * catalog exercises without a photo show the mark.
+ */
 @Composable
 fun ExerciseThumbnail(exercise: Exercise, modifier: Modifier = Modifier) {
+    val own = rememberOwnPhoto(exercise)
     Box(
-        modifier.size(56.dp).clip(MaterialTheme.shapes.medium).background(MaterialTheme.colorScheme.surfaceContainerHigh),
+        modifier.size(56.dp).clip(MaterialTheme.shapes.medium)
+            .background(if (exercise.isCustom && own == null) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh),
         contentAlignment = Alignment.Center,
     ) {
         val url = exercise.imageUrl(0)
-        if (url != null) AsyncImage(url, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
-        else KnurlMark(Modifier.fillMaxSize(0.5f), color = MaterialTheme.colorScheme.outline)
+        when {
+            own != null -> Image(own, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+            exercise.isCustom -> Text(
+                exercise.nameEn.take(1).uppercase(),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+            url != null -> AsyncImage(url, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+            else -> KnurlMark(Modifier.fillMaxSize(0.5f), color = MaterialTheme.colorScheme.outline)
+        }
     }
 }
 
@@ -65,6 +98,14 @@ fun ExerciseThumbnail(exercise: Exercise, modifier: Modifier = Modifier) {
  */
 @Composable
 fun ExerciseGallery(exercise: Exercise, modifier: Modifier = Modifier) {
+    val own = rememberOwnPhoto(exercise)
+    if (own != null) {
+        Image(
+            own, contentDescription = null, contentScale = ContentScale.Crop,
+            modifier = modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(24.dp)),
+        )
+        return
+    }
     if (exercise.images == 0) return
     val pager = rememberPagerState { exercise.images }
     var playing by rememberSaveable(exercise.id) { mutableStateOf(false) }

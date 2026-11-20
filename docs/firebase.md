@@ -18,7 +18,8 @@ messages need nothing more. Cloud Functions or Cloud Storage would need Blaze.
 users/{uid}                      settings (map), schemaVersion, createdAt
 users/{uid}/workouts/{id}        finished workouts (shared model Workout)
 users/{uid}/routines/{id}        routines (Routine), ordered by position
-users/{uid}/customExercises/{id} the user's own exercises (Exercise, isCustom = true)
+users/{uid}/customExercises/{id} the user's own exercises (Exercise, isCustom = true; archived = removed but still in the history)
+users/{uid}/exercisePhotos/{id}  photo of an own exercise: { webp: base64 480 px WebP, updatedAt } (no Cloud Storage: we stay on Spark)
 users/{uid}/state/active         the running workout; deleted when it ends
 users/{uid}/devices/{installId}  FCM token, platform, locale
 ```

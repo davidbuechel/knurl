@@ -3,6 +3,7 @@ package de.knurl.data.repository
 import de.knurl.data.Settings
 import de.knurl.data.TrainingData
 import de.knurl.domain.model.BodyWeight
+import de.knurl.domain.model.Exercise
 import de.knurl.domain.model.Routine
 import de.knurl.domain.model.Workout
 import kotlinx.coroutines.flow.Flow
@@ -65,6 +66,22 @@ class InMemoryUserStore : UserTrainingStore {
 
     override fun deleteBodyWeight(id: String) {
         state.value = state.value.copy(bodyWeights = state.value.bodyWeights.filterNot { it.id == id })
+    }
+
+    override fun saveCustomExercise(exercise: Exercise) {
+        state.value = state.value.copy(customExercises = state.value.customExercises.filterNot { it.id == exercise.id } + exercise)
+    }
+
+    override fun deleteCustomExercise(id: String) {
+        state.value = state.value.copy(
+            customExercises = state.value.customExercises.filterNot { it.id == id },
+            exercisePhotos = state.value.exercisePhotos - id,
+        )
+    }
+
+    override fun savePhoto(exerciseId: String, webp: String?) {
+        val photos = state.value.exercisePhotos
+        state.value = state.value.copy(exercisePhotos = if (webp == null) photos - exerciseId else photos + (exerciseId to webp))
     }
 
     override suspend fun deleteEverything() {

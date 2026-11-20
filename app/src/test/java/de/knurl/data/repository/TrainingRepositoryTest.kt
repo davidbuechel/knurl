@@ -2,9 +2,14 @@ package de.knurl.data.repository
 
 import de.knurl.data.Settings
 import de.knurl.data.WeightUnit
+import de.knurl.domain.catalog.CustomExercises
 import de.knurl.domain.catalog.Experience
 import de.knurl.domain.catalog.Goal
+import de.knurl.domain.model.Equipment
+import de.knurl.domain.model.Muscle
 import de.knurl.domain.model.SetEntry
+import de.knurl.domain.model.Workout
+import de.knurl.domain.model.WorkoutExercise
 import de.knurl.domain.updateSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -87,5 +92,25 @@ class TrainingRepositoryTest {
         server.value = repo.data.value!!.active // the server confirms our write
         server.value = null // then the workout is finished on the other phone
         assertNull(repo.data.value!!.active)
+    }
+
+    @Test fun ownExerciseIsArchivedWhenUsedAndDeletedOtherwise() = runTest(UnconfinedTestDispatcher()) {
+        val repo = repository()
+        val used = CustomExercises.build("custom_a", "Landmine Press", Muscle.SHOULDERS, emptyList(), Equipment.BARBELL, "")
+        val unused = CustomExercises.build("custom_b", "Cossack Squat", Muscle.QUADS, emptyList(), Equipment.BODYWEIGHT, "")
+        repo.saveCustomExercise(used, photo = "UklGRg==")
+        repo.saveCustomExercise(unused, photo = "UklGRg==")
+        repo.saveWorkout(Workout("old", "Old", null, 0, 1, listOf(WorkoutExercise("custom_a", emptyList()))))
+        repo.toggleFavorite("custom_a")
+
+        repo.removeCustomExercise("custom_a")
+        repo.removeCustomExercise("custom_b")
+
+        val data = repo.data.value!!
+        assertEquals(listOf("custom_a"), data.customExercises.map { it.id })
+        assertTrue(data.customExercises.single().archived)
+        assertEquals("Landmine Press", repo.exercise("custom_a")?.nameDe)
+        assertTrue(data.exercisePhotos.isEmpty())
+        assertTrue("custom_a" !in data.settings.favoriteExercises)
     }
 }

@@ -33,6 +33,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import de.knurl.feature.exercises.CustomExerciseScreen
 import de.knurl.feature.exercises.ExerciseDetailScreen
 import de.knurl.feature.exercises.ExercisesScreen
 import de.knurl.feature.home.HomeScreen
@@ -46,6 +47,7 @@ import kotlinx.serialization.Serializable
 @Serializable data class RoutineEditorRoute(val id: String? = null)
 @Serializable data object PickExerciseRoute
 @Serializable data class ExerciseRoute(val id: String)
+@Serializable data class CustomExerciseRoute(val id: String? = null, val name: String = "", val pick: Boolean = false)
 @Serializable data object SettingsRoute
 @Serializable data object StatsRoute
 @Serializable data object BodyWeightRoute
@@ -121,8 +123,12 @@ private fun Destinations(nav: NavHostController, go: Navigator) {
         composable<EditWorkoutRoute> { entry -> ActiveWorkoutScreen(go, entry.savedStateHandle, editWorkoutId = entry.toRoute<EditWorkoutRoute>().id) }
         composable<SummaryRoute> { entry -> SummaryScreen(go, entry.toRoute<SummaryRoute>().workoutId) }
         composable<RoutineEditorRoute> { entry -> RoutineEditorScreen(go, entry.toRoute<RoutineEditorRoute>().id, entry.savedStateHandle) }
-        composable<PickExerciseRoute> { ExercisesScreen(go, pickForWorkout = true) }
+        composable<PickExerciseRoute> { entry -> ExercisesScreen(go, pickForWorkout = true, savedState = entry.savedStateHandle) }
         composable<ExerciseRoute> { entry -> ExerciseDetailScreen(go, entry.toRoute<ExerciseRoute>().id) }
+        composable<CustomExerciseRoute> { entry ->
+            val route = entry.toRoute<CustomExerciseRoute>()
+            CustomExerciseScreen(go, route.id, route.name, pickForWorkout = route.pick)
+        }
         composable<SettingsRoute> { SettingsScreen(go) }
         composable<StatsRoute> { ProgressScreen(go) }
         composable<BodyWeightRoute> { BodyWeightScreen(go) }

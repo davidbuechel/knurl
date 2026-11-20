@@ -29,6 +29,8 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.material.icons.outlined.Edit
+import de.knurl.ui.navigation.CustomExerciseRoute
 import de.knurl.R
 import de.knurl.feature.common.SegmentedTabs
 import de.knurl.feature.common.Pill
@@ -81,6 +83,11 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
                     }
                 },
                 actions = {
+                    if (state?.exercise?.isCustom == true) {
+                        IconButton(onClick = { go.to(CustomExerciseRoute(id = exerciseId)) }) {
+                            Icon(Icons.Outlined.Edit, contentDescription = stringResource(R.string.action_edit))
+                        }
+                    }
                     val favorite = state?.favorite == true
                     IconButton(onClick = vm::toggleFavorite) {
                         Icon(
@@ -104,7 +111,7 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
                     Pill(stringResource(s.exercise.primary.label()))
                     s.exercise.secondary.forEach { muscle -> Pill(stringResource(muscle.label()), color = MaterialTheme.colorScheme.onSurfaceVariant) }
                     Pill(stringResource(s.exercise.equipment.label()), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Pill(stringResource(s.exercise.level.label()), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (!s.exercise.isCustom) Pill(stringResource(s.exercise.level.label()), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             item {
@@ -121,7 +128,16 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
                 DetailTab.HOW_TO -> {
                     val steps = s.exercise.instructions(german)
                     item {
-                        if (steps.isEmpty()) {
+                        if (s.exercise.isCustom) {
+                            ListGroup {
+                                ListRow(
+                                    stringResource(R.string.custom_note),
+                                    subtitle = s.exercise.note.ifBlank { stringResource(R.string.custom_note_hint) },
+                                    divider = false,
+                                    onClick = { go.to(CustomExerciseRoute(id = exerciseId)) },
+                                )
+                            }
+                        } else if (steps.isEmpty()) {
                             BrandEmptyState(stringResource(R.string.detail_no_instructions_title), stringResource(R.string.detail_no_instructions_body))
                         } else {
                             ListGroup {

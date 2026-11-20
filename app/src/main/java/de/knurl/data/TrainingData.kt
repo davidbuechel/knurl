@@ -16,6 +16,8 @@ data class TrainingData(
     val workouts: List<Workout> = emptyList(),
     val routines: List<Routine> = emptyList(),
     val customExercises: List<Exercise> = emptyList(),
+    /** Photos of own exercises: exercise id to a base64 WebP (see exercisePhotos in firestore.rules). */
+    val exercisePhotos: Map<String, String> = emptyMap(),
     /** Oldest first. */
     val bodyWeights: List<BodyWeight> = emptyList(),
     /** The workout in progress, kept so it survives the app being closed mid-session. */

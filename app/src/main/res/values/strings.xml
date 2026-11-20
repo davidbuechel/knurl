@@ -443,4 +443,35 @@
     <string name="body_weight_delete_body">%1$s from %2$s will be removed.</string>
     <string name="routine_discard_title">Discard changes?</string>
     <string name="routine_discard_body">Your changes to this routine are not saved yet.</string>
+
+    <!-- Own exercises -->
+    <string name="custom_new">New exercise</string>
+    <string name="custom_edit">Edit exercise</string>
+    <string name="custom_name">Name</string>
+    <string name="custom_name_hint">e.g. Landmine press</string>
+    <string name="custom_primary">Main muscle</string>
+    <string name="custom_secondary">Also works</string>
+    <string name="custom_secondary_hint">Up to three</string>
+    <string name="custom_equipment">Equipment</string>
+    <string name="custom_note">Your cues</string>
+    <string name="custom_note_hint">Grip, seat setting, what to watch out for</string>
+    <string name="custom_photo_add">Add a photo</string>
+    <string name="custom_photo_change">Change photo</string>
+    <string name="custom_photo_gallery">Choose from gallery</string>
+    <string name="custom_photo_camera">Take a photo</string>
+    <string name="custom_photo_remove">Remove photo</string>
+    <string name="custom_photo_failed">Could not read that photo</string>
+    <string name="custom_photo_hint">Only you can see it. Stored small, in your account.</string>
+    <string name="custom_delete">Delete exercise</string>
+    <string name="custom_delete_used">It leaves the library but stays in your history and plans.</string>
+    <string name="custom_delete_unused">The exercise and its photo will be deleted.</string>
+    <string name="custom_add">Custom</string>
+    <string name="custom_create_named">Create “%1$s”</string>
+    <string name="custom_create_body">Not in the library? Add it as your own exercise.</string>
+    <string name="exercises_custom">Your exercises</string>
+    <string name="filter_custom">Custom</string>
+    <string name="action_edit">Edit</string>
+
+    <!-- Own exercises -->
+    <string name="custom_discard_body">Your changes to this exercise are not saved yet.</string>
 </resources>

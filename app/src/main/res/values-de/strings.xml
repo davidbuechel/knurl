@@ -441,4 +441,35 @@
     <string name="body_weight_delete_body">%1$s vom %2$s wird entfernt.</string>
     <string name="routine_discard_title">Änderungen verwerfen?</string>
     <string name="routine_discard_body">Deine Änderungen an diesem Plan sind noch nicht gespeichert.</string>
+
+    <!-- Own exercises -->
+    <string name="custom_new">Neue Übung</string>
+    <string name="custom_edit">Übung bearbeiten</string>
+    <string name="custom_name">Name</string>
+    <string name="custom_name_hint">z. B. Landmine Press</string>
+    <string name="custom_primary">Hauptmuskel</string>
+    <string name="custom_secondary">Trainiert auch</string>
+    <string name="custom_secondary_hint">Bis zu drei</string>
+    <string name="custom_equipment">Gerät</string>
+    <string name="custom_note">Deine Hinweise</string>
+    <string name="custom_note_hint">Griff, Sitzeinstellung, worauf du achtest</string>
+    <string name="custom_photo_add">Foto hinzufügen</string>
+    <string name="custom_photo_change">Foto ändern</string>
+    <string name="custom_photo_gallery">Aus der Galerie wählen</string>
+    <string name="custom_photo_camera">Foto aufnehmen</string>
+    <string name="custom_photo_remove">Foto entfernen</string>
+    <string name="custom_photo_failed">Das Foto konnte nicht gelesen werden</string>
+    <string name="custom_photo_hint">Nur du siehst es. Klein gespeichert, in deinem Konto.</string>
+    <string name="custom_delete">Übung löschen</string>
+    <string name="custom_delete_used">Sie verschwindet aus der Bibliothek, bleibt aber in deinem Verlauf und deinen Plänen.</string>
+    <string name="custom_delete_unused">Die Übung und ihr Foto werden gelöscht.</string>
+    <string name="custom_add">Eigene</string>
+    <string name="custom_create_named">„%1$s“ anlegen</string>
+    <string name="custom_create_body">Nicht in der Bibliothek? Leg sie als eigene Übung an.</string>
+    <string name="exercises_custom">Deine Übungen</string>
+    <string name="filter_custom">Eigene</string>
+    <string name="action_edit">Bearbeiten</string>
+
+    <!-- Own exercises -->
+    <string name="custom_discard_body">Deine Änderungen an dieser Übung sind noch nicht gespeichert.</string>
 </resources>

@@ -29,6 +29,7 @@ import kotlinx.serialization.KSerializer
  * users/{uid}/workouts/{id}        finished workouts
  * users/{uid}/routines/{id}        routines
  * users/{uid}/customExercises/{id} the user's own exercises
+ * users/{uid}/exercisePhotos/{id}  a small WebP per own exercise
  * users/{uid}/bodyWeights/{id}     body weight entries
  * users/{uid}/state/active         the running workout, deleted when it ends
  */
@@ -42,6 +43,7 @@ private class FirestoreUserStore(private val user: DocumentReference) : UserTrai
     private val routines = user.collection("routines")
     private val customExercises = user.collection("customExercises")
     private val bodyWeights = user.collection("bodyWeights")
+    private val photos = user.collection("exercisePhotos")
     private val active = user.collection("state").document("active")
 
     override val data: Flow<TrainingData> = combine(
@@ -58,7 +60,7 @@ private class FirestoreUserStore(private val user: DocumentReference) : UserTrai
             bodyWeights = weights.sortedBy { it.atMs },
             settings = settings,
         )
-    }
+    }.combine(photosFlow()) { data, photos -> data.copy(exercisePhotos = photos) }
 
     override val activeChanges: Flow<Workout?> = activeFlow()
 
@@ -115,9 +117,25 @@ private class FirestoreUserStore(private val user: DocumentReference) : UserTrai
         bodyWeights.document(id).delete().logFailure("delete body weight")
     }
 
+    override fun saveCustomExercise(exercise: Exercise) {
+        customExercises.document(exercise.id).set(withUpdatedAt(Exercise.serializer(), exercise)).logFailure("save exercise")
+    }
+
+    override fun deleteCustomExercise(id: String) {
+        // The photo first: its rule needs the exercise to exist only for writes, so the order is free.
+        photos.document(id).delete().logFailure("delete photo")
+        customExercises.document(id).delete().logFailure("delete exercise")
+    }
+
+    override fun savePhoto(exerciseId: String, webp: String?) {
+        val doc = photos.document(exerciseId)
+        if (webp == null) doc.delete().logFailure("delete photo")
+        else doc.set(mapOf("webp" to webp, "updatedAt" to FieldValue.serverTimestamp())).logFailure("save photo")
+    }
+
     override suspend fun deleteEverything() {
         // Firestore has no recursive delete on clients: remove every known subcollection, then the profile.
-        for (collection in listOf(workouts, routines, customExercises, bodyWeights, user.collection("state"), user.collection("devices"))) {
+        for (collection in listOf(workouts, routines, photos, customExercises, bodyWeights, user.collection("state"), user.collection("devices"))) {
             collection.get().await().documents.chunked(400).forEach { chunk ->
                 val batch = user.firestore.batch()
                 chunk.forEach { batch.delete(it.reference) }
@@ -125,6 +143,14 @@ private class FirestoreUserStore(private val user: DocumentReference) : UserTrai
             }
         }
         user.delete().await()
+    }
+
+    private fun photosFlow(): Flow<Map<String, String>> = callbackFlow {
+        val registration = photos.addSnapshotListener { snapshot, error ->
+            if (error != null) { Log.w(TAG, "photos", error); return@addSnapshotListener }
+            trySend(snapshot?.documents.orEmpty().mapNotNull { doc -> doc.getString("webp")?.let { doc.id to it } }.toMap())
+        }
+        awaitClose { registration.remove() }
     }
 
     private fun settingsFlow(): Flow<Settings> = callbackFlow {

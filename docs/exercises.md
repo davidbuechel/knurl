@@ -41,3 +41,11 @@ The script keeps existing photos, so a re-run only converts new ones.
 `shared/.../search/ExerciseSearch.kt`: both languages, umlauts and `ae/oe/ue` spellings meet,
 gym shorthand (BD, RDL, OHP, KH, LH …), muscle words (Bizeps, Brust …), one typo per word (two from
 eight letters). Every query word must match. Tested in `ExerciseSearchTest`.
+
+## Own exercises
+
+People add their own from the Exercises tab ("+ Custom") or from the picker when a search finds
+nothing. One name for both languages, main muscle, up to three more, equipment, own cues and an
+optional photo (gallery or camera, cropped to a 480 px square WebP on the device, stored in
+`exercisePhotos`). Ids start with `custom_`. Deleting one that the history or a plan uses only
+archives it (`CustomExercises.isUsed`); archived ones never show in the library or search.
