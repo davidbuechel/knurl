@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tabs -->
+    <string name="tab_today">Heute</string>
+    <string name="tab_training">Training</string>
+    <string name="tab_exercises">Übungen</string>
+    <string name="tab_progress">Fortschritt</string>
+    <string name="tab_profile">Profil</string>
+
+    <!-- Actions -->
+    <string name="action_back">Zurück</string>
+    <string name="action_ok">OK</string>
+    <string name="action_cancel">Abbrechen</string>
+    <string name="action_delete">Löschen</string>
+    <string name="action_more">Weitere Optionen</string>
+    <string name="action_increase">Erhöhen</string>
+    <string name="action_decrease">Verringern</string>
+    <string name="action_resume">Training fortsetzen</string>
+    <string name="action_start_workout">Training starten</string>
+    <string name="action_start_free">Freies Training</string>
+    <string name="action_finish">Beenden</string>
+    <string name="action_discard">Verwerfen</string>
+    <string name="action_discard_workout">Training verwerfen</string>
+    <string name="action_add_exercise">Übung hinzufügen</string>
+    <string name="action_add_set">Satz hinzufügen</string>
+    <string name="action_remove_last_set">Letzten Satz entfernen</string>
+    <string name="action_remove_exercise">Übung entfernen</string>
+
+    <!-- Units -->
+    <string name="unit_kg_value">%1$s kg</string>
+    <string name="unit_e1rm">1RM %1$s</string>
+
+    <!-- Stats -->
+    <string name="stat_sessions">Einheiten</string>
+    <string name="stat_volume">Volumen</string>
+    <string name="stat_records">Rekorde</string>
+
+    <!-- Today -->
+    <string name="today_running">Training läuft</string>
+    <string name="today_next">Als Nächstes</string>
+    <string name="today_this_week">Diese Woche</string>
+    <string name="today_recent_records">Letzte Rekorde</string>
+
+    <!-- Training -->
+    <string name="workout_free_name">Training</string>
+    <string name="training_routines">Pläne</string>
+    <string name="training_history">Verlauf</string>
+    <string name="history_line">%1$s · %2$s · %3$d Sätze · %4$s</string>
+    <string name="delete_workout_title">Training löschen?</string>
+    <string name="delete_workout_body">Die Sätze zählen dann nicht mehr für Statistik und Rekorde. Das lässt sich nicht rückgängig machen.</string>
+
+    <!-- Exercises -->
+    <string name="exercises_search">Übungen suchen</string>
+    <string name="exercises_pick_title">Übung hinzufügen</string>
+    <string name="detail_e1rm">Geschätztes 1RM</string>
+    <string name="detail_no_data">Noch keine Sätze. Dein geschätztes Maximum erscheint nach dem ersten Training.</string>
+    <string name="detail_gain">+%1$s kg in %2$d Einheiten</string>
+    <string name="detail_records">Bestwerte</string>
+    <string name="detail_heaviest">Schwerster Satz %1$s kg</string>
+    <string name="detail_best_volume">Beste Einheit %1$s</string>
+    <string name="detail_plates">Scheiben für %1$s kg</string>
+    <string name="detail_history">Verlauf</string>
+    <string name="plates_per_side">Pro Seite: %1$s · Stange %2$s kg</string>
+    <string name="plates_empty_bar">Leere Stange (%1$s kg)</string>
+    <string name="plates_missing">%1$s kg lassen sich mit Standardscheiben nicht stecken</string>
+
+    <!-- Active workout -->
+    <string name="workout_last_time">Zuletzt: %1$s</string>
+    <string name="workout_suggest_increase">Hoch auf %1$s kg: Letztes Mal hast du in jedem Satz das obere Ende geschafft</string>
+    <string name="workout_weight_kg">Gewicht (kg)</string>
+    <string name="workout_reps">Wiederholungen</string>
+    <string name="set_warmup_short">A</string>
+    <string name="set_drop_short">D</string>
+    <string name="set_done">Satz abhaken</string>
+    <string name="set_undo">Haken entfernen</string>
+    <string name="rest_label">Pause</string>
+    <string name="rest_add_15">+15 s</string>
+    <string name="rest_skip">Pause überspringen</string>
+    <string name="finish_title">Training beenden?</string>
+    <string name="finish_body">Alle Sätze werden im Verlauf gespeichert.</string>
+    <string name="finish_body_undone">%1$d Sätze sind nicht abgehakt. Gespeichert werden nur abgehakte Sätze.</string>
+    <string name="discard_title">Training verwerfen?</string>
+    <string name="discard_body">Von diesem Training wird nichts gespeichert.</string>
+
+    <!-- Progress -->
+    <string name="progress_this_week">Diese Woche</string>
+    <string name="progress_hard_sets">Harte Sätze pro Muskel</string>
+    <string name="progress_hard_sets_hint">Der hinterlegte Bereich sind 10 bis 20 Sätze pro Woche. Hilfsmuskeln zählen als halber Satz.</string>
+    <string name="progress_volume_weeks">Volumen, letzte 8 Wochen</string>
+    <string name="progress_streak">Serie</string>
+    <plurals name="progress_streak_weeks">
+        <item quantity="one">%1$d Woche in Folge mit mindestens %2$d Einheiten</item>
+        <item quantity="other">%1$d Wochen in Folge mit mindestens %2$d Einheiten</item>
+    </plurals>
+
+    <!-- Profile -->
+    <string name="settings_training">Training</string>
+    <string name="settings_bar_weight">Gewicht der Stange</string>
+    <string name="settings_default_rest">Standardpause</string>
+    <string name="settings_default_rest_seconds">Standardpause (Sekunden)</string>
+    <string name="settings_weekly_goal">Einheiten pro Woche</string>
+    <string name="settings_data">Deine Daten</string>
+    <string name="settings_data_local">Alles bleibt auf diesem Handy. Nichts wird hochgeladen, nichts wird getrackt.</string>
+    <string name="settings_data_count">Gespeicherte Trainings: %1$d</string>
+    <string name="settings_version">Version %1$s</string>
+
+    <!-- Empty states -->
+    <string name="empty_records_title">Noch keine Rekorde</string>
+    <string name="empty_records_body">Trainiere eine Übung zweimal. Wenn du deine erste Einheit übertriffst, steht der Rekord hier.</string>
+    <string name="empty_history_title">Noch keine Trainings</string>
+    <string name="empty_history_body">Starte einen Plan oder ein freies Training. Beendete Trainings stehen dann hier.</string>
+    <string name="empty_search_title">Keine passende Übung</string>
+    <string name="empty_search_body">Versuch einen anderen Namen oder entferne den Muskelfilter.</string>
+    <string name="empty_exercise_title">Noch nicht trainiert</string>
+    <string name="empty_exercise_body">Nimm die Übung in ein Training auf. Jede Einheit erscheint hier.</string>
+    <string name="empty_workout_title">Noch keine Übungen</string>
+    <string name="empty_workout_body">Tippe auf „Übung hinzufügen“, um aus der Bibliothek zu wählen.</string>
+
+    <!-- Muscles -->
+    <string name="muscle_chest">Brust</string>
+    <string name="muscle_back">Rücken</string>
+    <string name="muscle_shoulders">Schultern</string>
+    <string name="muscle_biceps">Bizeps</string>
+    <string name="muscle_triceps">Trizeps</string>
+    <string name="muscle_forearms">Unterarme</string>
+    <string name="muscle_quads">Beinstrecker</string>
+    <string name="muscle_hamstrings">Beinbeuger</string>
+    <string name="muscle_glutes">Gesäß</string>
+    <string name="muscle_calves">Waden</string>
+    <string name="muscle_core">Rumpf</string>
+
+    <!-- Equipment -->
+    <string name="equipment_barbell">Langhantel</string>
+    <string name="equipment_ez_bar">SZ-Stange</string>
+    <string name="equipment_dumbbell">Kurzhantel</string>
+    <string name="equipment_kettlebell">Kettlebell</string>
+    <string name="equipment_cable">Kabelzug</string>
+    <string name="equipment_machine">Maschine</string>
+    <string name="equipment_smith">Multipresse</string>
+    <string name="equipment_bodyweight">Körpergewicht</string>
+    <string name="equipment_band">Band</string>
+</resources>

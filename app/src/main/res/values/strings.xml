@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Knurl</string>
+
+    <!-- Tabs -->
+    <string name="tab_today">Today</string>
+    <string name="tab_training">Training</string>
+    <string name="tab_exercises">Exercises</string>
+    <string name="tab_progress">Progress</string>
+    <string name="tab_profile">Profile</string>
+
+    <!-- Actions -->
+    <string name="action_back">Back</string>
+    <string name="action_ok">OK</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_more">More options</string>
+    <string name="action_increase">Increase</string>
+    <string name="action_decrease">Decrease</string>
+    <string name="action_resume">Resume workout</string>
+    <string name="action_start_workout">Start workout</string>
+    <string name="action_start_free">Free workout</string>
+    <string name="action_finish">Finish</string>
+    <string name="action_discard">Discard</string>
+    <string name="action_discard_workout">Discard workout</string>
+    <string name="action_add_exercise">Add exercise</string>
+    <string name="action_add_set">Add set</string>
+    <string name="action_remove_last_set">Remove last set</string>
+    <string name="action_remove_exercise">Remove exercise</string>
+
+    <!-- Units -->
+    <string name="unit_kg_value">%1$s kg</string>
+    <string name="unit_e1rm">1RM %1$s</string>
+
+    <!-- Stats -->
+    <string name="stat_sessions">Workouts</string>
+    <string name="stat_volume">Volume</string>
+    <string name="stat_records">Records</string>
+
+    <!-- Today -->
+    <string name="today_running">Workout in progress</string>
+    <string name="today_next">Up next</string>
+    <string name="today_this_week">This week</string>
+    <string name="today_recent_records">Recent records</string>
+
+    <!-- Training -->
+    <string name="workout_free_name">Workout</string>
+    <string name="training_routines">Routines</string>
+    <string name="training_history">History</string>
+    <string name="history_line">%1$s · %2$s · %3$d sets · %4$s</string>
+    <string name="delete_workout_title">Delete workout?</string>
+    <string name="delete_workout_body">Its sets will no longer count towards your stats and records. This cannot be undone.</string>
+
+    <!-- Exercises -->
+    <string name="exercises_search">Search exercises</string>
+    <string name="exercises_pick_title">Add exercise</string>
+    <string name="detail_e1rm">Estimated 1RM</string>
+    <string name="detail_no_data">No sets logged yet. Your estimated max appears after the first workout.</string>
+    <string name="detail_gain">+%1$s kg over %2$d sessions</string>
+    <string name="detail_records">Best</string>
+    <string name="detail_heaviest">Heaviest %1$s kg</string>
+    <string name="detail_best_volume">Best session %1$s</string>
+    <string name="detail_plates">Plates for %1$s kg</string>
+    <string name="detail_history">History</string>
+    <string name="plates_per_side">Per side: %1$s · bar %2$s kg</string>
+    <string name="plates_empty_bar">Empty bar (%1$s kg)</string>
+    <string name="plates_missing">%1$s kg cannot be made with standard plates</string>
+
+    <!-- Active workout -->
+    <string name="workout_last_time">Last time: %1$s</string>
+    <string name="workout_suggest_increase">Up to %1$s kg: you hit the top of the range on every set last time</string>
+    <string name="workout_weight_kg">Weight (kg)</string>
+    <string name="workout_reps">Reps</string>
+    <string name="set_warmup_short">W</string>
+    <string name="set_drop_short">D</string>
+    <string name="set_done">Mark set done</string>
+    <string name="set_undo">Mark set not done</string>
+    <string name="rest_label">Rest</string>
+    <string name="rest_add_15">+15 s</string>
+    <string name="rest_skip">Skip rest</string>
+    <string name="finish_title">Finish workout?</string>
+    <string name="finish_body">All sets are saved to your history.</string>
+    <string name="finish_body_undone">%1$d sets are not ticked off. Only ticked-off sets are saved.</string>
+    <string name="discard_title">Discard workout?</string>
+    <string name="discard_body">Nothing from this workout will be saved.</string>
+
+    <!-- Progress -->
+    <string name="progress_this_week">This week</string>
+    <string name="progress_hard_sets">Hard sets per muscle</string>
+    <string name="progress_hard_sets_hint">The shaded zone is 10 to 20 sets a week. Secondary muscles count as half a set.</string>
+    <string name="progress_volume_weeks">Volume, last 8 weeks</string>
+    <string name="progress_streak">Streak</string>
+    <plurals name="progress_streak_weeks">
+        <item quantity="one">%1$d week in a row with at least %2$d workouts</item>
+        <item quantity="other">%1$d weeks in a row with at least %2$d workouts</item>
+    </plurals>
+
+    <!-- Profile -->
+    <string name="settings_training">Training</string>
+    <string name="settings_bar_weight">Bar weight</string>
+    <string name="settings_default_rest">Default rest</string>
+    <string name="settings_default_rest_seconds">Default rest (seconds)</string>
+    <string name="settings_weekly_goal">Workouts per week</string>
+    <string name="settings_data">Your data</string>
+    <string name="settings_data_local">Everything stays on this phone. Nothing is uploaded and nothing is tracked.</string>
+    <string name="settings_data_count">Workouts saved: %1$d</string>
+    <string name="settings_version">Version %1$s</string>
+
+    <!-- Empty states -->
+    <string name="empty_records_title">No records yet</string>
+    <string name="empty_records_body">Train an exercise twice. When you beat your first session, the record shows up here.</string>
+    <string name="empty_history_title">No workouts yet</string>
+    <string name="empty_history_body">Start a routine or a free workout. Finished workouts are listed here.</string>
+    <string name="empty_search_title">No matching exercise</string>
+    <string name="empty_search_body">Try another name or clear the muscle filter.</string>
+    <string name="empty_exercise_title">Not trained yet</string>
+    <string name="empty_exercise_body">Add this exercise to a workout. Every session shows up here.</string>
+    <string name="empty_workout_title">No exercises yet</string>
+    <string name="empty_workout_body">Tap \"Add exercise\" to pick from the library.</string>
+
+    <!-- Muscles -->
+    <string name="muscle_chest">Chest</string>
+    <string name="muscle_back">Back</string>
+    <string name="muscle_shoulders">Shoulders</string>
+    <string name="muscle_biceps">Biceps</string>
+    <string name="muscle_triceps">Triceps</string>
+    <string name="muscle_forearms">Forearms</string>
+    <string name="muscle_quads">Quads</string>
+    <string name="muscle_hamstrings">Hamstrings</string>
+    <string name="muscle_glutes">Glutes</string>
+    <string name="muscle_calves">Calves</string>
+    <string name="muscle_core">Core</string>
+
+    <!-- Equipment -->
+    <string name="equipment_barbell">Barbell</string>
+    <string name="equipment_ez_bar">EZ bar</string>
+    <string name="equipment_dumbbell">Dumbbell</string>
+    <string name="equipment_kettlebell">Kettlebell</string>
+    <string name="equipment_cable">Cable</string>
+    <string name="equipment_machine">Machine</string>
+    <string name="equipment_smith">Smith machine</string>
+    <string name="equipment_bodyweight">Bodyweight</string>
+    <string name="equipment_band">Band</string>
+</resources>
