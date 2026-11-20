@@ -75,6 +75,10 @@ fun ProgressScreen() {
             }
         }
 
+        item { TrainingCalendarCard(s.trainingDays) }
+
+        item { BodyWeightCard(s.bodyWeights, onAdd = vm::addBodyWeight) }
+
         item {
             KnurlCard {
                 SectionLabel(stringResource(R.string.progress_volume_weeks))

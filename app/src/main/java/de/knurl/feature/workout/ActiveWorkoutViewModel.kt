@@ -6,6 +6,9 @@ import de.knurl.core.workout.RestTimer
 import de.knurl.data.repository.TrainingRepository
 import de.knurl.domain.WorkoutPlanning
 import de.knurl.domain.addSet
+import de.knurl.domain.calc.Warmup
+import de.knurl.domain.prependWarmups
+import de.knurl.domain.setExerciseNote
 import de.knurl.domain.calc.History
 import de.knurl.domain.calc.Progression
 import de.knurl.domain.changeWeight
@@ -34,6 +37,7 @@ data class ExerciseCard(
     val lastTime: List<SetEntry>,
     val suggestion: Progression.Suggestion?,
     val weightStepKg: Double,
+    val note: String,
 )
 
 data class ActiveWorkoutState(
@@ -83,6 +87,7 @@ class ActiveWorkoutViewModel(
                         lastTime = last.filter { it.kind.counts },
                         suggestion = exercise?.let { Progression.suggest(last, item.repRange, it.equipment) },
                         weightStepKg = exercise?.let { Progression.increment(it.equipment) }?.takeIf { it > 0 } ?: 2.5,
+                        note = item.note,
                     )
                 },
                 elapsedSec = workout?.let { ((it.endedAtMs ?: nowMs) - it.startedAtMs) / 1000 } ?: 0,
@@ -129,6 +134,22 @@ class ActiveWorkoutViewModel(
     }
 
     fun addSet(exercise: Int) = edit { it.addSet(exercise) }
+
+    /** None → 3 → 2 → 1 → 0 → none: reps left in the tank. */
+    fun cycleRir(exercise: Int, set: Int) = edit { w ->
+        w.updateSet(exercise, set) { it.copy(rir = it.rir.let { r -> when (r) { null -> 3; 0 -> null; else -> r - 1 } }) }
+    }
+
+    fun addWarmups(exercise: Int) = edit { w ->
+        val item = w.exercises.getOrNull(exercise) ?: return@edit w
+        val working = item.sets.firstOrNull { it.kind != SetKind.WARMUP }?.weightKg ?: return@edit w
+        val equipment = training.exercise(item.exerciseId)?.equipment ?: return@edit w
+        w.prependWarmups(exercise, Warmup.sets(working, equipment, training.data.value?.settings?.barKg ?: 20.0))
+    }
+
+    fun setExerciseNote(exercise: Int, note: String) = edit { it.setExerciseNote(exercise, note) }
+
+    fun setWorkoutNote(note: String) = edit { it.copy(note = note.take(2000)) }
 
     fun removeSet(exercise: Int, set: Int) = edit { it.removeSet(exercise, set) }
 

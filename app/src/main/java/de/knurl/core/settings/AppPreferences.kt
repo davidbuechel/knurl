@@ -69,6 +69,12 @@ class AppPreferences(context: Context) {
 
     fun setRestSound(on: Boolean) = putBoolean(KEY_REST_SOUND, on, _restSound)
 
+    private val _logRir = MutableStateFlow(prefs.getBoolean(KEY_LOG_RIR, false))
+    /** Show a reps-in-reserve chip on every set (for people who train by RIR). */
+    val logRir: StateFlow<Boolean> = _logRir.asStateFlow()
+
+    fun setLogRir(on: Boolean) = putBoolean(KEY_LOG_RIR, on, _logRir)
+
     private val _crashReports = MutableStateFlow(prefs.getBoolean(KEY_CRASH_REPORTS, false))
     /** Off until the person switches it on (DSGVO). */
     val crashReports: StateFlow<Boolean> = _crashReports.asStateFlow()
@@ -101,6 +107,7 @@ class AppPreferences(context: Context) {
         const val KEY_REST_SOUND = "restSound"
         const val KEY_CRASH_REPORTS = "crashReports"
         const val KEY_INSTALL_ID = "installId"
+        const val KEY_LOG_RIR = "logRir"
         const val KEY_NOTIFICATIONS_ASKED = "notificationsAsked"
     }
 }

@@ -119,6 +119,8 @@ fun SettingsScreen(go: Navigator) {
                     ValueRow(stringResource(R.string.settings_weekly_goal), "${s.weeklyGoal}") { editor = Editor.GOAL }
                     RowDivider()
                     ToggleRow(stringResource(R.string.settings_keep_screen_on), stringResource(R.string.settings_keep_screen_on_hint), device.keepScreenOn, onChange = vm::setKeepScreenOn)
+                    val logRir by vm.logRir.collectAsStateWithLifecycle()
+                    ToggleRow(stringResource(R.string.settings_log_rir), stringResource(R.string.settings_log_rir_hint), logRir, onChange = vm::setLogRir)
                     ToggleRow(stringResource(R.string.settings_rest_vibrate), null, device.restVibrate, onChange = vm::setRestVibrate)
                     ToggleRow(stringResource(R.string.settings_rest_sound), null, device.restSound, onChange = vm::setRestSound)
                 }

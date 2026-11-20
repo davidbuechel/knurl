@@ -72,6 +72,8 @@ class SettingsViewModel(
     fun setRestVibrate(on: Boolean) = prefs.setRestVibrate(on)
     fun setRestSound(on: Boolean) = prefs.setRestSound(on)
     fun setCrashReports(on: Boolean) = prefs.setCrashReports(on)
+    fun setLogRir(on: Boolean) = prefs.setLogRir(on)
+    val logRir = prefs.logRir
 
     private companion object {
         const val STANDARD_BAR_KG = 20.0

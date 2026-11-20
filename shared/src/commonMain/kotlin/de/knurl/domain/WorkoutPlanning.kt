@@ -84,6 +84,13 @@ fun Workout.addSet(exercise: Int): Workout = updateExercise(exercise) { item ->
 fun Workout.removeSet(exercise: Int, set: Int): Workout =
     updateExercise(exercise) { item -> item.copy(sets = item.sets.filterIndexed { i, _ -> i != set }) }
 
+fun Workout.setExerciseNote(exercise: Int, note: String): Workout = updateExercise(exercise) { it.copy(note = note.take(500)) }
+
+/** Puts warm-up sets in front of the exercise's sets, unless it already has warm-ups. */
+fun Workout.prependWarmups(exercise: Int, warmups: List<SetEntry>): Workout = updateExercise(exercise) { item ->
+    if (warmups.isEmpty() || item.sets.any { it.kind == SetKind.WARMUP }) item else item.copy(sets = warmups + item.sets)
+}
+
 fun Workout.removeExercise(exercise: Int): Workout =
     copy(exercises = exercises.filterIndexed { i, _ -> i != exercise })
 

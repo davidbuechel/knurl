@@ -31,13 +31,22 @@ service cloud.firestore {
     }
 
     function validWorkout(id) {
-      return data().keys().hasOnly(['id', 'name', 'routineId', 'startedAtMs', 'endedAtMs', 'exercises', 'updatedAt'])
+      return data().keys().hasOnly(['id', 'name', 'routineId', 'startedAtMs', 'endedAtMs', 'exercises', 'note', 'updatedAt'])
         && data().id == id
         && text(data().name, 1, 100)
         && data().startedAtMs is int
         && (data().endedAtMs == null || data().endedAtMs is int)
         && (data().routineId == null || data().routineId is string)
         && data().exercises is list && data().exercises.size() <= 60
+        && (!('note' in data()) || text(data().note, 0, 2000))
+        && stampedNow();
+    }
+
+    function validBodyWeight(id) {
+      return data().keys().hasOnly(['id', 'atMs', 'weightKg', 'updatedAt'])
+        && data().id == id
+        && data().atMs is int
+        && data().weightKg is number && data().weightKg > 0 && data().weightKg < 500
         && stampedNow();
     }
 
@@ -78,6 +87,11 @@ service cloud.firestore {
       match /routines/{id} {
         allow read, delete: if owner(uid);
         allow create, update: if owner(uid) && validRoutine(id);
+      }
+
+      match /bodyWeights/{id} {
+        allow read, delete: if owner(uid);
+        allow create, update: if owner(uid) && validBodyWeight(id);
       }
 
       match /customExercises/{id} {

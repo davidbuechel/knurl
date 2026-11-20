@@ -313,4 +313,25 @@
     <string name="favorite_remove">Remove from favourites</string>
     <string name="detail_how_to">How to</string>
     <string name="detail_instructions_english">German instructions are on the way; here is the English version.</string>
+
+    <!-- Quality of life -->
+    <string name="settings_log_rir">Log reps in reserve (RIR)</string>
+    <string name="settings_log_rir_hint">How many reps you had left, per set. Makes hard sets more precise.</string>
+    <string name="workout_note">Workout note</string>
+    <string name="exercise_note">Exercise note</string>
+    <string name="action_add_warmups">Add warm-up sets</string>
+    <string name="rir_none">RIR –</string>
+    <string name="rir_value">RIR %1$d</string>
+    <string name="body_weight">Body weight</string>
+    <string name="body_weight_empty">Log your weight now and then to see the trend.</string>
+    <string name="body_weight_add">Log weight</string>
+    <string name="body_weight_in">Body weight (%1$s)</string>
+    <string name="body_weight_change">%1$s since %2$s</string>
+    <string name="calendar">Calendar</string>
+    <string name="calendar_previous">Previous month</string>
+    <string name="calendar_next">Next month</string>
+    <plurals name="calendar_days">
+        <item quantity="one">%1$d training day</item>
+        <item quantity="other">%1$d training days</item>
+    </plurals>
 </resources>

@@ -38,6 +38,8 @@ data class Workout(
     val startedAtMs: Long,
     val endedAtMs: Long? = null,
     val exercises: List<WorkoutExercise> = emptyList(),
+    /** How it went, in the person's words. */
+    val note: String = "",
 ) {
     val isFinished: Boolean get() = endedAtMs != null
 }
@@ -57,4 +59,12 @@ data class Routine(
     val items: List<RoutineItem>,
     /** Order in the routine list; the "up next" suggestion follows it. */
     val position: Int = 0,
+)
+
+/** One body weight entry. Kilograms, like every weight. */
+@Serializable
+data class BodyWeight(
+    val id: String,
+    val atMs: Long,
+    val weightKg: Double,
 )

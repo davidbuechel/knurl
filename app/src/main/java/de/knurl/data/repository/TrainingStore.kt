@@ -2,6 +2,7 @@ package de.knurl.data.repository
 
 import de.knurl.data.Settings
 import de.knurl.data.TrainingData
+import de.knurl.domain.model.BodyWeight
 import de.knurl.domain.model.Routine
 import de.knurl.domain.model.Workout
 import kotlinx.coroutines.flow.Flow
@@ -36,6 +37,8 @@ interface UserTrainingStore {
     fun saveRoutine(routine: Routine)
     fun deleteRoutine(id: String)
     fun saveSettings(settings: Settings)
+    fun saveBodyWeight(entry: BodyWeight)
+    fun deleteBodyWeight(id: String)
 
     /** Deletes every document of this user (account deletion). Needs the network. */
     suspend fun deleteEverything()

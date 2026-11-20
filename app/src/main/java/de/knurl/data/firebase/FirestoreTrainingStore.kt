@@ -12,6 +12,7 @@ import de.knurl.data.Settings
 import de.knurl.data.TrainingData
 import de.knurl.data.repository.TrainingStore
 import de.knurl.data.repository.UserTrainingStore
+import de.knurl.domain.model.BodyWeight
 import de.knurl.domain.model.Exercise
 import de.knurl.domain.model.Routine
 import de.knurl.domain.model.Workout
@@ -28,6 +29,7 @@ import kotlinx.serialization.KSerializer
  * users/{uid}/workouts/{id}        finished workouts
  * users/{uid}/routines/{id}        routines
  * users/{uid}/customExercises/{id} the user's own exercises
+ * users/{uid}/bodyWeights/{id}     body weight entries
  * users/{uid}/state/active         the running workout, deleted when it ends
  */
 class FirestoreTrainingStore(private val db: FirebaseFirestore) : TrainingStore {
@@ -39,6 +41,7 @@ private class FirestoreUserStore(private val user: DocumentReference) : UserTrai
     private val workouts = user.collection("workouts")
     private val routines = user.collection("routines")
     private val customExercises = user.collection("customExercises")
+    private val bodyWeights = user.collection("bodyWeights")
     private val active = user.collection("state").document("active")
 
     override val data: Flow<TrainingData> = combine(
@@ -46,11 +49,13 @@ private class FirestoreUserStore(private val user: DocumentReference) : UserTrai
         workouts.listFlow(Workout.serializer()),
         routines.listFlow(Routine.serializer()),
         customExercises.listFlow(Exercise.serializer()),
-    ) { settings, workouts, routines, custom ->
+        bodyWeights.listFlow(BodyWeight.serializer()),
+    ) { settings, workouts, routines, custom, weights ->
         TrainingData(
             workouts = workouts.sortedBy { it.startedAtMs },
             routines = routines.sortedWith(compareBy<Routine> { it.position }.thenBy { it.name }),
             customExercises = custom,
+            bodyWeights = weights.sortedBy { it.atMs },
             settings = settings,
         )
     }
@@ -102,9 +107,17 @@ private class FirestoreUserStore(private val user: DocumentReference) : UserTrai
             .logFailure("save settings")
     }
 
+    override fun saveBodyWeight(entry: BodyWeight) {
+        bodyWeights.document(entry.id).set(withUpdatedAt(BodyWeight.serializer(), entry)).logFailure("save body weight")
+    }
+
+    override fun deleteBodyWeight(id: String) {
+        bodyWeights.document(id).delete().logFailure("delete body weight")
+    }
+
     override suspend fun deleteEverything() {
         // Firestore has no recursive delete on clients: remove every known subcollection, then the profile.
-        for (collection in listOf(workouts, routines, customExercises, user.collection("state"), user.collection("devices"))) {
+        for (collection in listOf(workouts, routines, customExercises, bodyWeights, user.collection("state"), user.collection("devices"))) {
             collection.get().await().documents.chunked(400).forEach { chunk ->
                 val batch = user.firestore.batch()
                 chunk.forEach { batch.delete(it.reference) }

@@ -1,6 +1,7 @@
 package de.knurl.data
 
 import de.knurl.domain.calc.PlateCalculator
+import de.knurl.domain.model.BodyWeight
 import de.knurl.domain.model.Exercise
 import de.knurl.domain.model.Routine
 import de.knurl.domain.model.Workout
@@ -13,6 +14,8 @@ data class TrainingData(
     val workouts: List<Workout> = emptyList(),
     val routines: List<Routine> = emptyList(),
     val customExercises: List<Exercise> = emptyList(),
+    /** Oldest first. */
+    val bodyWeights: List<BodyWeight> = emptyList(),
     /** The workout in progress, kept so it survives the app being closed mid-session. */
     val active: Workout? = null,
     val settings: Settings = Settings(),

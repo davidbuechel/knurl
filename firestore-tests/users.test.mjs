@@ -44,6 +44,14 @@ await check("owner saves a routine", assertSucceeds(setDoc(doc(alice, `users/${A
 await check("position must be a number", assertFails(setDoc(doc(alice, `users/${ALICE}/routines/r2`), routine("r2", { position: "first" }))));
 await check("someone else cannot read routines", assertFails(getDoc(doc(bob, `users/${ALICE}/routines/r1`))));
 
+console.log("notes and body weight");
+await check("a workout may carry a note", assertSucceeds(setDoc(doc(alice, `users/${ALICE}/workouts/n1`), workout("n1", { note: "Felt strong" }))));
+await check("notes have a length limit", assertFails(setDoc(doc(alice, `users/${ALICE}/workouts/n2`), workout("n2", { note: "x".repeat(2001) }))));
+const weight = (id, overrides = {}) => ({ id, atMs: 1_700_000_000_000, weightKg: 82.5, updatedAt: serverTimestamp(), ...overrides });
+await check("owner logs body weight", assertSucceeds(setDoc(doc(alice, `users/${ALICE}/bodyWeights/b1`), weight("b1"))));
+await check("body weight must be plausible", assertFails(setDoc(doc(alice, `users/${ALICE}/bodyWeights/b2`), weight("b2", { weightKg: -1 }))));
+await check("someone else cannot read body weight", assertFails(getDoc(doc(bob, `users/${ALICE}/bodyWeights/b1`))));
+
 console.log("devices");
 const device = (overrides = {}) => ({ token: "fcm-token", platform: "android", locale: "de", updatedAt: serverTimestamp(), ...overrides });
 await check("owner registers a device", assertSucceeds(setDoc(doc(alice, `users/${ALICE}/devices/install1`), device())));

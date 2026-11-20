@@ -32,3 +32,21 @@ fun NameDialog(title: String, initial: String, onDismiss: () -> Unit, onConfirm:
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } },
     )
 }
+
+/** Free text for notes, a few lines. Empty clears the note. */
+@Composable
+fun NoteDialog(title: String, initial: String, onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
+    var text by rememberSaveable { mutableStateOf(initial) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = {
+            OutlinedTextField(
+                value = text, onValueChange = { text = it.take(2000) }, minLines = 3, maxLines = 6,
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+            )
+        },
+        confirmButton = { TextButton(onClick = { onConfirm(text.trim()) }) { Text(stringResource(R.string.action_save)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } },
+    )
+}

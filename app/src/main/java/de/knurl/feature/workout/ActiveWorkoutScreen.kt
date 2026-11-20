@@ -73,6 +73,7 @@ import de.knurl.feature.common.ConfirmDialog
 import de.knurl.feature.common.Formatting
 import de.knurl.feature.common.KnurlCard
 import de.knurl.feature.common.appContainer
+import de.knurl.feature.common.NoteDialog
 import de.knurl.feature.common.NumberInputDialog
 import de.knurl.feature.common.Stepper
 import de.knurl.feature.common.displayName
@@ -84,6 +85,9 @@ import de.knurl.ui.navigation.PickExerciseRoute
 import de.knurl.ui.navigation.SummaryRoute
 import androidx.lifecycle.SavedStateHandle
 import de.knurl.ui.theme.Knurl
+
+/** Which note is being written: the workout's (null) or an exercise's. */
+private data class Noting(val exercise: Int?)
 
 /** Which number the type-in dialog is editing. */
 private data class Typing(val exercise: Int, val set: Int, val weight: Boolean)
@@ -115,6 +119,8 @@ fun ActiveWorkoutScreen(go: Navigator, savedState: SavedStateHandle, editWorkout
     var confirmDiscard by rememberSaveable { mutableStateOf(false) }
     var menuOpen by rememberSaveable { mutableStateOf(false) }
     var typing by remember { mutableStateOf<Typing?>(null) }
+    var noting by remember { mutableStateOf<Noting?>(null) }
+    val logRir by appContainer().preferences.logRir.collectAsStateWithLifecycle()
 
     val s = state
     // Finished or discarded (here or elsewhere): there is nothing left to show.
@@ -146,6 +152,10 @@ fun ActiveWorkoutScreen(go: Navigator, savedState: SavedStateHandle, editWorkout
                         }
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                             DropdownMenuItem(
+                                text = { Text(stringResource(R.string.workout_note)) },
+                                onClick = { menuOpen = false; noting = Noting(exercise = null) },
+                            )
+                            DropdownMenuItem(
                                 text = { Text(stringResource(if (editing) R.string.action_discard_changes else R.string.action_discard_workout)) },
                                 onClick = { menuOpen = false; confirmDiscard = true },
                             )
@@ -172,6 +182,16 @@ fun ActiveWorkoutScreen(go: Navigator, savedState: SavedStateHandle, editWorkout
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = padding.calculateTopPadding() + 4.dp, bottom = padding.calculateBottomPadding() + 96.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            if (s.workout.note.isNotBlank()) {
+                item {
+                    Text(
+                        s.workout.note,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.clickable { noting = Noting(exercise = null) },
+                    )
+                }
+            }
             if (s.cards.isEmpty()) {
                 item { BrandEmptyState(stringResource(R.string.empty_workout_title), stringResource(R.string.empty_workout_body)) }
             }
@@ -186,6 +206,10 @@ fun ActiveWorkoutScreen(go: Navigator, savedState: SavedStateHandle, editWorkout
                     onAddSet = { vm.addSet(exerciseIndex) },
                     onRemoveSet = { set -> vm.removeSet(exerciseIndex, set) },
                     onRemoveExercise = { vm.removeExercise(exerciseIndex) },
+                    logRir = logRir,
+                    onRir = { set -> vm.cycleRir(exerciseIndex, set) },
+                    onWarmups = { vm.addWarmups(exerciseIndex) },
+                    onNote = { noting = Noting(exercise = exerciseIndex) },
                 )
             }
         }
@@ -200,6 +224,18 @@ fun ActiveWorkoutScreen(go: Navigator, savedState: SavedStateHandle, editWorkout
             NumberInputDialog(stringResource(R.string.workout_reps), "${set.reps}", decimal = false,
                 onDismiss = { typing = null }, onConfirm = { vm.setReps(t.exercise, t.set, it.toInt()); typing = null })
         }
+    }
+    noting?.let { n ->
+        val current = if (n.exercise == null) s?.workout?.note.orEmpty() else s?.cards?.getOrNull(n.exercise)?.note.orEmpty()
+        NoteDialog(
+            title = stringResource(if (n.exercise == null) R.string.workout_note else R.string.exercise_note),
+            initial = current,
+            onDismiss = { noting = null },
+            onConfirm = { text ->
+                if (n.exercise == null) vm.setWorkoutNote(text) else vm.setExerciseNote(n.exercise, text)
+                noting = null
+            },
+        )
     }
     if (confirmFinish) {
         val undone = s?.cards?.sumOf { c -> c.sets.count { !it.done } } ?: 0
@@ -238,6 +274,10 @@ private fun ExerciseCardView(
     onAddSet: () -> Unit,
     onRemoveSet: (Int) -> Unit,
     onRemoveExercise: () -> Unit,
+    logRir: Boolean,
+    onRir: (Int) -> Unit,
+    onWarmups: () -> Unit,
+    onNote: () -> Unit,
 ) {
     var menuOpen by rememberSaveable { mutableStateOf(false) }
     val unit = LocalWeightUnit.current
@@ -249,6 +289,15 @@ private fun ExerciseCardView(
                     Icon(Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.action_more))
                 }
                 DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.action_add_warmups)) },
+                        enabled = card.sets.none { it.kind == SetKind.WARMUP } && card.sets.any { it.weightKg > 0 },
+                        onClick = { menuOpen = false; onWarmups() },
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.exercise_note)) },
+                        onClick = { menuOpen = false; onNote() },
+                    )
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.action_remove_last_set)) },
                         enabled = card.sets.isNotEmpty(),
@@ -262,6 +311,9 @@ private fun ExerciseCardView(
             }
         }
 
+        if (card.note.isNotBlank()) {
+            Text(card.note, style = MaterialTheme.typography.bodySmall, modifier = Modifier.clickable(onClick = onNote))
+        }
         if (card.lastTime.isNotEmpty()) {
             Text(
                 stringResource(R.string.workout_last_time, card.lastTime.joinToString(", ") { Formatting.set(it.weightKg, it.reps, unit) }),
@@ -298,6 +350,14 @@ private fun ExerciseCardView(
                 onRepsType = { onType(index, false) },
                 onToggle = { onToggle(index) },
             )
+            if (logRir && set.kind != SetKind.WARMUP) {
+                Text(
+                    set.rir?.let { stringResource(R.string.rir_value, it) } ?: stringResource(R.string.rir_none),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (set.rir == null) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(start = 30.dp).clickable { onRir(index) }.padding(vertical = 2.dp),
+                )
+            }
         }
 
         TextButton(onClick = onAddSet) {

@@ -7,6 +7,7 @@ import de.knurl.domain.calc.HardSets
 import de.knurl.domain.calc.History
 import de.knurl.domain.calc.Volume
 import de.knurl.domain.calc.Weeks
+import de.knurl.domain.model.BodyWeight
 import de.knurl.domain.model.Muscle
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -28,9 +29,13 @@ data class ProgressState(
     val weeklyGoal: Int,
     /** Volume of the last eight weeks, oldest first, the current week last. */
     val weeklyVolumeKg: List<Double>,
+    val bodyWeights: List<BodyWeight>,
+    val trainingDays: Set<java.time.LocalDate>,
 )
 
 class ProgressViewModel(private val training: TrainingRepository) : ViewModel() {
+
+    fun addBodyWeight(kg: Double) = training.addBodyWeight(kg)
 
     val state: StateFlow<ProgressState?> = training.data.filterNotNull()
         .map { data ->
@@ -50,6 +55,10 @@ class ProgressViewModel(private val training: TrainingRepository) : ViewModel() 
                 weeklyVolumeKg = (7 downTo 0).map { back ->
                     Weeks.inWeek(data.workouts, weekStart.minus(back * 7, DateTimeUnit.DAY), zone).sumOf(Volume::of)
                 },
+                bodyWeights = data.bodyWeights,
+                trainingDays = data.workouts.map {
+                    java.time.Instant.ofEpochMilli(it.startedAtMs).atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+                }.toSet(),
             )
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)

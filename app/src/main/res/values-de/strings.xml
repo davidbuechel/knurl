@@ -311,4 +311,25 @@
     <string name="favorite_remove">Aus Favoriten entfernen</string>
     <string name="detail_how_to">Ausführung</string>
     <string name="detail_instructions_english">Die deutsche Anleitung folgt, hier die englische Fassung.</string>
+
+    <!-- Quality of life -->
+    <string name="settings_log_rir">Wiederholungen in Reserve (RIR) erfassen</string>
+    <string name="settings_log_rir_hint">Wie viele Wiederholungen pro Satz noch drin waren. Macht die harten Sätze genauer.</string>
+    <string name="workout_note">Notiz zum Training</string>
+    <string name="exercise_note">Notiz zur Übung</string>
+    <string name="action_add_warmups">Aufwärmsätze hinzufügen</string>
+    <string name="rir_none">RIR –</string>
+    <string name="rir_value">RIR %1$d</string>
+    <string name="body_weight">Körpergewicht</string>
+    <string name="body_weight_empty">Trag ab und zu dein Gewicht ein, dann siehst du den Verlauf.</string>
+    <string name="body_weight_add">Gewicht eintragen</string>
+    <string name="body_weight_in">Körpergewicht (%1$s)</string>
+    <string name="body_weight_change">%1$s seit %2$s</string>
+    <string name="calendar">Kalender</string>
+    <string name="calendar_previous">Vorheriger Monat</string>
+    <string name="calendar_next">Nächster Monat</string>
+    <plurals name="calendar_days">
+        <item quantity="one">%1$d Trainingstag</item>
+        <item quantity="other">%1$d Trainingstage</item>
+    </plurals>
 </resources>
