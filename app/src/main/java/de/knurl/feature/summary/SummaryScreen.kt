@@ -48,6 +48,11 @@ import de.knurl.feature.common.HeroCard
 import de.knurl.feature.common.Pill
 import de.knurl.ui.brand.KnurlProgress
 import de.knurl.R
+import de.knurl.ui.navigation.BodyWeightRoute
+import androidx.compose.material.icons.outlined.Whatshot
+import androidx.compose.material.icons.Icons
+import de.knurl.feature.common.IconTile
+import de.knurl.domain.calc.Calories
 import de.knurl.ui.navigation.AchievementsRoute
 import de.knurl.ui.brand.Medal
 import de.knurl.feature.achievements.description
@@ -102,6 +107,8 @@ data class SummaryState(
     val gains: List<Gain>,
     /** Achievements this very workout unlocked. */
     val unlocked: List<AchievementStatus>,
+    /** Estimated energy, null without a body weight. */
+    val kcal: Int?,
 )
 
 /** One exercise that went up: today's top set against last time's. */
@@ -127,6 +134,7 @@ class SummaryViewModel(private val training: TrainingRepository, private val wor
             routine = workout.routineId?.let { id -> data.routines.firstOrNull { it.id == id } },
             savedAsRoutine = saved,
             unlocked = Achievements.unlockedBy(workout.id, data.achievements()),
+            kcal = Calories.estimate(workout, data.bodyWeights),
             gains = workout.exercises.mapNotNull { item ->
                 val before = History.sessions(item.exerciseId, data.workouts.filter { it.startedAtMs < workout.startedAtMs }).lastOrNull()?.sets
                     ?: return@mapNotNull null
@@ -187,6 +195,27 @@ fun SummaryScreen(go: Navigator, workoutId: String) {
                     ),
                 )
             }
+            item {
+                ListGroup {
+                    if (s.kcal != null) {
+                        ListRow(
+                            stringResource(R.string.kcal_value, Formatting.kg(s.kcal.toDouble())),
+                            subtitle = stringResource(R.string.kcal_hint),
+                            leading = { IconTile(Icons.Outlined.Whatshot, Knurl.colors.warning) },
+                            divider = false,
+                        )
+                    } else {
+                        ListRow(
+                            stringResource(R.string.kcal_title),
+                            subtitle = stringResource(R.string.kcal_missing),
+                            leading = { IconTile(Icons.Outlined.Whatshot, MaterialTheme.colorScheme.outline) },
+                            divider = false,
+                            onClick = { go.to(BodyWeightRoute) },
+                        )
+                    }
+                }
+            }
+
             if (s.records.isNotEmpty()) {
                 item { RecordMoment(s.records.size) }
             }

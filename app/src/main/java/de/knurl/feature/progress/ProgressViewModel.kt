@@ -1,5 +1,6 @@
 package de.knurl.feature.progress
 
+import de.knurl.domain.calc.Calories
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.knurl.data.repository.TrainingRepository
@@ -31,6 +32,9 @@ data class ProgressState(
     val period: Period,
     val stats: PeriodStats,
     val previous: PeriodStats,
+    /** Estimated energy in the period, null without any body weight. */
+    val kcal: Int?,
+    val kcalPrevious: Int?,
     /** Hard sets per muscle as a weekly average over the period so far, every muscle in body order. */
     val muscleWeekly: List<Pair<Muscle, Double>>,
     val levels: Map<Muscle, LoadLevel>,
@@ -70,6 +74,8 @@ class ProgressViewModel(private val training: TrainingRepository) : ViewModel() 
             period = p,
             stats = Periods.stats(data.workouts, range, zone, records),
             previous = Periods.stats(data.workouts, Periods.previousSoFar(p, today), zone, records),
+            kcal = Calories.total(inside, data.bodyWeights),
+            kcalPrevious = Calories.total(Periods.inRange(data.workouts, Periods.previousSoFar(p, today), zone), data.bodyWeights),
             muscleWeekly = Muscle.entries.map { it to (weekly[it] ?: 0.0) },
             levels = Muscle.entries.associateWith { MuscleLoad.level(weekly[it] ?: 0.0) },
             improvers = Progress.topImprovers(data.workouts, nowMs, improverDays(p)).map { ImproverRow(it, training.exercise(it.exerciseId)) },

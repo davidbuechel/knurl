@@ -471,7 +471,6 @@
     <string name="period_year">Jahr</string>
     <string name="stat_days">Trainingstage</string>
     <string name="stat_time">Zeit</string>
-    <string name="stat_sets">Sätze</string>
     <string name="progress_overview">Überblick</string>
     <string name="progress_muscles">Muskeln</string>
     <string name="progress_muscles_hint">Harte Sätze pro Woche im Schnitt. Tippe auf einen Muskel.</string>
@@ -601,4 +600,11 @@
         <item quantity="one">Lieblingsübung · %1$d Satz</item>
         <item quantity="other">Lieblingsübung · %1$d Sätze</item>
     </plurals>
+
+    <!-- Calories -->
+    <string name="kcal_value">≈ %1$s kcal</string>
+    <string name="kcal_title">Kalorien</string>
+    <string name="stat_kcal">kcal</string>
+    <string name="kcal_hint">Geschätzt aus Dauer, Dichte und Körpergewicht, etwa ±25 %. Mit einer Uhr über Health Connect wird es genauer.</string>
+    <string name="kcal_missing">Trag dein Körpergewicht ein, dann schätzt Knurl deinen Verbrauch.</string>
 </resources>

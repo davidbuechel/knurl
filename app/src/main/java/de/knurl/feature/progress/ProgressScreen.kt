@@ -58,6 +58,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.math.roundToInt
 import de.knurl.R
+import de.knurl.feature.common.Formatting
 import de.knurl.feature.common.estimateText
 import de.knurl.ui.navigation.Navigator
 import de.knurl.feature.common.tonnageText
@@ -121,7 +122,7 @@ fun ProgressScreen(go: Navigator) {
                     listOf(
                         Kpi("${s.stats.trainingDays}", stringResource(R.string.stat_days)),
                         Kpi(hoursText(s.stats.minutes), stringResource(R.string.stat_time)),
-                        Kpi("${s.stats.sets}", stringResource(R.string.stat_sets), Change(s.stats.sets.toDouble(), s.previous.sets.toDouble()).percent),
+                        Kpi(s.kcal?.let { "≈ " + Formatting.kg(it.toDouble()) } ?: "–", stringResource(R.string.stat_kcal), s.kcal?.let { now -> s.kcalPrevious?.let { Change(now.toDouble(), it.toDouble()).percent } }),
                     ),
                 )
             }

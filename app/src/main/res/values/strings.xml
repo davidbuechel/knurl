@@ -473,7 +473,6 @@
     <string name="period_year">Year</string>
     <string name="stat_days">Training days</string>
     <string name="stat_time">Time</string>
-    <string name="stat_sets">Sets</string>
     <string name="progress_overview">Overview</string>
     <string name="progress_muscles">Muscles</string>
     <string name="progress_muscles_hint">Hard sets per week on average. Tap a muscle.</string>
@@ -603,4 +602,11 @@
         <item quantity="one">Favourite · %1$d set</item>
         <item quantity="other">Favourite · %1$d sets</item>
     </plurals>
+
+    <!-- Calories -->
+    <string name="kcal_value">≈ %1$s kcal</string>
+    <string name="kcal_title">Calories</string>
+    <string name="stat_kcal">kcal</string>
+    <string name="kcal_hint">An estimate from duration, density and body weight, about ±25 %. A watch via Health Connect makes it more precise.</string>
+    <string name="kcal_missing">Log your body weight and Knurl estimates the energy you used.</string>
 </resources>

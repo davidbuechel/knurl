@@ -1,5 +1,6 @@
 package de.knurl.feature.training
 
+import de.knurl.domain.calc.Calories
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.knurl.data.repository.TrainingRepository
@@ -20,6 +21,8 @@ data class HistoryRow(
     val volumeKg: Double,
     /** New records set in this workout. */
     val records: Int,
+    /** Estimated energy, null without a body weight. */
+    val kcal: Int?,
 )
 
 data class TrainingState(
@@ -47,6 +50,7 @@ class TrainingViewModel(private val training: TrainingRepository) : ViewModel() 
                         sets = w.exercises.sumOf { it.sets.size },
                         volumeKg = Volume.of(w),
                         records = records[w.id] ?: 0,
+                        kcal = Calories.estimate(w, data.bodyWeights),
                     )
                 },
                 nextRoutineId = usable.getOrNull((usable.indexOfFirst { it.id == lastId } + 1) % usable.size.coerceAtLeast(1))?.id,

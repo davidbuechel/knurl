@@ -149,7 +149,7 @@ fun TrainingScreen(go: Navigator) {
                             s.history.forEachIndexed { i, row ->
                                 ListRow(
                                     title = row.workout.name,
-                                    subtitle = listOf(Formatting.date(row.workout.startedAtMs), Formatting.duration(row.durationSec), tonnageText(row.volumeKg)).joinToString(" · "),
+                                    subtitle = listOfNotNull(Formatting.date(row.workout.startedAtMs), Formatting.duration(row.durationSec), tonnageText(row.volumeKg), row.kcal?.let { stringResource(R.string.kcal_value, Formatting.kg(it.toDouble())) }).joinToString(" · "),
                                     trailing = if (row.records > 0) ({ Pill(stringResource(R.string.record_count, row.records), color = MaterialTheme.colorScheme.tertiary) }) else null,
                                     divider = i < s.history.lastIndex,
                                     onClick = { sheet = Sheet.ForWorkout(row.workout) },
