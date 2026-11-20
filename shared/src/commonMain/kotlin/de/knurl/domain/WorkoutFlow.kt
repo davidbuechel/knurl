@@ -85,6 +85,16 @@ object WorkoutFlow {
     }
 
     /**
+     * The set to do next when there is no focus to go by (lock screen): the next open set after
+     * the furthest one done, so skipping ahead to another exercise carries on from there; earlier
+     * open sets come after that.
+     */
+    fun upNext(workout: Workout): SetRef? {
+        val lastDone = order(workout).lastOrNull { workout.exercises[it.exercise].sets[it.set].done }
+        return nextFocus(workout, lastDone)
+    }
+
+    /**
      * Whether ticking [ref] should start the rest timer: always for a single exercise; in a superset
      * only after the last exercise of the round.
      */

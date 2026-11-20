@@ -75,6 +75,8 @@ class RestTimer(private val context: Context, private val now: () -> Long = Syst
 class RestOverReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val app = context.applicationContext as KnurlApp
+        // The workout notification goes back from the countdown to the next set.
+        app.container.restTimer.clearIfOver()
         val settings = app.container.training.data.value?.settings?.notifications
         if (app.inForeground || settings?.restTimer == false) return
         Notifications.show(

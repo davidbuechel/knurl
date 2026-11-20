@@ -1,6 +1,7 @@
 package de.knurl.core.notifications
 
 import android.Manifest
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -21,7 +22,9 @@ import de.knurl.data.NotificationSettings
  */
 enum class Channel(val id: String, val title: Int, val importance: Int) {
     REST("rest", R.string.notify_rest, NotificationManager.IMPORTANCE_HIGH),
-    WORKOUT("workout", R.string.notify_running, NotificationManager.IMPORTANCE_LOW),
+    // Default importance but without sound or vibration: a silent (low) channel is hidden from the
+    // lock screen on many phones, and the workout is meant to be used from there.
+    WORKOUT("workout_live", R.string.notify_running, NotificationManager.IMPORTANCE_DEFAULT),
     REMINDERS("reminders", R.string.notify_reminders, NotificationManager.IMPORTANCE_DEFAULT),
     STREAK("streak", R.string.notify_streak, NotificationManager.IMPORTANCE_DEFAULT),
     WEEKLY("weekly", R.string.notify_weekly, NotificationManager.IMPORTANCE_DEFAULT),
@@ -59,8 +62,19 @@ object Notifications {
     fun createChannels(context: Context) {
         val manager = context.getSystemService(NotificationManager::class.java)
         manager.createNotificationChannels(
-            Channel.entries.map { NotificationChannel(it.id, context.getString(it.title), it.importance) },
+            Channel.entries.map { channel ->
+                NotificationChannel(channel.id, context.getString(channel.title), channel.importance).apply {
+                    if (channel == Channel.WORKOUT) {
+                        setSound(null, null)
+                        enableVibration(false)
+                        setShowBadge(false)
+                        lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                    }
+                }
+            },
         )
+        // Replaced by "workout_live" (a channel's importance can't be raised once created).
+        manager.deleteNotificationChannel("workout")
     }
 
     /** Android 13+ needs a runtime permission; older versions always allow. */

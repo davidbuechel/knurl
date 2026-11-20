@@ -51,4 +51,16 @@ class WorkoutFlowTest {
         assertEquals(listOf(null, null, null), Supersets.unlink(listOf(1, 1, null), 0))
         assertEquals(listOf(1, 1, null, 2, 2), Supersets.tidy(listOf(7, 7, null, 7, 7)))
     }
+
+    @Test fun upNextCarriesOnAfterTheFurthestSetDone() {
+        fun ex(id: String, vararg done: Boolean) = WorkoutExercise(id, done.map { SetEntry(weightKg = 50.0, reps = 8, done = it) })
+        val workout = Workout(
+            id = "w", name = "w", startedAtMs = 0,
+            exercises = listOf(ex("bench_press", true, false), ex("barbell_row", false, false), ex("squat", true, false)),
+        )
+        // Skipped ahead to squats: carry on there, the bench set comes after.
+        assertEquals(SetRef(2, 1), WorkoutFlow.upNext(workout))
+        assertEquals(SetRef(0, 0), WorkoutFlow.upNext(workout.copy(exercises = listOf(ex("bench_press", false, false)))))
+        assertNull(WorkoutFlow.upNext(workout.copy(exercises = listOf(ex("bench_press", true)))))
+    }
 }

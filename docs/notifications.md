@@ -8,7 +8,7 @@ switched on in Settings.
 | Channel id | What | Source |
 |---|---|---|
 | `rest` | "Rest is over" while Knurl is in the background | local alarm, `RestTimer` → `RestOverReceiver` |
-| `workout` | ongoing: workout name, sets done, live clock (elapsed / rest countdown) | `WorkoutNotifier` |
+| `workout_live` | ongoing, also on the lock screen: the next set with "Set done", during rest the countdown with "+15 s" and "Skip rest"; a Live Update (status bar chip, one progress segment per exercise) on Android 16+. Default importance without sound, because silent channels are hidden from the lock screen | `WorkoutNotifier`, `WorkoutActionReceiver` |
 | `reminders` | training day reminder on chosen days and time, skipped if already trained | local alarm, `ReminderReceiver` |
 | `streak` | Saturday 17:00, when one more workout keeps the weekly streak | local alarm |
 | `weekly` | Sunday 19:00, workouts, volume, records of the week | local alarm |

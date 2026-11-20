@@ -173,7 +173,8 @@ fun KpiRow(items: List<Kpi>, modifier: Modifier = Modifier, leading: (@Composabl
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 Text(kpi.value, style = MaterialTheme.typography.headlineMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(kpi.label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+                // Two lines rather than cut off ("4 / weeks in a row").
+                Text(kpi.label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 kpi.change?.let { change ->
                     // Green only for "more"; less is grey, not red: a lighter week is not a failure.
                     Text(

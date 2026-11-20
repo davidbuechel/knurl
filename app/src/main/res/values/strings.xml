@@ -657,4 +657,15 @@
         <item quantity="one">%1$s · %2$d/%3$d set</item>
         <item quantity="other">%1$s · %2$d/%3$d sets</item>
     </plurals>
+
+    <!-- Lock-screen workout controls -->
+    <string name="notif_next_set">%1$s · Set %2$d of %3$d</string>
+    <string name="notif_next_warmup">%1$s · Warm-up</string>
+    <string name="notif_reps">reps</string>
+    <string name="notif_rest_title">Rest</string>
+    <string name="notif_rest_next">Next: %1$s · %2$s</string>
+    <string name="notif_all_done">All sets done. Open Knurl to finish.</string>
+    <string name="notif_action_done">Set done</string>
+    <string name="notif_action_rest_add">+%1$d s</string>
+    <string name="notif_action_rest_skip">Skip rest</string>
 </resources>
