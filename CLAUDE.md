@@ -31,8 +31,14 @@ calculations in Kotlin Multiplatform (`:shared`). Firebase backend (Auth, Firest
 - **Records are derived, never stored by hand** (`History.records`).
 - **One screen, one implementation.** Vary a screen with a parameter (e.g. `ExercisesScreen`
   with `pickForWorkout`), never copy it. Shared pieces live in `feature/common` or `ui/brand`.
-- **One card, one loading language:** `KnurlCard`, `BrandLoadingBox`, `BrandEmptyState`.
-  No stock spinners.
+- **One set of building blocks** (`feature/common/DesignSystem.kt`): `SectionHeader` above every
+  group; rows in a `ListGroup` (`ListRow`, `SwitchRow`, `ValueRow`, `SegmentedRow`; long lazy lists
+  use `Modifier.groupedItem`); three numbers in a `KpiRow`; `KnurlCard` only for charts and forms.
+  Surfaces have no border. Colour: primary is the accent, green only for done, red (tertiary) only
+  for records, purple only for supersets. Loading via `BrandLoadingBox`/`BrandBusyOverlay`, empty
+  states via `BrandEmptyState`; no stock spinners.
+- **Texts:** every count goes through `<plurals>`. German says "Training(s)" for workouts
+  ("Einheit" means kg/lb). English exercise names are in Title Case.
 - **Navigation through `Navigator`** (`go.to` / `go.back`); motion is set once in `ScreenMotion`.
   Screens add no transitions.
 - **Notifications:** every kind is a `Channel` with a switch in `NotificationSettings`; add both,

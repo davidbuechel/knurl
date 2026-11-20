@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -149,7 +150,7 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
                                 Text(weightText(Math.round(s.bestOneRepMaxKg * 2) / 2.0), style = MaterialTheme.typography.displaySmall)
                                 val gain = s.bestOneRepMaxKg - (s.firstOneRepMaxKg ?: s.bestOneRepMaxKg)
                                 if (gain > 0) {
-                                    Text(stringResource(R.string.detail_gain, weightText(Math.round(gain * 2) / 2.0), s.sessions.size), color = Knurl.colors.success, style = MaterialTheme.typography.labelLarge)
+                                    Text(pluralStringResource(R.plurals.detail_gain, s.sessions.size, weightText(Math.round(gain * 2) / 2.0), s.sessions.size), color = Knurl.colors.success, style = MaterialTheme.typography.labelLarge)
                                 }
                                 TrendChart(s.sessions.mapNotNull { it.bestOneRepMax }.takeLast(12), format = { Formatting.weightNumber(it, unit) })
                             }

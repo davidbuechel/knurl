@@ -16,7 +16,6 @@
     <string name="action_decrease">Verringern</string>
     <string name="action_resume">Training fortsetzen</string>
     <string name="action_start_workout">Training starten</string>
-    <string name="action_start_free">Freies Training</string>
     <string name="action_finish">Beenden</string>
     <string name="action_discard">Verwerfen</string>
     <string name="action_discard_workout">Training verwerfen</string>
@@ -26,17 +25,15 @@
     <string name="action_remove_exercise">Übung entfernen</string>
 
     <!-- Units -->
-    <string name="unit_kg_value">%1$s</string>
     <string name="unit_e1rm">1RM %1$s</string>
 
     <!-- Stats -->
-    <string name="stat_sessions">Einheiten</string>
+    <string name="stat_sessions">Trainings</string>
     <string name="stat_volume">Volumen</string>
     <string name="stat_records">Rekorde</string>
 
     <!-- Today -->
     <string name="today_running">Training läuft</string>
-    <string name="today_next">Als Nächstes</string>
     <string name="today_this_week">Diese Woche</string>
     <string name="today_recent_records">Letzte Rekorde</string>
 
@@ -44,16 +41,12 @@
     <string name="workout_free_name">Training</string>
     <string name="training_routines">Pläne</string>
     <string name="training_history">Verlauf</string>
-    <string name="history_line">%1$s · %2$s · %3$d Sätze · %4$s</string>
 
     <!-- Exercises -->
     <string name="exercises_pick_title">Übung hinzufügen</string>
     <string name="detail_e1rm">Geschätztes 1RM</string>
     <string name="detail_no_data">Noch keine Sätze. Dein geschätztes Maximum erscheint nach dem ersten Training.</string>
-    <string name="detail_gain">+%1$s in %2$d Einheiten</string>
     <string name="detail_records">Bestwerte</string>
-    <string name="detail_heaviest">Schwerster Satz %1$s</string>
-    <string name="detail_best_volume">Beste Einheit %1$s</string>
     <string name="detail_plates">Scheiben für %1$s</string>
     <string name="detail_history">Verlauf</string>
     <string name="plates_per_side">Pro Seite: %1$s · Stange %2$s</string>
@@ -62,9 +55,6 @@
 
     <!-- Active workout -->
     <string name="workout_last_time">Zuletzt: %1$s</string>
-    <string name="workout_suggest_increase">Hoch auf %1$s: Letztes Mal hast du in jedem Satz das obere Ende geschafft</string>
-    <string name="workout_weight">Gewicht (%1$s)</string>
-    <string name="workout_reps">Wiederholungen</string>
     <string name="set_warmup_short">A</string>
     <string name="set_drop_short">D</string>
     <string name="set_done">Satz abhaken</string>
@@ -74,7 +64,6 @@
     <string name="rest_skip">Pause überspringen</string>
     <string name="finish_title">Training beenden?</string>
     <string name="finish_body">Alle Sätze werden im Verlauf gespeichert.</string>
-    <string name="finish_body_undone">%1$d Sätze sind nicht abgehakt. Gespeichert werden nur abgehakte Sätze.</string>
     <string name="discard_title">Training verwerfen?</string>
     <string name="discard_body">Von diesem Training wird nichts gespeichert.</string>
 
@@ -85,8 +74,8 @@
     <string name="progress_volume_weeks">Volumen, letzte 8 Wochen</string>
     <string name="progress_streak">Serie</string>
     <plurals name="progress_streak_weeks">
-        <item quantity="one">%1$d Woche in Folge mit mindestens %2$d Einheiten</item>
-        <item quantity="other">%1$d Wochen in Folge mit mindestens %2$d Einheiten</item>
+        <item quantity="one">%1$d Woche in Folge mit mindestens %2$d Trainings</item>
+        <item quantity="other">%1$d Wochen in Folge mit mindestens %2$d Trainings</item>
     </plurals>
 
     <!-- Profile -->
@@ -94,18 +83,18 @@
     <string name="settings_bar_weight">Gewicht der Stange</string>
     <string name="settings_default_rest">Standardpause</string>
     <string name="settings_default_rest_seconds">Standardpause (Sekunden)</string>
-    <string name="settings_weekly_goal">Einheiten pro Woche</string>
+    <string name="settings_weekly_goal">Trainings pro Woche</string>
     <string name="settings_version">Version %1$s</string>
 
     <!-- Empty states -->
     <string name="empty_records_title">Noch keine Rekorde</string>
-    <string name="empty_records_body">Trainiere eine Übung zweimal. Wenn du deine erste Einheit übertriffst, steht der Rekord hier.</string>
+    <string name="empty_records_body">Trainiere eine Übung zweimal. Wenn du dein erstes Training übertriffst, steht der Rekord hier.</string>
     <string name="empty_history_title">Noch keine Trainings</string>
     <string name="empty_history_body">Starte einen Plan oder ein freies Training. Beendete Trainings stehen dann hier.</string>
     <string name="empty_search_title">Keine passende Übung</string>
     <string name="empty_search_body">Versuch einen anderen Namen oder entferne den Muskelfilter.</string>
     <string name="empty_exercise_title">Noch nicht trainiert</string>
-    <string name="empty_exercise_body">Nimm die Übung in ein Training auf. Jede Einheit erscheint hier.</string>
+    <string name="empty_exercise_body">Nimm die Übung in ein Training auf. Jedes Training mit ihr erscheint hier.</string>
     <string name="empty_workout_title">Noch keine Übungen</string>
     <string name="empty_workout_body">Tippe auf „Übung hinzufügen“, um aus der Bibliothek zu wählen.</string>
 
@@ -151,7 +140,6 @@
     <string name="settings_unit">Einheit</string>
     <string name="settings_bar_weight_in">Gewicht der Stange (%1$s)</string>
     <string name="settings_plates">Scheiben in deinem Gym</string>
-    <string name="settings_plates_value">%1$d Größen</string>
     <string name="settings_plates_hint">Für den Scheibenrechner</string>
     <string name="settings_keep_screen_on">Bildschirm im Training anlassen</string>
     <string name="settings_keep_screen_on_hint">Die Satzliste bleibt zwischen den Sätzen sichtbar</string>
@@ -169,7 +157,7 @@
     <string name="notify_streak">Serien-Erinnerung</string>
     <string name="notify_streak_hint">Samstags, wenn ein Training deine Serie rettet</string>
     <string name="notify_weekly">Wochenrückblick</string>
-    <string name="notify_weekly_hint">Sonntagabend: Einheiten, Volumen, Rekorde</string>
+    <string name="notify_weekly_hint">Sonntagabend: Trainings, Volumen, Rekorde</string>
     <string name="notify_account">Konto und Sicherheit</string>
     <string name="notify_account_hint">Anmeldungen und wichtige Änderungen</string>
     <string name="notify_news">Neuigkeiten</string>
@@ -184,14 +172,10 @@
     <string name="legal_licenses_body">Archivo und Inter: SIL Open Font License 1.1. AndroidX, Jetpack Compose, Kotlin und Firebase SDKs: Apache License 2.0.</string>
     <string name="profile_workouts">Trainings</string>
     <string name="profile_total_volume">Volumen gesamt</string>
-    <string name="profile_since">Seit</string>
     <string name="account_title">Konto</string>
     <string name="account_anonymous">Noch nicht gesichert</string>
-    <string name="account_anonymous_hint">Dein Training ist gespeichert, aber nur in diesem Konto. Sichere es, damit du es auf einem neuen Handy behältst.</string>
     <string name="account_linked">Konto gesichert</string>
-    <string name="account_linked_hint">Angemeldet. Dein Training ist gesichert und auf jedem Handy da.</string>
     <string name="account_secure_cta">Konto sichern</string>
-    <string name="account_manage">Konto verwalten</string>
     <string name="account_secure_title">Training behalten</string>
     <string name="account_mode_secure">Sichern</string>
     <string name="account_mode_sign_in">Anmelden</string>
@@ -220,7 +204,6 @@
     <string name="account_delete_title">Konto löschen?</string>
     <string name="account_delete_body">Alle Trainings, Pläne und Einstellungen werden sofort von unseren Servern gelöscht. Das lässt sich nicht rückgängig machen.</string>
     <string name="account_switch_title">Zum anderen Konto wechseln?</string>
-    <string name="account_switch_body">Die %1$d Trainings in diesem ungesicherten Konto werden dann nicht mehr angezeigt. Sichere dieses Konto zuerst, wenn du sie behalten willst.</string>
     <string name="account_error_email">Diese E-Mail-Adresse sieht nicht richtig aus.</string>
     <string name="account_error_weak">Wähle ein längeres Passwort (mindestens 6 Zeichen).</string>
     <string name="account_error_wrong">E-Mail oder Passwort ist falsch.</string>
@@ -242,11 +225,10 @@
     <string name="workout_notification_sets">%1$d von %2$d Sätzen erledigt</string>
     <string name="workout_notification_rest">Pause · %1$d von %2$d Sätzen erledigt</string>
     <string name="reminder_training_title">Trainingstag</string>
-    <string name="reminder_training_body">%1$d von %2$d Einheiten diese Woche. Bereit für die nächste?</string>
+    <string name="reminder_training_body">%1$d von %2$d Trainings diese Woche. Bereit für das nächste?</string>
     <string name="reminder_streak_title">Noch eins für deine Serie</string>
-    <string name="reminder_streak_body">Bisher %1$d Wochen in Folge. Ein Training am Wochenende hält sie am Laufen.</string>
     <string name="reminder_weekly_title">Deine Woche</string>
-    <string name="reminder_weekly_body">%1$d Einheiten · %2$s · %3$d Rekorde</string>
+    <string name="reminder_weekly_body">%1$s · %2$s · %3$s</string>
     <string name="notify_blocked">Benachrichtigungen sind blockiert</string>
     <string name="notify_blocked_hint">Erlaube sie in den Android-Einstellungen, damit Knurl dich erinnern kann</string>
     <string name="notify_exact">Pausen-Alarm auf die Sekunde</string>
@@ -332,7 +314,6 @@
 
     <!-- Statistics -->
     <string name="stats_title">Statistik</string>
-    <string name="stats_subtitle">Volumen, Muskeln, Serie, Kalender, Körpergewicht</string>
 
     <!-- Workout logger -->
     <string name="pad_close">Tastatur schließen</string>
@@ -388,7 +369,7 @@
     <string name="detail_no_instructions_title">Noch keine Anleitung</string>
     <string name="detail_no_instructions_body">Die Fotos zeigen Start- und Endposition.</string>
     <string name="detail_heaviest_label">Schwerster Satz</string>
-    <string name="detail_best_volume_label">Beste Einheit</string>
+    <string name="detail_best_volume_label">Bestes Training</string>
 
     <!-- Profile -->
     <string name="profile_you">Dein Profil</string>
@@ -428,4 +409,36 @@
     <string name="plan_upper_lower">Ober-/Unterkörper</string>
     <string name="plan_ppl">Push/Pull/Beine</string>
     <string name="onboarding_reminders_hint">Ein Schubs an deinen Trainingstagen</string>
+
+    <!-- Plurals from the audit -->
+    <plurals name="detail_gain">
+        <item quantity="one">+%1$s in %2$d Training</item>
+        <item quantity="other">+%1$s in %2$d Trainings</item>
+    </plurals>
+    <plurals name="finish_body_undone">
+        <item quantity="one">%1$d Satz ist nicht abgehakt. Gespeichert werden nur abgehakte Sätze.</item>
+        <item quantity="other">%1$d Sätze sind nicht abgehakt. Gespeichert werden nur abgehakte Sätze.</item>
+    </plurals>
+    <plurals name="settings_plates_value">
+        <item quantity="one">%1$d Größe</item>
+        <item quantity="other">%1$d Größen</item>
+    </plurals>
+    <plurals name="account_switch_body">
+        <item quantity="one">Das %1$d Training in diesem ungesicherten Konto wird dann nicht mehr angezeigt. Sichere dieses Konto zuerst, wenn du es behalten willst.</item>
+        <item quantity="other">Die %1$d Trainings in diesem ungesicherten Konto werden dann nicht mehr angezeigt. Sichere dieses Konto zuerst, wenn du sie behalten willst.</item>
+    </plurals>
+    <plurals name="reminder_streak_body">
+        <item quantity="one">Bisher %1$d Woche in Folge. Ein Training am Wochenende hält die Serie am Laufen.</item>
+        <item quantity="other">Bisher %1$d Wochen in Folge. Ein Training am Wochenende hält die Serie am Laufen.</item>
+    </plurals>
+    <plurals name="records_count">
+        <item quantity="one">%1$d Rekord</item>
+        <item quantity="other">%1$d Rekorde</item>
+    </plurals>
+
+    <!-- Audit -->
+    <string name="body_weight_delete_title">Eintrag löschen?</string>
+    <string name="body_weight_delete_body">%1$s vom %2$s wird entfernt.</string>
+    <string name="routine_discard_title">Änderungen verwerfen?</string>
+    <string name="routine_discard_body">Deine Änderungen an diesem Plan sind noch nicht gespeichert.</string>
 </resources>

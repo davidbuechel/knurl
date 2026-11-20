@@ -3,7 +3,7 @@ package de.knurl.feature.settings
 import android.Manifest
 import android.app.AlarmManager
 import android.content.Intent
-import android.net.Uri
+import androidx.core.net.toUri
 import android.os.Build
 import android.provider.Settings as AndroidSettings
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -43,6 +43,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.compose.LifecycleResumeEffect
+import de.knurl.feature.common.IconTile
+import de.knurl.feature.common.ListGroup
+import de.knurl.feature.common.ListRow
+import de.knurl.feature.common.SectionHeader
+import de.knurl.feature.common.SegmentedRow
+import de.knurl.feature.common.SwitchRow
+import de.knurl.feature.common.ValueRow
+import de.knurl.ui.theme.Knurl
 import de.knurl.BuildConfig
 import de.knurl.R
 import de.knurl.core.settings.AppLanguage
@@ -74,6 +87,7 @@ fun SettingsScreen(go: Navigator) {
     val vm = knurlViewModel { SettingsViewModel(it.training, it.preferences) }
     val settings by vm.settings.collectAsStateWithLifecycle()
     val device by vm.device.collectAsStateWithLifecycle()
+    val logRir by vm.logRir.collectAsStateWithLifecycle()
     var editor by rememberSaveable { mutableStateOf<Editor?>(null) }
 
     Scaffold(
@@ -88,57 +102,62 @@ fun SettingsScreen(go: Navigator) {
             )
         },
     ) { padding ->
-        val s = settings ?: return@Scaffold BrandLoadingBox()
+        val s = settings ?: return@Scaffold BrandLoadingBox(Modifier.padding(padding))
         LazyColumn(
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = padding.calculateTopPadding(), bottom = padding.calculateBottomPadding() + 24.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
+            item { SectionHeader(stringResource(R.string.settings_section_display)) }
             item {
-                SettingsSection(stringResource(R.string.settings_section_display)) {
-                    Text(stringResource(R.string.settings_theme), style = MaterialTheme.typography.titleSmall)
-                    Segmented(ThemeMode.entries, device.theme, { it.label() }, vm::setTheme)
-                    Text(stringResource(R.string.settings_language), style = MaterialTheme.typography.titleSmall)
-                    Segmented(AppLanguage.entries, device.language, { it.label() }, vm::setLanguage)
+                ListGroup {
+                    SegmentedRow(stringResource(R.string.settings_theme), ThemeMode.entries, device.theme, { it.label() }, vm::setTheme)
+                    SegmentedRow(stringResource(R.string.settings_language), AppLanguage.entries, device.language, { it.label() }, vm::setLanguage, divider = false)
                 }
             }
 
+            item { SectionHeader(stringResource(R.string.settings_training)) }
             item {
-                SettingsSection(stringResource(R.string.settings_training)) {
-                    Text(stringResource(R.string.settings_unit), style = MaterialTheme.typography.titleSmall)
-                    Segmented(WeightUnit.entries, s.unit, { Formatting.symbol(it) }, vm::setUnit)
-                    ValueRow(stringResource(R.string.settings_bar_weight), weightText(s.barKg)) { editor = Editor.BAR }
-                    RowDivider()
-                    ValueRow(
-                        stringResource(R.string.settings_plates),
-                        stringResource(R.string.settings_plates_value, s.platesKg.size),
-                        stringResource(R.string.settings_plates_hint),
-                    ) { editor = Editor.PLATES }
-                    RowDivider()
-                    ValueRow(stringResource(R.string.settings_default_rest), Formatting.duration(s.defaultRestSec.toLong())) { editor = Editor.REST }
-                    RowDivider()
-                    ValueRow(stringResource(R.string.settings_weekly_goal), "${s.weeklyGoal}") { editor = Editor.GOAL }
-                    RowDivider()
-                    ToggleRow(stringResource(R.string.settings_keep_screen_on), stringResource(R.string.settings_keep_screen_on_hint), device.keepScreenOn, onChange = vm::setKeepScreenOn)
-                    val logRir by vm.logRir.collectAsStateWithLifecycle()
-                    ToggleRow(stringResource(R.string.settings_log_rir), stringResource(R.string.settings_log_rir_hint), logRir, onChange = vm::setLogRir)
-                    ToggleRow(stringResource(R.string.settings_rest_vibrate), null, device.restVibrate, onChange = vm::setRestVibrate)
-                    ToggleRow(stringResource(R.string.settings_rest_sound), null, device.restSound, onChange = vm::setRestSound)
+                ListGroup {
+                    SegmentedRow(stringResource(R.string.settings_unit), WeightUnit.entries, s.unit, { Formatting.symbol(it) }, vm::setUnit)
+                    ValueRow(stringResource(R.string.settings_bar_weight), weightText(s.barKg), onClick = { editor = Editor.BAR })
+                    // In pounds the plate calculator uses the usual pound plates; the kilogram set only matters in kg.
+                    if (s.unit == WeightUnit.KG) {
+                        ValueRow(
+                            stringResource(R.string.settings_plates),
+                            pluralStringResource(R.plurals.settings_plates_value, s.platesKg.size, s.platesKg.size),
+                            subtitle = stringResource(R.string.settings_plates_hint),
+                            onClick = { editor = Editor.PLATES },
+                        )
+                    }
+                    ValueRow(stringResource(R.string.settings_default_rest), Formatting.duration(s.defaultRestSec.toLong()), onClick = { editor = Editor.REST })
+                    ValueRow(stringResource(R.string.settings_weekly_goal), "${s.weeklyGoal}", onClick = { editor = Editor.GOAL }, divider = false)
+                }
+            }
+            item {
+                ListGroup {
+                    SwitchRow(stringResource(R.string.settings_keep_screen_on), device.keepScreenOn, vm::setKeepScreenOn, stringResource(R.string.settings_keep_screen_on_hint))
+                    SwitchRow(stringResource(R.string.settings_log_rir), logRir, vm::setLogRir, stringResource(R.string.settings_log_rir_hint))
+                    SwitchRow(stringResource(R.string.settings_rest_vibrate), device.restVibrate, vm::setRestVibrate)
+                    SwitchRow(stringResource(R.string.settings_rest_sound), device.restSound, vm::setRestSound, divider = false)
                 }
             }
 
-            item { NotificationSection(s, vm, onDays = { editor = Editor.DAYS }, onTime = { editor = Editor.TIME }) }
+            item { SectionHeader(stringResource(R.string.settings_section_notifications)) }
+            item { NotificationGroups(s, vm, onDays = { editor = Editor.DAYS }, onTime = { editor = Editor.TIME }) }
 
+            item { SectionHeader(stringResource(R.string.settings_section_privacy)) }
             item {
-                SettingsSection(stringResource(R.string.settings_section_privacy)) {
-                    ToggleRow(stringResource(R.string.settings_crash_reports), stringResource(R.string.settings_crash_reports_hint), device.crashReports, onChange = vm::setCrashReports)
+                ListGroup {
+                    SwitchRow(stringResource(R.string.settings_crash_reports), device.crashReports, vm::setCrashReports, stringResource(R.string.settings_crash_reports_hint), divider = false)
                 }
             }
 
+            item { SectionHeader(stringResource(R.string.settings_section_legal)) }
             item {
-                SettingsSection(stringResource(R.string.settings_section_legal)) {
-                    LinkRow(Icons.Outlined.Gavel, stringResource(R.string.legal_imprint)) { go.to(LegalRoute(LegalPage.IMPRINT)) }
-                    LinkRow(Icons.Outlined.Policy, stringResource(R.string.legal_privacy)) { go.to(LegalRoute(LegalPage.PRIVACY)) }
-                    LinkRow(Icons.AutoMirrored.Outlined.Article, stringResource(R.string.legal_licenses)) { go.to(LegalRoute(LegalPage.LICENSES)) }
+                ListGroup {
+                    ListRow(stringResource(R.string.legal_imprint), leading = { IconTile(Icons.Outlined.Gavel, MaterialTheme.colorScheme.outline) }) { go.to(LegalRoute(LegalPage.IMPRINT)) }
+                    ListRow(stringResource(R.string.legal_privacy), leading = { IconTile(Icons.Outlined.Policy, MaterialTheme.colorScheme.outline) }) { go.to(LegalRoute(LegalPage.PRIVACY)) }
+                    ListRow(stringResource(R.string.legal_licenses), leading = { IconTile(Icons.AutoMirrored.Outlined.Article, MaterialTheme.colorScheme.outline) }, divider = false) { go.to(LegalRoute(LegalPage.LICENSES)) }
                 }
             }
 
@@ -147,7 +166,8 @@ fun SettingsScreen(go: Navigator) {
                     stringResource(R.string.settings_version, BuildConfig.VERSION_NAME),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(4.dp),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 )
             }
         }
@@ -157,43 +177,64 @@ fun SettingsScreen(go: Navigator) {
 }
 
 @Composable
-private fun NotificationSection(s: Settings, vm: SettingsViewModel, onDays: () -> Unit, onTime: () -> Unit) {
+private fun NotificationGroups(s: Settings, vm: SettingsViewModel, onDays: () -> Unit, onTime: () -> Unit) {
     val n = s.notifications
     val context = LocalContext.current
     var granted by remember { mutableStateOf(Notifications.permissionGranted(context)) }
+    val alarms = context.getSystemService(AlarmManager::class.java)
+    var exactAllowed by remember { mutableStateOf(Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarms.canScheduleExactAlarms()) }
+    // Coming back from the system settings: both permissions may have changed there.
+    LifecycleResumeEffect(Unit) {
+        granted = Notifications.permissionGranted(context)
+        exactAllowed = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarms.canScheduleExactAlarms()
+        onPauseOrDispose {}
+    }
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted = it }
     // Switching a notification on asks for the permission first, if Android needs it.
-    fun enable(change: (NotificationSettings) -> NotificationSettings) {
+    fun toggle(on: Boolean, change: (NotificationSettings) -> NotificationSettings) {
         vm.updateNotifications(change)
-        if (!granted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) permission.launch(Manifest.permission.POST_NOTIFICATIONS)
+        if (on && !granted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) permission.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
-    fun toggle(on: Boolean, change: (NotificationSettings) -> NotificationSettings) = if (on) enable(change) else vm.updateNotifications(change)
-    val alarms = context.getSystemService(AlarmManager::class.java)
-    SettingsSection(stringResource(R.string.settings_section_notifications)) {
-        if (!granted) {
-            LinkRow(Icons.Outlined.NotificationsOff, stringResource(R.string.notify_blocked), stringResource(R.string.notify_blocked_hint), tint = MaterialTheme.colorScheme.error) {
-                context.startActivity(Intent(AndroidSettings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(AndroidSettings.EXTRA_APP_PACKAGE, context.packageName))
+    val needsExactAlarms = n.restTimer && !exactAllowed
+
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        if (!granted || needsExactAlarms) {
+            ListGroup {
+                if (!granted) {
+                    ListRow(
+                        stringResource(R.string.notify_blocked), subtitle = stringResource(R.string.notify_blocked_hint),
+                        leading = { IconTile(Icons.Outlined.NotificationsOff, MaterialTheme.colorScheme.error) }, divider = needsExactAlarms,
+                    ) {
+                        context.startActivity(Intent(AndroidSettings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(AndroidSettings.EXTRA_APP_PACKAGE, context.packageName))
+                    }
+                }
+                if (needsExactAlarms) {
+                    ListRow(
+                        stringResource(R.string.notify_exact), subtitle = stringResource(R.string.notify_exact_hint),
+                        leading = { IconTile(Icons.Outlined.Alarm, Knurl.colors.warning) }, divider = false,
+                    ) {
+                        context.startActivity(Intent(AndroidSettings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, ("package:" + context.packageName).toUri()))
+                    }
+                }
             }
         }
-        ToggleRow(stringResource(R.string.notify_rest), stringResource(R.string.notify_rest_hint), n.restTimer) { on -> toggle(on) { it.copy(restTimer = on) } }
-        if (n.restTimer && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarms.canScheduleExactAlarms()) {
-            LinkRow(Icons.Outlined.Alarm, stringResource(R.string.notify_exact), stringResource(R.string.notify_exact_hint)) {
-                context.startActivity(Intent(AndroidSettings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + context.packageName)))
+        ListGroup {
+            SwitchRow(stringResource(R.string.notify_rest), n.restTimer, { on -> toggle(on) { it.copy(restTimer = on) } }, stringResource(R.string.notify_rest_hint))
+            SwitchRow(stringResource(R.string.notify_running), n.workoutRunning, { on -> toggle(on) { it.copy(workoutRunning = on) } }, stringResource(R.string.notify_running_hint), divider = false)
+        }
+        ListGroup {
+            SwitchRow(stringResource(R.string.notify_reminders), n.reminders, { on -> toggle(on) { it.copy(reminders = on) } }, stringResource(R.string.notify_reminders_hint), divider = n.reminders)
+            if (n.reminders) {
+                ValueRow(stringResource(R.string.notify_reminder_days), n.reminderDays.sorted().joinToString(", ") { dayName(it, context) }, onClick = onDays)
+                ValueRow(stringResource(R.string.notify_reminder_time), Formatting.timeOfDay(n.reminderMinutes), onClick = onTime, divider = false)
             }
         }
-        ToggleRow(stringResource(R.string.notify_running), stringResource(R.string.notify_running_hint), n.workoutRunning) { on -> toggle(on) { it.copy(workoutRunning = on) } }
-        RowDivider()
-        ToggleRow(stringResource(R.string.notify_reminders), stringResource(R.string.notify_reminders_hint), n.reminders) { on -> toggle(on) { it.copy(reminders = on) } }
-        if (n.reminders) {
-            ValueRow(stringResource(R.string.notify_reminder_days), n.reminderDays.sorted().joinToString(", ") { dayName(it, context) }, onClick = onDays)
-            ValueRow(stringResource(R.string.notify_reminder_time), Formatting.timeOfDay(n.reminderMinutes), onClick = onTime)
+        ListGroup {
+            SwitchRow(stringResource(R.string.notify_streak), n.streak, { on -> toggle(on) { it.copy(streak = on) } }, stringResource(R.string.notify_streak_hint))
+            SwitchRow(stringResource(R.string.notify_weekly), n.weeklyReview, { on -> toggle(on) { it.copy(weeklyReview = on) } }, stringResource(R.string.notify_weekly_hint))
+            SwitchRow(stringResource(R.string.notify_account), n.account, { on -> toggle(on) { it.copy(account = on) } }, stringResource(R.string.notify_account_hint))
+            SwitchRow(stringResource(R.string.notify_news), n.news, { on -> toggle(on) { it.copy(news = on) } }, stringResource(R.string.notify_news_hint), divider = false)
         }
-        RowDivider()
-        ToggleRow(stringResource(R.string.notify_streak), stringResource(R.string.notify_streak_hint), n.streak) { on -> toggle(on) { it.copy(streak = on) } }
-        ToggleRow(stringResource(R.string.notify_weekly), stringResource(R.string.notify_weekly_hint), n.weeklyReview) { on -> toggle(on) { it.copy(weeklyReview = on) } }
-        RowDivider()
-        ToggleRow(stringResource(R.string.notify_account), stringResource(R.string.notify_account_hint), n.account) { on -> toggle(on) { it.copy(account = on) } }
-        ToggleRow(stringResource(R.string.notify_news), stringResource(R.string.notify_news_hint), n.news) { on -> toggle(on) { it.copy(news = on) } }
     }
 }
 
@@ -224,7 +265,7 @@ private fun SettingsEditors(editor: Editor?, s: Settings, vm: SettingsViewModel,
                         FilterChip(
                             selected = on,
                             onClick = { vm.update { it.copy(platesKg = (if (on) it.platesKg - plate else it.platesKg + plate).sortedDescending()) } },
-                            label = { Text("${Formatting.kg(plate)} kg") },
+                            label = { Text("${Formatting.kg(plate)} ${Formatting.symbol(WeightUnit.KG)}") },
                         )
                     }
                 }

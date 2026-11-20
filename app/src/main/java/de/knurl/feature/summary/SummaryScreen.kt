@@ -1,21 +1,16 @@
 package de.knurl.feature.summary
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import de.knurl.feature.exercises.ExerciseThumbnail
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.EmojiEvents
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -27,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -44,10 +38,13 @@ import de.knurl.domain.model.Routine
 import de.knurl.domain.model.Workout
 import de.knurl.feature.common.Formatting
 import de.knurl.feature.common.KnurlCard
+import de.knurl.feature.common.Kpi
+import de.knurl.feature.common.KpiRow
+import de.knurl.feature.common.ListGroup
+import de.knurl.feature.common.ListRow
+import de.knurl.feature.common.SectionHeader
 import de.knurl.feature.common.NameDialog
 import de.knurl.feature.common.ScreenTitle
-import de.knurl.feature.common.SectionLabel
-import de.knurl.feature.common.StatTile
 import de.knurl.feature.common.isGerman
 import de.knurl.feature.common.knurlViewModel
 import de.knurl.feature.common.setText
@@ -98,6 +95,8 @@ class SummaryViewModel(private val training: TrainingRepository, private val wor
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
+    fun exercise(id: String) = training.exercise(id)
+
     fun exerciseName(id: String, german: Boolean) = training.exercise(id)?.name(german) ?: id
 
     fun saveAsRoutine(name: String) {
@@ -139,42 +138,46 @@ fun SummaryScreen(go: Navigator, workoutId: String) {
             item { ScreenTitle(stringResource(R.string.summary_title), eyebrow = s.workout.name) }
 
             item {
-                KnurlCard {
-                    Row(Modifier.fillMaxWidth()) {
-                        StatTile(Formatting.duration(s.durationSec), stringResource(R.string.summary_duration))
-                        StatTile("${s.sets}", stringResource(R.string.summary_sets))
-                        StatTile(tonnageText(s.volumeKg), stringResource(R.string.stat_volume))
-                    }
-                    s.previousVolumeKg?.takeIf { it > 0 }?.let { previous ->
-                        val change = ((s.volumeKg - previous) / previous * 100).toInt()
-                        Text(
-                            stringResource(if (change >= 0) R.string.summary_more_volume else R.string.summary_less_volume, kotlin.math.abs(change)),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = if (change >= 0) Knurl.colors.success else MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
+                KpiRow(
+                    listOf(
+                        Kpi(Formatting.duration(s.durationSec), stringResource(R.string.summary_duration)),
+                        Kpi("${s.sets}", stringResource(R.string.summary_sets)),
+                        Kpi(tonnageText(s.volumeKg), stringResource(R.string.stat_volume)),
+                    ),
+                )
+            }
+            s.previousVolumeKg?.takeIf { it > 0 }?.let { previous ->
+                item {
+                    val change = ((s.volumeKg - previous) / previous * 100).toInt()
+                    Text(
+                        stringResource(if (change >= 0) R.string.summary_more_volume else R.string.summary_less_volume, kotlin.math.abs(change)),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = if (change >= 0) Knurl.colors.success else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                    )
                 }
             }
 
             if (s.records.isNotEmpty()) {
-                item { SectionLabel(stringResource(R.string.summary_records), Modifier.padding(top = 8.dp)) }
-                items(s.records, key = { it.exerciseId }) { record ->
-                    KnurlCard {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Icon(Icons.Rounded.EmojiEvents, contentDescription = null, tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(28.dp))
-                            Column(Modifier.weight(1f)) {
-                                Text(vm.exerciseName(record.exerciseId, german), style = MaterialTheme.typography.titleMedium)
-                                Text(setText(record.set.weightKg, record.set.reps), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                            Text(stringResource(R.string.unit_e1rm, weightText(record.oneRepMaxKg)), style = MaterialTheme.typography.labelLarge)
+                item { SectionHeader(stringResource(R.string.summary_records)) }
+                item {
+                    ListGroup {
+                        s.records.forEachIndexed { i, record ->
+                            ListRow(
+                                vm.exerciseName(record.exerciseId, german),
+                                subtitle = setText(record.set.weightKg, record.set.reps),
+                                leading = { vm.exercise(record.exerciseId)?.let { ExerciseThumbnail(it, Modifier.size(44.dp)) } },
+                                trailing = { Text(stringResource(R.string.unit_e1rm, weightText(record.oneRepMaxKg)), style = MaterialTheme.typography.labelLarge) },
+                                divider = i < s.records.lastIndex,
+                            )
                         }
                     }
                 }
             }
 
+            item { SectionHeader(stringResource(R.string.summary_routine)) }
             item {
                 KnurlCard {
-                    SectionLabel(stringResource(R.string.summary_routine))
                     when {
                         s.savedAsRoutine -> Text(stringResource(R.string.summary_routine_saved), color = Knurl.colors.success)
                         s.routine != null -> {

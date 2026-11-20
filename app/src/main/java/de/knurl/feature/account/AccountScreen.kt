@@ -1,10 +1,17 @@
 package de.knurl.feature.account
 
+import android.content.Context
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -14,6 +21,7 @@ import androidx.compose.material.icons.outlined.DataObject
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.Key
 import androidx.compose.material.icons.outlined.TableChart
+import androidx.compose.material.icons.outlined.VerifiedUser
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -37,7 +45,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -45,15 +55,22 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.knurl.R
 import de.knurl.data.firebase.AccountError
 import de.knurl.feature.common.ConfirmDialog
+import de.knurl.feature.common.IconTile
+import de.knurl.feature.common.ListGroup
+import de.knurl.feature.common.ListRow
+import de.knurl.feature.common.SectionHeader
+import de.knurl.feature.common.SegmentedTabs
 import de.knurl.feature.common.knurlViewModel
-import de.knurl.feature.settings.LinkRow
-import de.knurl.feature.settings.Segmented
-import de.knurl.feature.settings.SettingsSection
+import de.knurl.ui.brand.BrandBusyOverlay
 import de.knurl.ui.navigation.Navigator
 import kotlinx.coroutines.launch
 
 private enum class Mode { SECURE, SIGN_IN }
 private enum class Confirm { SIGN_IN_ELSEWHERE, SIGN_OUT, DELETE }
+
+/** Writes [text] to the file the person picked; false if that failed. */
+private fun Context.writeText(uri: Uri, text: String): Boolean =
+    runCatching { contentResolver.openOutputStream(uri)?.use { it.write(text.toByteArray()) } != null }.getOrDefault(false)
 
 /**
  * Securing the anonymous account (Google or e-mail), signing in to an existing one, signing out,
@@ -76,11 +93,11 @@ fun AccountScreen(go: Navigator) {
 
     val exportJson = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         val text = vm.exportJson()
-        if (uri != null && text != null) context.contentResolver.openOutputStream(uri)?.use { it.write(text.toByteArray()) }.also { vm.exported() }
+        if (uri != null && text != null && context.writeText(uri, text)) vm.exported()
     }
     val exportCsv = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
         val text = vm.exportCsv()
-        if (uri != null && text != null) context.contentResolver.openOutputStream(uri)?.use { it.write(text.toByteArray()) }.also { vm.exported() }
+        if (uri != null && text != null && context.writeText(uri, text)) vm.exported()
     }
 
     fun google(link: Boolean) = scope.launch {
@@ -112,80 +129,111 @@ fun AccountScreen(go: Navigator) {
         },
         snackbarHost = { SnackbarHost(snackbar) },
     ) { padding ->
-        LazyColumn(
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = padding.calculateTopPadding(), bottom = padding.calculateBottomPadding() + 24.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            if (state.anonymous) {
-                item {
-                    SettingsSection(stringResource(R.string.account_secure_title)) {
-                        Segmented(Mode.entries, mode, { stringResource(if (it == Mode.SECURE) R.string.account_mode_secure else R.string.account_mode_sign_in) }) { mode = it }
-                        Text(
-                            stringResource(if (mode == Mode.SECURE) R.string.account_secure_body else R.string.account_sign_in_body),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        Button(
-                            onClick = {
-                                if (mode == Mode.SECURE) google(link = true)
-                                else if (state.workouts > 0) { pendingGoogleSignIn = true; confirm = Confirm.SIGN_IN_ELSEWHERE }
-                                else google(link = false)
-                            },
-                            enabled = !state.busy,
-                            modifier = Modifier.fillMaxWidth(),
-                        ) { Text(stringResource(R.string.account_google)) }
-                        Text(stringResource(R.string.account_or_email), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        OutlinedTextField(
-                            value = email, onValueChange = { email = it }, singleLine = true, modifier = Modifier.fillMaxWidth(),
-                            label = { Text(stringResource(R.string.account_email)) },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                        )
-                        OutlinedTextField(
-                            value = password, onValueChange = { password = it }, singleLine = true, modifier = Modifier.fillMaxWidth(),
-                            label = { Text(stringResource(R.string.account_password)) },
-                            visualTransformation = PasswordVisualTransformation(),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        )
-                        OutlinedButton(
-                            onClick = {
-                                if (mode == Mode.SECURE) vm.linkEmail(email, password)
-                                else if (state.workouts > 0) { pendingGoogleSignIn = false; confirm = Confirm.SIGN_IN_ELSEWHERE }
-                                else vm.signInEmail(email, password)
-                            },
-                            enabled = !state.busy && email.isNotBlank() && password.length >= 6,
-                            modifier = Modifier.fillMaxWidth(),
-                        ) { Text(stringResource(if (mode == Mode.SECURE) R.string.account_create else R.string.account_sign_in)) }
-                        if (mode == Mode.SIGN_IN) {
-                            TextButton(onClick = { vm.sendReset(email) }, enabled = email.isNotBlank()) { Text(stringResource(R.string.account_forgot)) }
+        Box(Modifier.fillMaxSize()) {
+            LazyColumn(
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = padding.calculateTopPadding(), bottom = padding.calculateBottomPadding() + 24.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                if (state.anonymous) {
+                    item { SectionHeader(stringResource(R.string.account_secure_title)) }
+                    item {
+                        ListGroup {
+                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                SegmentedTabs(Mode.entries, mode, { stringResource(if (it == Mode.SECURE) R.string.account_mode_secure else R.string.account_mode_sign_in) }, { mode = it })
+                                Text(
+                                    stringResource(if (mode == Mode.SECURE) R.string.account_secure_body else R.string.account_sign_in_body),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Button(
+                                    onClick = {
+                                        if (mode == Mode.SECURE) google(link = true)
+                                        else if (state.workouts > 0) { pendingGoogleSignIn = true; confirm = Confirm.SIGN_IN_ELSEWHERE }
+                                        else google(link = false)
+                                    },
+                                    enabled = !state.busy,
+                                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                                ) { Text(stringResource(R.string.account_google)) }
+                                Text(stringResource(R.string.account_or_email), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                OutlinedTextField(
+                                    value = email, onValueChange = { email = it.trim() }, singleLine = true, modifier = Modifier.fillMaxWidth(),
+                                    label = { Text(stringResource(R.string.account_email)) },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
+                                    shape = MaterialTheme.shapes.medium,
+                                )
+                                OutlinedTextField(
+                                    value = password, onValueChange = { password = it }, singleLine = true, modifier = Modifier.fillMaxWidth(),
+                                    label = { Text(stringResource(R.string.account_password)) },
+                                    visualTransformation = PasswordVisualTransformation(),
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+                                    shape = MaterialTheme.shapes.medium,
+                                )
+                                OutlinedButton(
+                                    onClick = {
+                                        if (mode == Mode.SECURE) vm.linkEmail(email, password)
+                                        else if (state.workouts > 0) { pendingGoogleSignIn = false; confirm = Confirm.SIGN_IN_ELSEWHERE }
+                                        else vm.signInEmail(email, password)
+                                    },
+                                    enabled = !state.busy && email.isNotBlank() && password.length >= 6,
+                                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                                ) { Text(stringResource(if (mode == Mode.SECURE) R.string.account_create else R.string.account_sign_in)) }
+                                if (mode == Mode.SIGN_IN) {
+                                    TextButton(onClick = { vm.sendReset(email) }, enabled = !state.busy && email.isNotBlank()) { Text(stringResource(R.string.account_forgot)) }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    item { SectionHeader(stringResource(R.string.account_signed_in_as)) }
+                    item {
+                        ListGroup {
+                            ListRow(
+                                state.email?.takeIf { it.isNotBlank() } ?: stringResource(R.string.account_linked),
+                                leading = { IconTile(Icons.Outlined.VerifiedUser) },
+                            )
+                            state.email?.takeIf { it.isNotBlank() }?.let { address ->
+                                ListRow(
+                                    stringResource(R.string.account_change_password),
+                                    subtitle = stringResource(R.string.account_change_password_hint),
+                                    leading = { IconTile(Icons.Outlined.Key, MaterialTheme.colorScheme.outline) },
+                                ) { vm.sendReset(address) }
+                            }
+                            ListRow(
+                                stringResource(R.string.account_sign_out),
+                                leading = { IconTile(Icons.AutoMirrored.Outlined.Logout, MaterialTheme.colorScheme.outline) },
+                                divider = false,
+                            ) { confirm = Confirm.SIGN_OUT }
                         }
                     }
                 }
-            } else {
-                item {
-                    SettingsSection(stringResource(R.string.account_signed_in_as)) {
-                        Text(state.email ?: stringResource(R.string.account_linked), style = MaterialTheme.typography.titleMedium)
-                        state.email?.let { address ->
-                            LinkRow(Icons.Outlined.Key, stringResource(R.string.account_change_password), stringResource(R.string.account_change_password_hint)) { vm.sendReset(address) }
-                        }
-                        LinkRow(Icons.AutoMirrored.Outlined.Logout, stringResource(R.string.account_sign_out)) { confirm = Confirm.SIGN_OUT }
-                    }
-                }
-            }
 
-            item {
-                SettingsSection(stringResource(R.string.account_your_data)) {
-                    LinkRow(Icons.Outlined.DataObject, stringResource(R.string.account_export_json), stringResource(R.string.account_export_json_hint)) { exportJson.launch("knurl-export.json") }
-                    LinkRow(Icons.Outlined.TableChart, stringResource(R.string.account_export_csv), stringResource(R.string.account_export_csv_hint)) { exportCsv.launch("knurl-sets.csv") }
-                    LinkRow(Icons.Outlined.DeleteForever, stringResource(R.string.account_delete), stringResource(R.string.account_delete_hint), tint = MaterialTheme.colorScheme.error) { confirm = Confirm.DELETE }
+                item { SectionHeader(stringResource(R.string.account_your_data)) }
+                item {
+                    ListGroup {
+                        ListRow(
+                            stringResource(R.string.account_export_json), subtitle = stringResource(R.string.account_export_json_hint),
+                            leading = { IconTile(Icons.Outlined.DataObject) },
+                        ) { exportJson.launch("knurl-export.json") }
+                        ListRow(
+                            stringResource(R.string.account_export_csv), subtitle = stringResource(R.string.account_export_csv_hint),
+                            leading = { IconTile(Icons.Outlined.TableChart) },
+                        ) { exportCsv.launch("knurl-sets.csv") }
+                        ListRow(
+                            stringResource(R.string.account_delete), subtitle = stringResource(R.string.account_delete_hint),
+                            leading = { IconTile(Icons.Outlined.DeleteForever, MaterialTheme.colorScheme.error) },
+                            divider = false,
+                        ) { confirm = Confirm.DELETE }
+                    }
                 }
             }
+            BrandBusyOverlay(state.busy)
         }
     }
 
     when (confirm) {
         Confirm.SIGN_IN_ELSEWHERE -> ConfirmDialog(
             title = stringResource(R.string.account_switch_title),
-            body = stringResource(R.string.account_switch_body, state.workouts),
+            body = pluralStringResource(R.plurals.account_switch_body, state.workouts, state.workouts),
             confirm = stringResource(R.string.account_sign_in),
             onDismiss = { confirm = null },
             onConfirm = {

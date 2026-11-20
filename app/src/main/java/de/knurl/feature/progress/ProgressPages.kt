@@ -14,6 +14,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.MaterialTheme
+import de.knurl.domain.model.BodyWeight
+import de.knurl.feature.common.ConfirmDialog
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -50,6 +57,7 @@ private fun ProgressPage(go: Navigator, title: String, content: LazyListScope.()
 fun BodyWeightScreen(go: Navigator) {
     val vm = knurlViewModel { ProgressViewModel(it.training) }
     val state by vm.state.collectAsStateWithLifecycle()
+    var deleting by remember { mutableStateOf<BodyWeight?>(null) }
     ProgressPage(go, stringResource(R.string.body_weight)) {
         val s = state ?: return@ProgressPage item { BrandLoadingBox() }
         item { BodyWeightCard(s.bodyWeights, onAdd = vm::addBodyWeight) }
@@ -57,10 +65,28 @@ fun BodyWeightScreen(go: Navigator) {
             ListGroup {
                 val entries = s.bodyWeights.reversed()
                 entries.forEachIndexed { i, entry ->
-                    ListRow(title = weightText(entry.weightKg), subtitle = Formatting.date(entry.atMs), divider = i < entries.lastIndex)
+                    ListRow(
+                        title = weightText(entry.weightKg),
+                        subtitle = Formatting.date(entry.atMs),
+                        divider = i < entries.lastIndex,
+                        trailing = {
+                            IconButton(onClick = { deleting = entry }) {
+                                Icon(Icons.Outlined.Delete, contentDescription = stringResource(R.string.action_delete), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        },
+                    )
                 }
             }
         }
+    }
+    deleting?.let { entry ->
+        ConfirmDialog(
+            title = stringResource(R.string.body_weight_delete_title),
+            body = stringResource(R.string.body_weight_delete_body, weightText(entry.weightKg), Formatting.date(entry.atMs)),
+            confirm = stringResource(R.string.action_delete),
+            onDismiss = { deleting = null },
+            onConfirm = { vm.deleteBodyWeight(entry.id); deleting = null },
+        )
     }
 }
 

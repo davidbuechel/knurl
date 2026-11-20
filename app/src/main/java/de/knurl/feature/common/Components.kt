@@ -87,7 +87,7 @@ fun SectionLabel(text: String, modifier: Modifier = Modifier) {
 /** Large screen title for the tabs, which have no top bar. */
 @Composable
 fun ScreenTitle(title: String, modifier: Modifier = Modifier, eyebrow: String? = null) {
-    Column(modifier.padding(top = 12.dp, bottom = 4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column(modifier.padding(top = 8.dp, start = 4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         if (eyebrow != null) SectionLabel(eyebrow)
         Text(title, style = MaterialTheme.typography.headlineLarge)
     }
@@ -102,16 +102,16 @@ fun RowScope.StatTile(value: String, label: String) {
 }
 
 /**
- * Minus / value / plus, big enough for sweaty hands. Tapping the value opens a dialog to type it,
- * for jumps the buttons would take too long for.
+ * Minus / value / plus, big enough for sweaty hands. With [onType], tapping the value opens a
+ * dialog to type it, for jumps the buttons would take too long for.
  */
 @Composable
 fun Stepper(
     value: String,
     onMinus: () -> Unit,
     onPlus: () -> Unit,
-    onType: () -> Unit,
     modifier: Modifier = Modifier,
+    onType: (() -> Unit)? = null,
     highlighted: Boolean = false,
 ) {
     Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -126,7 +126,7 @@ fun Stepper(
                     if (highlighted) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer,
                     RoundedCornerShape(10.dp),
                 )
-                .clickable(onClick = onType),
+                .let { if (onType != null) it.clickable(onClick = onType) else it },
             contentAlignment = Alignment.Center,
         ) {
             Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, maxLines = 1)

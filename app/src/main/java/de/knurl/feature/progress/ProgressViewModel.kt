@@ -37,6 +37,8 @@ class ProgressViewModel(private val training: TrainingRepository) : ViewModel() 
 
     fun addBodyWeight(kg: Double) = training.addBodyWeight(kg)
 
+    fun deleteBodyWeight(id: String) = training.deleteBodyWeight(id)
+
     val state: StateFlow<ProgressState?> = training.data.filterNotNull()
         .map { data ->
             val zone = TimeZone.currentSystemDefault()

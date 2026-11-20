@@ -23,7 +23,7 @@ class DataExportTest {
     @Test fun csvHasOneRowPerSetAndQuotesCommas() {
         val lines = DataExport.csv(data, ExerciseCatalog::find).trim().lines()
         assertEquals(3, lines.size)
-        assertTrue(lines[1].contains("\"Push, heavy\",Bench press,1,warmup,60.0,10,"))
+        assertTrue(lines[1].contains("\"Push, heavy\",Bench Press,1,warmup,60.0,10,"))
         assertTrue(lines[2].endsWith(",2,working,100.0,5,2"))
     }
 

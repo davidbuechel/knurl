@@ -19,7 +19,19 @@ import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material.icons.rounded.LinkOff
 import androidx.compose.material3.TextButton
-import androidx.compose.foundation.border
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import de.knurl.feature.common.ConfirmDialog
+import de.knurl.feature.exercises.ExerciseThumbnail
 import de.knurl.feature.common.Pill
 import de.knurl.ui.theme.Knurl
 import androidx.compose.material3.Button
@@ -68,8 +80,12 @@ class RoutineEditorViewModel(private val training: TrainingRepository, routineId
 
     private val defaultRest = training.data.value?.settings?.defaultRestSec ?: 120
 
-    private val _routine = MutableStateFlow(routineId?.let(training::routine) ?: training.newRoutine(defaultName))
+    private val original = routineId?.let(training::routine) ?: training.newRoutine(defaultName)
+    private val _routine = MutableStateFlow(original)
     val routine: StateFlow<Routine> = _routine.asStateFlow()
+
+    /** True once something differs from what is saved (a new routine counts once it has exercises). */
+    fun hasChanges(): Boolean = _routine.value != original && (_routine.value.items.isNotEmpty() || _routine.value.name != original.name)
 
     fun exercise(id: String) = training.exercise(id)
 
@@ -91,6 +107,9 @@ fun RoutineEditorScreen(go: Navigator, routineId: String?, savedState: SavedStat
     val vm = knurlViewModel(key = "routine-$routineId") { RoutineEditorViewModel(it.training, routineId, defaultName) }
     val routine by vm.routine.collectAsStateWithLifecycle()
     val german = isGerman()
+    var confirmDiscard by rememberSaveable { mutableStateOf(false) }
+    val leave = { if (vm.hasChanges()) confirmDiscard = true else go.back() }
+    BackHandler(onBack = leave)
 
     LaunchedEffect(savedState) {
         savedState.getStateFlow<String?>(Navigator.RESULT_EXERCISE, null).collect { id ->
@@ -106,7 +125,7 @@ fun RoutineEditorScreen(go: Navigator, routineId: String?, savedState: SavedStat
             TopAppBar(
                 title = { Text(stringResource(if (routineId == null) R.string.routine_new else R.string.routine_edit)) },
                 navigationIcon = {
-                    IconButton(onClick = go::back) {
+                    IconButton(onClick = leave) {
                         Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
@@ -151,8 +170,9 @@ fun RoutineEditorScreen(go: Navigator, routineId: String?, savedState: SavedStat
                     val letter = 'A' + (routine.items.take(index + 1).mapNotNull { it.group }.distinct().size - 1)
                     Pill(stringResource(R.string.superset_label, letter.toString()), color = Knurl.colors.superset, modifier = Modifier.padding(bottom = 6.dp))
                 }
-                KnurlCard(modifier = if (item.group != null) Modifier.border(2.dp, Knurl.colors.superset.copy(alpha = 0.5f), MaterialTheme.shapes.large) else Modifier) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                val card: @Composable (Modifier) -> Unit = { cardModifier -> KnurlCard(cardModifier) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        exercise?.let { ExerciseThumbnail(it, Modifier.size(44.dp)) }
                         Column(Modifier.weight(1f)) {
                             Text(exercise?.name(german) ?: item.exerciseId, style = MaterialTheme.typography.titleMedium)
                             exercise?.let { Text(it.subtitle(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
@@ -168,14 +188,20 @@ fun RoutineEditorScreen(go: Navigator, routineId: String?, savedState: SavedStat
                         }
                     }
                     EditorRow(stringResource(R.string.routine_sets)) {
-                        Stepper("${item.sets}", { vm.update(index) { it.copy(sets = (it.sets - 1).coerceAtLeast(1)) } }, { vm.update(index) { it.copy(sets = (it.sets + 1).coerceAtMost(10)) } }, {})
+                        Stepper("${item.sets}", { vm.update(index) { it.copy(sets = (it.sets - 1).coerceAtLeast(1)) } }, { vm.update(index) { it.copy(sets = (it.sets + 1).coerceAtMost(10)) } })
                     }
                     EditorRow(stringResource(R.string.routine_reps)) {
                         Stepper(
                             "${item.repRange.min}–${item.repRange.max}",
                             onMinus = { vm.update(index) { it.copy(repRange = it.repRange.shift(-1)) } },
                             onPlus = { vm.update(index) { it.copy(repRange = it.repRange.shift(1)) } },
-                            onType = {},
+                        )
+                    }
+                    EditorRow(stringResource(R.string.routine_rest)) {
+                        Stepper(
+                            Formatting.duration(item.restSec.toLong()),
+                            onMinus = { vm.update(index) { it.copy(restSec = (it.restSec - 15).coerceAtLeast(15)) } },
+                            onPlus = { vm.update(index) { it.copy(restSec = (it.restSec + 15).coerceAtMost(600)) } },
                         )
                     }
                     if (index < routine.items.lastIndex || item.group != null) {
@@ -188,19 +214,28 @@ fun RoutineEditorScreen(go: Navigator, routineId: String?, savedState: SavedStat
                             )
                         }
                     }
-                    EditorRow(stringResource(R.string.routine_rest)) {
-                        Stepper(
-                            Formatting.duration(item.restSec.toLong()),
-                            onMinus = { vm.update(index) { it.copy(restSec = (it.restSec - 15).coerceAtLeast(15)) } },
-                            onPlus = { vm.update(index) { it.copy(restSec = (it.restSec + 15).coerceAtMost(600)) } },
-                            onType = {},
-                        )
+                } }
+                // Supersets: the same bar as in the workout, instead of a frame around the card.
+                if (item.group != null) {
+                    Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Box(Modifier.width(4.dp).fillMaxHeight().background(Knurl.colors.superset, RoundedCornerShape(2.dp)))
+                        card(Modifier.weight(1f))
                     }
-                }
+                } else card(Modifier)
             }
         }
     }
+    if (confirmDiscard) DiscardDialog(onDismiss = { confirmDiscard = false }, onDiscard = { confirmDiscard = false; go.back() })
 }
+
+@Composable
+private fun DiscardDialog(onDismiss: () -> Unit, onDiscard: () -> Unit) = ConfirmDialog(
+    title = stringResource(R.string.routine_discard_title),
+    body = stringResource(R.string.routine_discard_body),
+    confirm = stringResource(R.string.action_discard_changes),
+    onDismiss = onDismiss,
+    onConfirm = onDiscard,
+)
 
 @Composable
 private fun EditorRow(label: String, control: @Composable () -> Unit) {

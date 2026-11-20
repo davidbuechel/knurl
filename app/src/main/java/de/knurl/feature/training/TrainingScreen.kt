@@ -109,7 +109,7 @@ fun TrainingScreen(go: Navigator) {
     }
 
     Box(Modifier.fillMaxSize()) {
-        LazyColumn(contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        LazyColumn(contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             item {
                 Row(Modifier.padding(top = 8.dp, start = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(stringResource(R.string.tab_training), style = MaterialTheme.typography.headlineLarge, modifier = Modifier.weight(1f))

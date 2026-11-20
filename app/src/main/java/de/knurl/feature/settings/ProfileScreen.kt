@@ -18,10 +18,10 @@ import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Insights
 import androidx.compose.material.icons.rounded.ManageAccounts
 import androidx.compose.material.icons.rounded.MonitorWeight
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -103,14 +103,17 @@ fun ProfileScreen(go: Navigator) {
     val vm = knurlViewModel { ProfileViewModel(it.training, it.auth) }
     val state by vm.state.collectAsStateWithLifecycle()
     val s = state ?: return BrandLoadingBox()
-    val name = s.email?.takeIf { it.isNotBlank() }?.substringBefore('@')?.replaceFirstChar { it.uppercase() } ?: stringResource(R.string.profile_you)
+    val shortName = s.email?.takeIf { it.isNotBlank() }?.substringBefore('@')?.replaceFirstChar { it.uppercase() }
+    val name = shortName ?: stringResource(R.string.profile_you)
 
     LazyColumn(contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         item {
             Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 val brush = Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)))
                 Box(Modifier.size(64.dp).clip(CircleShape).background(brush), contentAlignment = Alignment.Center) {
-                    Text(name.take(1).uppercase(), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onPrimary)
+                    // An initial only for a real name; otherwise a neutral person.
+                    if (shortName != null) Text(shortName.take(1).uppercase(), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onPrimary)
+                    else Icon(Icons.Rounded.Person, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(34.dp))
                 }
                 Column(Modifier.weight(1f)) {
                     Text(name, style = MaterialTheme.typography.headlineSmall)
@@ -123,7 +126,6 @@ fun ProfileScreen(go: Navigator) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                IconButton(onClick = { go.to(SettingsRoute) }) { Icon(Icons.Rounded.Settings, contentDescription = stringResource(R.string.settings_title)) }
             }
         }
 
@@ -171,7 +173,7 @@ fun ProfileScreen(go: Navigator) {
                 )
                 ListRow(
                     stringResource(R.string.calendar),
-                    leading = { IconTile(Icons.Rounded.CalendarMonth, MaterialTheme.colorScheme.tertiary) },
+                    leading = { IconTile(Icons.Rounded.CalendarMonth, MaterialTheme.colorScheme.secondary) },
                     trailing = {
                         Text(pluralStringResource(R.plurals.calendar_days, s.trainingDaysThisMonth, s.trainingDaysThisMonth), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.outline)

@@ -66,6 +66,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -369,7 +370,7 @@ fun ActiveWorkoutScreen(go: Navigator, savedState: SavedStateHandle, editWorkout
         val undone = s?.let { it.totalSets - it.doneSets } ?: 0
         ConfirmDialog(
             title = stringResource(if (editing) R.string.edit_save_title else R.string.finish_title),
-            body = if (undone > 0) stringResource(R.string.finish_body_undone, undone) else stringResource(R.string.finish_body),
+            body = if (undone > 0) pluralStringResource(R.plurals.finish_body_undone, undone, undone) else stringResource(R.string.finish_body),
             confirm = stringResource(if (editing) R.string.action_save else R.string.action_finish),
             onDismiss = { confirmFinish = false },
             onConfirm = {

@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.ArrowDropDown
@@ -46,9 +47,10 @@ import de.knurl.domain.model.Equipment
 import de.knurl.domain.model.ExerciseLevel
 import de.knurl.domain.model.Muscle
 import de.knurl.domain.search.ExerciseFilter
-import de.knurl.feature.common.KnurlCard
+import de.knurl.feature.common.ListRow
+import de.knurl.feature.common.SectionHeader
+import de.knurl.feature.common.groupedItem
 import de.knurl.feature.common.ScreenTitle
-import de.knurl.feature.common.SectionLabel
 import de.knurl.feature.common.displayName
 import de.knurl.feature.common.isGerman
 import de.knurl.feature.common.knurlViewModel
@@ -76,8 +78,8 @@ fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean) {
     val recentTitle = stringResource(R.string.exercises_recent)
 
     val content: @Composable (Modifier) -> Unit = { modifier ->
-        LazyColumn(modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            if (!pickForWorkout) item { ScreenTitle(stringResource(R.string.tab_exercises)) }
+        LazyColumn(modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
+            if (!pickForWorkout) item { ScreenTitle(stringResource(R.string.tab_exercises), Modifier.padding(bottom = 10.dp)) }
             item {
                 OutlinedTextField(
                     value = state.query,
@@ -95,7 +97,7 @@ fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean) {
                 )
             }
             item {
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                LazyRow(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     item {
                         ChoiceChip(stringResource(R.string.filter_equipment), state.filter.equipment?.let { stringResource(it.label()) }, Equipment.entries, { stringResource(it.label()) }, vm::setEquipment)
                     }
@@ -110,10 +112,10 @@ fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean) {
             if (state.browsing) {
                 section("fav", favoritesTitle, state.favorites, open)
                 section("recent", recentTitle, state.recent, open)
-                item { SectionLabel(stringResource(R.string.exercises_all, state.rows.size), Modifier.padding(top = 8.dp)) }
+                item { SectionHeader(stringResource(R.string.exercises_all, state.rows.size), Modifier.padding(top = 14.dp, bottom = 8.dp)) }
             } else {
                 item {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.padding(top = 10.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text(stringResource(R.string.exercises_found, state.rows.size), style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
                         if (state.filter != ExerciseFilter()) TextButton(onClick = vm::clearFilters) { Text(stringResource(R.string.filter_clear)) }
                     }
@@ -122,7 +124,9 @@ fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean) {
             if (state.rows.isEmpty()) {
                 item { BrandEmptyState(stringResource(R.string.empty_search_title), stringResource(R.string.empty_search_body), icon = Icons.Rounded.Search) }
             }
-            items(state.rows, key = { "all-" + it.exercise.id }) { row -> ExerciseRowCard(row, onClick = { open(row.exercise.id) }) }
+            itemsIndexed(state.rows, key = { _, row -> "all-" + row.exercise.id }) { i, row ->
+                ExerciseListRow(row, i, state.rows.size, onClick = { open(row.exercise.id) })
+            }
         }
     }
 
@@ -146,25 +150,27 @@ fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean) {
 
 private fun LazyListScope.section(key: String, title: String, rows: List<ExerciseRow>, open: (String) -> Unit) {
     if (rows.isEmpty()) return
-    item { SectionLabel(title, Modifier.padding(top = 8.dp)) }
-    items(rows, key = { "$key-" + it.exercise.id }) { row -> ExerciseRowCard(row, onClick = { open(row.exercise.id) }) }
+    item { SectionHeader(title, Modifier.padding(top = 14.dp, bottom = 8.dp)) }
+    itemsIndexed(rows, key = { _, row -> "$key-" + row.exercise.id }) { i, row -> ExerciseListRow(row, i, rows.size, onClick = { open(row.exercise.id) }) }
 }
 
+/** One exercise as a row; consecutive rows look like one [de.knurl.feature.common.ListGroup]. */
 @Composable
-private fun ExerciseRowCard(row: ExerciseRow, onClick: () -> Unit) {
-    KnurlCard(onClick = onClick) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            ExerciseThumbnail(row.exercise)
-            Column(Modifier.weight(1f)) {
-                Text(row.exercise.displayName(), style = MaterialTheme.typography.titleMedium)
-                Text(row.exercise.subtitle(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+private fun ExerciseListRow(row: ExerciseRow, index: Int, count: Int, onClick: () -> Unit) {
+    ListRow(
+        row.exercise.displayName(),
+        modifier = Modifier.groupedItem(index, count),
+        subtitle = row.exercise.subtitle(),
+        leading = { ExerciseThumbnail(row.exercise, Modifier.size(44.dp)) },
+        trailing = {
             Column(horizontalAlignment = Alignment.End) {
-                if (row.favorite) Icon(Icons.Rounded.Star, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
-                row.bestOneRepMaxKg?.let { Text(stringResource(R.string.unit_e1rm, weightText(it)), style = MaterialTheme.typography.labelMedium) }
+                if (row.favorite) Icon(Icons.Rounded.Star, contentDescription = stringResource(R.string.exercises_favorites), tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+                row.bestOneRepMaxKg?.let { Text(stringResource(R.string.unit_e1rm, weightText(it)), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             }
-        }
-    }
+        },
+        divider = index < count - 1,
+        onClick = onClick,
+    )
 }
 
 /** A chip that opens a list of choices, with "all" to clear it. */

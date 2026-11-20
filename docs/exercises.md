@@ -26,8 +26,9 @@ The script keeps existing photos, so a re-run only converts new ones.
 
 ## IDs and names
 
-- Our 58 core IDs never change (workouts reference them). `OUR_IDS` in the script maps each to its
+- Our 66 core IDs never change (workouts reference them). `OUR_IDS` in the script maps each to its
   database entry for photos and instructions; `machine_hip_thrust` has no match and no photo.
+- English names are Title Case everywhere (core list and database alike).
 - Imported exercises get `slug(databaseId)` as id, e.g. `barbell_glute_bridge`. Never rename one.
 - German names: hand-written for the core list; for imports built from word rules (`GERMAN`), but only
   when every word is known, there is exactly one movement and at most two add-ons. Otherwise the English

@@ -6,6 +6,7 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import de.knurl.R
@@ -37,6 +38,9 @@ object GoogleSignIn {
             }
         } catch (_: GetCredentialCancellationException) {
             Result.Cancelled
+        } catch (e: NoCredentialException) {
+            Log.w("GoogleSignIn", "No Google account on this device", e)
+            Result.Failed
         } catch (e: Exception) {
             Log.w("GoogleSignIn", "No Google credential", e)
             Result.Failed

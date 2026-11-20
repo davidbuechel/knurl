@@ -111,7 +111,7 @@ class ReminderReceiver : BroadcastReceiver() {
                 Notifications.show(
                     context, Channel.STREAK, Notifications.ID_STREAK,
                     context.getString(R.string.reminder_streak_title),
-                    context.getString(R.string.reminder_streak_body, streakSoFar),
+                    context.resources.getQuantityString(R.plurals.reminder_streak_body, streakSoFar, streakSoFar),
                 )
             }
             Reminder.WEEKLY -> {
@@ -122,8 +122,10 @@ class ReminderReceiver : BroadcastReceiver() {
                     context, Channel.WEEKLY, Notifications.ID_WEEKLY,
                     context.getString(R.string.reminder_weekly_title),
                     context.getString(
-                        R.string.reminder_weekly_body, week.size,
-                        Formatting.tonnage(week.sumOf(Volume::of), data.settings.unit), records,
+                        R.string.reminder_weekly_body,
+                        context.resources.getQuantityString(R.plurals.workouts_count, week.size, week.size),
+                        Formatting.tonnage(week.sumOf(Volume::of), data.settings.unit),
+                        context.resources.getQuantityString(R.plurals.records_count, records, records),
                     ),
                 )
             }
