@@ -20,7 +20,33 @@ import sys
 from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-INCLUDE_CATEGORIES = {"strength", "powerlifting", "olympic weightlifting", "strongman", "plyometrics"}
+INCLUDE_CATEGORIES = {"strength", "plyometrics", "cardio"}
+
+# Normal gym, fitness, bodybuilding, HIIT. Powerlifting specials, olympic lifts, strongman and
+# expert-level exotics are left out on purpose: the app is for regular gym-goers.
+EXCLUDE_NAMES = re.compile(
+    r"chain|board press|band |bands|with band|partner|rickshaw|yoke|atlas|keg|tire|log lift|axle|circus|sling|deficit|pin |"
+    r"rack pull|speed|isometric|anti-gravity|zercher|jefferson|turkish|windmill|bottoms|kneeling squat|one arm against|cuban|"
+    r"bradford|gironda|svend|jm press|tate|pirate|see-saw|suitcase|sots|clean|snatch|jerk|hang |power |muscle up|dead bug|"
+    r"scissor|flutter|plate twist|thruster with",
+    re.I,
+)
+# Equipment "other"/none is only kept for typical gym, cardio, HIIT and Hyrox kit.
+OTHER_OK = re.compile(r"sled|row|rope|bike|treadmill|elliptical|stair|box|sandbag|farmer|wall ball|ski|jump rope|trap bar|step|walking|carry|battle|push-up|dip|pull-up|chin", re.I)
+PLYO_OK = re.compile(r"box jump|burpee|jump squat|broad jump|split jump|lunge jump|mountain climber|skater|high knee|tuck jump|frog|star jump|jumping jack|bench jump|knee tuck|lateral box|depth jump|freehand jump", re.I)
+
+
+def wanted(ex):
+    name, equipment, category = ex["name"], ex.get("equipment"), ex.get("category")
+    if category not in INCLUDE_CATEGORIES or ex.get("level") == "expert" or EXCLUDE_NAMES.search(name):
+        return False
+    if equipment == "foam roll":
+        return False
+    if category == "plyometrics" and not PLYO_OK.search(name):
+        return False
+    if equipment in ("other", None) and category != "cardio" and not OTHER_OK.search(name):
+        return False
+    return True
 IMAGE_WIDTH = 480
 IMAGE_QUALITY = 70
 
@@ -116,7 +142,11 @@ GERMAN.update({
 
 
 def german_name(english):
-    """English word order is kept: what came before the movement stays before it, "with X" becomes "mit X"."""
+    """
+    A German name only when every word is known and there is exactly one movement; otherwise the
+    English name (gym people know those, and a half-translated name reads worse than either).
+    English word order is kept, "with X" becomes "mit X".
+    """
     text = re.sub(r"[()]", " ", english.lower())
     text = re.sub(r"\s+", " ", text).strip()
     before, core, after, equip, mods = [], [], [], [], []
@@ -135,7 +165,7 @@ def german_name(english):
                 continue
             if token in STOP:
                 continue
-            word, role = (token.capitalize() if token.islower() else token), "rest"
+            return english  # an unknown word: keep the English name
         if role == "core":
             core.append(word)
         elif role == "equip":
@@ -146,8 +176,10 @@ def german_name(english):
             target = after if core else before
             target.append(("mit " if pending_with else "") + word)
             pending_with = False
-    if not core:
-        return english  # nothing recognised: keep the original name
+    if len(core) != 1:
+        return english  # no movement, or two of them ("Snatch Deadlift"): English reads better
+    if len(set(mods)) > 2:
+        return english  # three or more add-ons make a German name longer and clumsier than the English one
     name = " ".join(before + core + after)
     if equip:
         name = "-".join(dict.fromkeys(equip)) + "-" + name
@@ -234,7 +266,7 @@ def main(src_root):
         catalog.append(entry)
 
     for db_id, ex in sorted(db.items()):
-        if db_id in matched or ex.get("category") not in INCLUDE_CATEGORIES or not ex.get("primaryMuscles"):
+        if db_id in matched or not wanted(ex) or not ex.get("primaryMuscles"):
             continue
         primary = MUSCLES.get(ex["primaryMuscles"][0])
         if primary is None:
@@ -254,11 +286,27 @@ def main(src_root):
             "images": convert_images(src_root, ex, our_id, out_images),
         })
 
+    # Hand-written German instructions (scripts/instructions-de.json), keyed by our id.
+    instructions_de = json.load(open(os.path.join(ROOT, "scripts", "instructions-de.json"), encoding="utf-8"))
+    for entry in catalog:
+        if entry["id"] in instructions_de:
+            entry["instructionsDe"] = instructions_de[entry["id"]]
+
+    # Photos of exercises no longer in the catalog are removed from the hosting folder.
+    keep = {e["id"] for e in catalog}
+    if os.path.isdir(out_images):
+        import shutil
+        for folder in os.listdir(out_images):
+            if folder not in keep:
+                shutil.rmtree(os.path.join(out_images, folder))
+
     out = os.path.join(ROOT, "app", "src", "main", "assets", "exercises.json")
     os.makedirs(os.path.dirname(out), exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:
         json.dump({"version": 1, "source": "free-exercise-db (Unlicense)", "exercises": catalog}, f, ensure_ascii=False, separators=(",", ":"))
-    print("exercises:", len(catalog), "with images:", sum(1 for e in catalog if e.get("images")))
+    print("exercises:", len(catalog), "with images:", sum(1 for e in catalog if e.get("images")),
+          "German names:", sum(1 for e in catalog if e["nameDe"] != e["nameEn"]),
+          "German instructions:", sum(1 for e in catalog if e.get("instructionsDe")))
 
 
 if __name__ == "__main__":

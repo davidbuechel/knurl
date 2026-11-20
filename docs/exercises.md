@@ -1,9 +1,10 @@
 # Exercise catalog
 
-About 740 exercises: our own 58 core exercises (`shared/.../catalog/ExerciseCatalog.kt`, `core`) plus
-strength, powerlifting, olympic, strongman and plyometric exercises from
-[free-exercise-db](https://github.com/yuhonas/free-exercise-db) (Unlicense, public domain).
-Stretching and cardio are left out.
+About 500 exercises for regular gym-goers: our own 66 core exercises (`shared/.../catalog/ExerciseCatalog.kt`,
+`core`, including HIIT/Hyrox stations such as burpees, wall balls, sled push/pull, farmer's carry, SkiErg) plus
+strength, cardio and classic plyometric exercises from
+[free-exercise-db](https://github.com/yuhonas/free-exercise-db) (Unlicense, public domain). Left out on purpose:
+powerlifting specials, olympic lifts, strongman, expert-level exotics, stretching (`wanted()` in the script).
 
 | What | Where |
 |---|---|
@@ -28,10 +29,11 @@ The script keeps existing photos, so a re-run only converts new ones.
 - Our 58 core IDs never change (workouts reference them). `OUR_IDS` in the script maps each to its
   database entry for photos and instructions; `machine_hip_thrust` has no match and no photo.
 - Imported exercises get `slug(databaseId)` as id, e.g. `barbell_glute_bridge`. Never rename one.
-- German names: hand-written for the core 58; built from word rules (`GERMAN`) for the rest. They
-  read reasonably but not always naturally ("Reißen Kreuzheben") and need a review pass before release.
-- Instructions are English for now (`instructionsEn`); `instructionsDe` is shown when present, and the
-  app says when it falls back to English.
+- German names: hand-written for the core list; for imports built from word rules (`GERMAN`), but only
+  when every word is known, there is exactly one movement and at most two add-ons. Otherwise the English
+  name is used in German too (gym people know them).
+- Instructions: German for all core exercises (`scripts/instructions-de.json`, merged by the script),
+  English for the rest; the app says when it falls back to English. HIIT/Hyrox core exercises have no photo yet.
 
 ## Search
 

@@ -8,6 +8,7 @@ import de.knurl.domain.model.Equipment.DUMBBELL
 import de.knurl.domain.model.Equipment.EZ_BAR
 import de.knurl.domain.model.Equipment.KETTLEBELL
 import de.knurl.domain.model.Equipment.MACHINE
+import de.knurl.domain.model.Equipment.OTHER
 import de.knurl.domain.model.Equipment.SMITH
 import de.knurl.domain.model.Exercise
 import de.knurl.domain.model.Muscle
@@ -132,6 +133,16 @@ object ExerciseCatalog {
         ex("cable_crunch", "Crunch am Kabel", "Cable crunch", CORE, CABLE, CORE_PATTERN),
         ex("hanging_leg_raise", "Beinheben hängend", "Hanging leg raise", CORE, BODYWEIGHT, CORE_PATTERN),
         ex("ab_wheel", "Bauchroller", "Ab wheel rollout", CORE, BODYWEIGHT, CORE_PATTERN),
+
+        // HIIT and Hyrox stations (no photos yet)
+        ex("burpee", "Burpees", "Burpees", CORE, BODYWEIGHT, CORE_PATTERN, QUADS, CHEST),
+        ex("wall_ball", "Wall Balls", "Wall balls", QUADS, OTHER, SQUAT, SHOULDERS, GLUTES),
+        ex("sled_push", "Sled Push", "Sled push", QUADS, OTHER, LUNGE, GLUTES, CALVES),
+        ex("sled_pull", "Sled Pull", "Sled pull", BACK, OTHER, HORIZONTAL_PULL, BICEPS, HAMSTRINGS),
+        ex("farmers_carry", "Farmer's Carry", "Farmer's carry", FOREARMS, DUMBBELL, CORE_PATTERN, BACK, CORE),
+        ex("sandbag_lunge", "Ausfallschritte mit Sandsack", "Sandbag lunges", QUADS, OTHER, LUNGE, GLUTES, CORE),
+        ex("ski_erg", "SkiErg", "SkiErg", BACK, MACHINE, VERTICAL_PULL, TRICEPS, CORE),
+        ex("mountain_climber", "Mountain Climbers", "Mountain climbers", CORE, BODYWEIGHT, CORE_PATTERN, SHOULDERS),
     )
 
     private val coreById: Map<String, Exercise> = core.associateBy { it.id }
