@@ -2,6 +2,7 @@ package de.knurl.feature.exercises
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import de.knurl.domain.catalog.RetiredExercises
 import de.knurl.data.repository.TrainingRepository
 import de.knurl.domain.calc.History
 import de.knurl.domain.model.Equipment
@@ -52,7 +53,10 @@ class ExercisesViewModel(
         val favorites = data.settings.favoriteExercises.toSet()
         fun row(e: Exercise) = ExerciseRow(e, best[e.id], e.id in favorites)
 
-        val all = training.allExercises()
+        // Exercises that left the catalog stay available to whoever still uses them.
+        val used = RetiredExercises.usedIds(data.workouts, data.routines, data.active)
+        val all = RetiredExercises.offered(training.allExercises(), used)
+        val offered = all.filterNot { it.archived }.associateBy { it.id }
         val found = ExerciseSearch.search(all, q, f, german)
         // While browsing, trained exercises come first, then the alphabet.
         val ordered = if (q.isBlank()) found.sortedBy { it.id !in trained } else found
@@ -60,8 +64,8 @@ class ExercisesViewModel(
         ExercisesState(
             query = q,
             filter = f,
-            favorites = data.settings.favoriteExercises.mapNotNull(training::exercise).filterNot { it.archived }.map(::row),
-            recent = recentIds.mapNotNull(training::exercise).filterNot { it.archived }.map(::row),
+            favorites = data.settings.favoriteExercises.mapNotNull(offered::get).map(::row),
+            recent = recentIds.mapNotNull(offered::get).map(::row),
             custom = data.customExercises.filterNot { it.archived }.sortedBy { it.name(german).lowercase() }.map(::row),
             rows = ordered.map(::row),
             selected = chosen,

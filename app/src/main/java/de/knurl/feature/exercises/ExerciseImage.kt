@@ -79,6 +79,8 @@ fun ExerciseThumbnail(exercise: Exercise, modifier: Modifier = Modifier) {
         contentAlignment = Alignment.Center,
     ) {
         val url = exercise.imageUrl(0)
+        // A photo that can't load (offline, not uploaded yet) shows the mark, never an empty tile.
+        var failed by remember(url) { mutableStateOf(false) }
         when {
             own != null -> Image(own, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
             exercise.isCustom -> Text(
@@ -86,7 +88,7 @@ fun ExerciseThumbnail(exercise: Exercise, modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
             )
-            url != null -> AsyncImage(url, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+            url != null && !failed -> AsyncImage(url, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize(), onError = { failed = true })
             else -> KnurlMark(Modifier.fillMaxSize(0.5f), color = MaterialTheme.colorScheme.outline)
         }
     }
@@ -117,7 +119,12 @@ fun ExerciseGallery(exercise: Exercise, modifier: Modifier = Modifier) {
     }
     Box(modifier.fillMaxWidth().aspectRatio(4f / 3f).clip(RoundedCornerShape(24.dp)).background(MaterialTheme.colorScheme.surfaceContainerHigh)) {
         HorizontalPager(pager, Modifier.fillMaxSize()) { page ->
-            AsyncImage(exercise.imageUrl(page), contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+            var failed by remember(page) { mutableStateOf(false) }
+            if (failed) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { KnurlMark(Modifier.size(56.dp), color = MaterialTheme.colorScheme.outline) }
+            } else {
+                AsyncImage(exercise.imageUrl(page), contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize(), onError = { failed = true })
+            }
         }
         if (exercise.images > 1) {
             Row(Modifier.align(Alignment.BottomCenter).padding(bottom = 14.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {

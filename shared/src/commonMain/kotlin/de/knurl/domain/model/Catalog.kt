@@ -32,7 +32,7 @@ data class Exercise(
     val images: Int = 0,
     /** Own exercises: the person's own cues, shown instead of instructions. */
     val note: String = "",
-    /** Own exercises that were removed but still appear in the history keep their name this way. */
+    /** Removed (own exercises, or catalog ones that left the list) but still named in the history. */
     val archived: Boolean = false,
 ) {
     fun name(german: Boolean): String = if (german) nameDe else nameEn

@@ -37,9 +37,10 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 /**
- * The exercise catalog. [core] is our own list (also the source for scripts/import_exercises.py);
- * the full catalog of about 740 exercises with photos and instructions is loaded from the app's
- * assets with [load]. IDs are stable forever: workouts reference them. Never rename or reuse one.
+ * The exercise catalog. [core] is our own base list; the full catalog (about 160 hand-picked gym,
+ * CrossFit and Hyrox exercises from scripts/exercise_list.py, plus hidden retired ones, see
+ * [RetiredExercises]) is loaded from the app's assets with [load]. IDs are stable forever: workouts
+ * reference them. Never rename or reuse one.
  */
 object ExerciseCatalog {
 

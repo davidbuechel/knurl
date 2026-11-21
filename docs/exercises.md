@@ -1,14 +1,17 @@
 # Exercise catalog
 
-About 500 exercises for regular gym-goers: our own 66 core exercises (`shared/.../catalog/ExerciseCatalog.kt`,
-`core`, including HIIT/Hyrox stations such as burpees, wall balls, sled push/pull, farmer's carry, SkiErg) plus
-strength, cardio and classic plyometric exercises from
-[free-exercise-db](https://github.com/yuhonas/free-exercise-db) (Unlicense, public domain). Left out on purpose:
-powerlifting specials, olympic lifts, strongman, expert-level exotics, stretching (`wanted()` in the script).
+About 160 exercises a normal gym, a CrossFit box or a Hyrox class actually uses, picked by hand in
+`scripts/exercise_list.py` (the only place that decides what the app offers). German names are
+written by hand. Photos and English instructions come from
+[free-exercise-db](https://github.com/yuhonas/free-exercise-db) (Unlicense, public domain) where it
+has the exercise; the rest (Toes to Bar, Thruster, Hyrox stations …) have our own instructions in
+both languages and show an icon tile instead of a photo.
 
 | What | Where |
 |---|---|
-| Catalog the app loads | `app/src/main/assets/exercises.json` (committed) |
+| The list | `scripts/exercise_list.py` (`core`, `db`, `own` rows; `OWN_INSTRUCTIONS`) |
+| Catalog the app loads | `app/src/main/assets/exercises.json` (committed, generated) |
+| German instructions | `scripts/instructions-de.json` (core exercises), `OWN_INSTRUCTIONS` (own rows) |
 | Photos | `public/exercises/{id}/0.webp` (start) and `1.webp` (end), 480 px, served by Firebase Hosting at `https://knurl-gym.web.app/exercises/...`, not committed |
 | Import | `scripts/import_exercises.py` |
 
@@ -22,19 +25,18 @@ python scripts/import_exercises.py ../free-exercise-db
 firebase deploy --only hosting --account davidbuechel92@gmail.com --project knurl-gym
 ```
 
-The script keeps existing photos, so a re-run only converts new ones.
+The script keeps existing photos, so a re-run only converts new ones. It prints which offered
+exercises have no photo.
 
-## IDs and names
+## IDs, names, retired exercises
 
-- Our 66 core IDs never change (workouts reference them). `OUR_IDS` in the script maps each to its
-  database entry for photos and instructions; `machine_hip_thrust` has no match and no photo.
-- English names are Title Case everywhere (core list and database alike).
-- Imported exercises get `slug(databaseId)` as id, e.g. `barbell_glute_bridge`. Never rename one.
-- German names: hand-written for the core list; for imports built from word rules (`GERMAN`), but only
-  when every word is known, there is exactly one movement and at most two add-ons. Otherwise the English
-  name is used in German too (gym people know them).
-- Instructions: German for all core exercises (`scripts/instructions-de.json`, merged by the script),
-  English for the rest; the app says when it falls back to English. HIIT/Hyrox core exercises have no photo yet.
+- IDs never change: workouts and routines reference them. Core IDs come from the Kotlin `core`
+  list; database rows get `slug(databaseId)` (so ids from earlier imports stay); own rows name theirs.
+- Names may be improved any time. English names are Title Case.
+- An exercise that leaves the list stays in `exercises.json` as `archived` (names, muscles, photo
+  count only), so old workouts keep their names. `RetiredExercises` offers it again to whoever
+  still uses it (history, a routine, the running workout); for everyone else it is gone from the
+  library and search.
 
 ## Search
 
