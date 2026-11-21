@@ -89,7 +89,7 @@ def main(src_root):
     still show their names, the library and search no longer offer them.
     """
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from exercise_list import EXERCISES, OWN_INSTRUCTIONS
+    from exercise_list import EXERCISES, OWN_INSTRUCTIONS, INSTRUCTIONS_EN
 
     db = {ex["id"]: ex for ex in json.load(open(os.path.join(src_root, "dist", "exercises.json"), encoding="utf-8"))}
     ours = own_exercises()
@@ -117,6 +117,11 @@ def main(src_root):
                 entry["level"] = "INTERMEDIATE"
             entry["instructionsEn"] = ex.get("instructions", [])
             entry["images"] = convert_images(src_root, ex, entry["id"], out_images)
+            # Where the database's own text is missing or not useful, ours replaces it (both languages).
+            if entry["id"] in OWN_INSTRUCTIONS:
+                entry["instructionsEn"], entry["instructionsDe"] = OWN_INSTRUCTIONS[entry["id"]]
+        if not entry.get("instructionsEn") and entry["id"] in INSTRUCTIONS_EN:
+            entry["instructionsEn"] = INSTRUCTIONS_EN[entry["id"]]
         catalog.append(entry)
 
     ids = [e["id"] for e in catalog]

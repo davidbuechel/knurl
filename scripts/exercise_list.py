@@ -245,4 +245,52 @@ OWN_INSTRUCTIONS = {
          "Keep an even rhythm, or sprint for intervals.", "Count calories, distance or time."],
         ["Stell den Sitz so ein, dass das Bein unten fast gestreckt ist.", "Drück und zieh die Griffe, während du trittst.", "Fahr gleichmäßig oder sprinte in Intervallen.", "Zähl Kalorien, Strecke oder Zeit."],
     ),
+    # Database exercises whose own instructions are missing or not useful.
+    "push_press": (
+        ["Hold the bar in the front rack, hands just outside your shoulders.", "Dip a few centimetres by bending your knees, torso upright.", "Drive up through your legs and use the momentum to press the bar overhead.", "Lower the bar back to your shoulders under control."],
+        ["Halt die Stange vorne auf den Schultern, Hände knapp außerhalb der Schultern.", "Geh ein paar Zentimeter in die Knie, Oberkörper aufrecht.", "Drück dich aus den Beinen hoch und nutz den Schwung, um die Stange über den Kopf zu drücken.", "Senk die Stange kontrolliert zurück auf die Schultern."],
+    ),
+    "side_bridge": (
+        ["Lie on your side and prop yourself up on your forearm, elbow under the shoulder.", "Lift your hips until your body forms a straight line.", "Keep your core and glutes tight.", "Hold for time, then switch sides."],
+        ["Leg dich auf die Seite und stütz dich auf den Unterarm, Ellbogen unter der Schulter.", "Heb die Hüfte, bis dein Körper eine gerade Linie bildet.", "Halt Bauch und Gesäß fest.", "Halte auf Zeit und wechsle dann die Seite."],
+    ),
+    "power_clean": (
+        ["Stand with the bar over the middle of your feet, grip just outside your knees, back flat.", "Lift the bar by pushing the floor away, keeping it close to your shins.", "Once it passes your knees, extend hips and knees explosively and shrug.", "Pull yourself under the bar and catch it on your shoulders in a quarter squat, then stand up."],
+        ["Stell dich so, dass die Stange über der Fußmitte ist, greif knapp außerhalb der Knie, Rücken gerade.", "Heb die Stange, indem du den Boden wegdrückst, nah an den Schienbeinen.", "Sobald sie über den Knien ist, streck Hüfte und Knie explosiv und zieh die Schultern hoch.", "Zieh dich unter die Stange, fang sie in einer Viertelkniebeuge auf den Schultern und steh auf."],
+    ),
+    "rope_jumping": (
+        ["Hold one handle in each hand, the rope behind you.", "Swing the rope over your head with your wrists.", "Jump just high enough for the rope to pass under your feet.", "Land softly on the balls of your feet and keep a steady rhythm."],
+        ["Nimm in jede Hand einen Griff, das Seil liegt hinter dir.", "Schwing das Seil aus den Handgelenken über den Kopf.", "Spring nur so hoch, dass das Seil unter den Füßen durchläuft.", "Lande weich auf den Fußballen und halt einen gleichmäßigen Rhythmus."],
+    ),
+    "rowing_stationary": (
+        ["Strap your feet in and take the handle with straight arms.", "Push with your legs first, then lean back slightly.", "Pull the handle to your lower ribs at the end.", "Return in reverse order: arms, upper body, then knees."],
+        ["Schnall die Füße fest und greif den Griff mit gestreckten Armen.", "Drück zuerst mit den Beinen, dann lehn dich leicht zurück.", "Zieh den Griff am Ende zu den unteren Rippen.", "Komm in umgekehrter Reihenfolge zurück: Arme, Oberkörper, dann Knie."],
+    ),
+    "running_treadmill": (
+        ["Step onto the belt and start at walking pace.", "Raise the speed until you are running relaxed.", "Run upright with short, light steps and arms swinging naturally.", "Slow down gradually before you step off."],
+        ["Stell dich auf das Band und starte im Gehtempo.", "Erhöh die Geschwindigkeit, bis du locker läufst.", "Lauf aufrecht mit kurzen, leichten Schritten, die Arme schwingen natürlich mit.", "Werd zum Schluss langsam langsamer, bevor du absteigst."],
+    ),
+    "walking_treadmill": (
+        ["Step onto the belt and set a brisk walking pace.", "Raise the incline step by step, for example to 8 to 12 percent.", "Walk upright without holding on to the handrails.", "Lower the incline and speed at the end."],
+        ["Stell dich auf das Band und wähl ein zügiges Gehtempo.", "Erhöh die Steigung Schritt für Schritt, zum Beispiel auf 8 bis 12 Prozent.", "Geh aufrecht, ohne dich an den Griffen festzuhalten.", "Nimm am Ende Steigung und Tempo zurück."],
+    ),
+    "bicycling_stationary": (
+        ["Adjust the seat so your leg is almost straight at the bottom of the pedal stroke.", "Start pedalling at a light resistance.", "Raise the resistance or cadence to the effort you want.", "Ease off for the last minutes."],
+        ["Stell den Sitz so ein, dass das Bein unten fast gestreckt ist.", "Fang mit leichtem Widerstand an zu treten.", "Erhöh Widerstand oder Trittfrequenz, bis die Belastung passt.", "Fahr die letzten Minuten locker aus."],
+    ),
+    "stairmaster": (
+        ["Step onto the machine and choose a slow speed.", "Climb upright, putting your whole foot on each step.", "Use the handrails only lightly for balance.", "Raise the speed once you have a steady rhythm."],
+        ["Stell dich auf das Gerät und wähl ein langsames Tempo.", "Steig aufrecht und setz den ganzen Fuß auf jede Stufe.", "Halt dich nur leicht zur Balance an den Griffen fest.", "Erhöh das Tempo, sobald du einen gleichmäßigen Rhythmus hast."],
+    ),
+}
+
+# English instructions for core exercises whose database match has none (German in instructions-de.json).
+INSTRUCTIONS_EN = {
+    "machine_hip_thrust": ["Sit in the machine with the belt or pad across your hips.", "Drive your hips up and squeeze your glutes at the top.", "Lower them under control."],
+    "kettlebell_swing": ["Stand a little wider than hip-width with the kettlebell in front of you.", "Swing it back between your legs, pushing your hips back.", "Snap your hips forward so the kettlebell swings up to chest height."],
+    "burpee": ["From standing, squat down and put your hands on the floor.", "Jump your feet back into a push-up position.", "Jump back into the squat, then jump up with your arms overhead."],
+    "wall_ball": ["Stand about half a metre from the wall, the ball in front of your chest.", "Squat down.", "Drive up explosively and throw the ball at the target, catch it and go straight into the next squat."],
+    "sled_pull": ["Take the rope and face the sled.", "Pull it towards you hand over hand, knees slightly bent.", "Walk back and repeat."],
+    "sandbag_lunge": ["Put the sandbag on your shoulders behind your neck.", "Take a big step forward and lower your back knee until it nearly touches the floor.", "Push up and take the next step."],
+    "ski_erg": ["Stand facing the machine with the handles above your head.", "Pull the handles down powerfully, bending at the hips and knees.", "Stand back up and let your arms return overhead."],
 }

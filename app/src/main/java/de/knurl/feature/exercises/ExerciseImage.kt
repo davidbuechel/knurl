@@ -117,14 +117,15 @@ fun ExerciseGallery(exercise: Exercise, modifier: Modifier = Modifier) {
             pager.animateScrollToPage((pager.currentPage + 1) % exercise.images)
         }
     }
+    // Photos that can't load (offline, not uploaded yet) show the mark, without dots or play button.
+    var failed by remember(exercise.id) { mutableStateOf(false) }
     Box(modifier.fillMaxWidth().aspectRatio(4f / 3f).clip(RoundedCornerShape(24.dp)).background(MaterialTheme.colorScheme.surfaceContainerHigh)) {
+        if (failed) {
+            KnurlMark(Modifier.align(Alignment.Center).size(56.dp), color = MaterialTheme.colorScheme.outline)
+            return@Box
+        }
         HorizontalPager(pager, Modifier.fillMaxSize()) { page ->
-            var failed by remember(page) { mutableStateOf(false) }
-            if (failed) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { KnurlMark(Modifier.size(56.dp), color = MaterialTheme.colorScheme.outline) }
-            } else {
-                AsyncImage(exercise.imageUrl(page), contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize(), onError = { failed = true })
-            }
+            AsyncImage(exercise.imageUrl(page), contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize(), onError = { failed = true })
         }
         if (exercise.images > 1) {
             Row(Modifier.align(Alignment.BottomCenter).padding(bottom = 14.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
