@@ -11,7 +11,7 @@ both languages and show an icon tile instead of a photo.
 |---|---|
 | The list | `scripts/exercise_list.py` (`core`, `db`, `own` rows; `OWN_INSTRUCTIONS`) |
 | Catalog the app loads | `app/src/main/assets/exercises.json` (committed, generated) |
-| German instructions | `scripts/instructions-de.json` (core exercises), `OWN_INSTRUCTIONS` (own rows) |
+| Instructions | Every offered exercise has English and German. German: `scripts/instructions-de.json`; both languages: `OWN_INSTRUCTIONS` (own rows, and database rows whose text is missing or unusable); English for core exercises without a database text: `INSTRUCTIONS_EN` |
 | Photos | `public/exercises/{id}/0.webp` (start) and `1.webp` (end), 480 px, served by Firebase Hosting at `https://knurl-gym.web.app/exercises/...`, not committed |
 | Import | `scripts/import_exercises.py` |
 
