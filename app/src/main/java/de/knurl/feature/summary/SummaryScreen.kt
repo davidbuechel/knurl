@@ -48,6 +48,7 @@ import de.knurl.feature.common.HeroCard
 import de.knurl.feature.common.Pill
 import de.knurl.ui.brand.KnurlProgress
 import de.knurl.R
+import de.knurl.ui.navigation.ExerciseRoute
 import androidx.compose.material.icons.outlined.MonitorHeart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
@@ -291,6 +292,7 @@ fun SummaryScreen(go: Navigator, workoutId: String) {
                                     )
                                 },
                                 divider = i < s.gains.lastIndex,
+                                onClick = { go.to(ExerciseRoute(exerciseId)) },
                             )
                         }
                     }
@@ -308,6 +310,7 @@ fun SummaryScreen(go: Navigator, workoutId: String) {
                                 leading = { vm.exercise(record.exerciseId)?.let { ExerciseThumbnail(it, Modifier.size(44.dp)) } },
                                 trailing = { Text(stringResource(R.string.unit_e1rm, estimateText(record.oneRepMaxKg)), style = MaterialTheme.typography.labelLarge) },
                                 divider = i < s.records.lastIndex,
+                                onClick = { go.to(ExerciseRoute(record.exerciseId)) },
                             )
                         }
                     }

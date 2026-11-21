@@ -29,6 +29,8 @@ data class ExercisesState(
     val recent: List<ExerciseRow> = emptyList(),
     val custom: List<ExerciseRow> = emptyList(),
     val rows: List<ExerciseRow> = emptyList(),
+    /** Picker only: the exercises chosen so far, in the order they were tapped. */
+    val selected: List<String> = emptyList(),
 ) {
     val browsing: Boolean get() = query.isBlank() && filter == ExerciseFilter()
 }
@@ -37,12 +39,14 @@ class ExercisesViewModel(
     private val training: TrainingRepository,
     private val german: Boolean,
     catalogReady: Flow<Boolean>,
+    /** Where the filter lives; the picker passes the app-wide one so it is kept between visits. */
+    private val filter: MutableStateFlow<ExerciseFilter> = MutableStateFlow(ExerciseFilter()),
 ) : ViewModel() {
 
     private val query = MutableStateFlow("")
-    private val filter = MutableStateFlow(ExerciseFilter())
+    private val selected = MutableStateFlow<List<String>>(emptyList())
 
-    val state: StateFlow<ExercisesState> = combine(training.data.filterNotNull(), query, filter, catalogReady) { data, q, f, _ ->
+    val state: StateFlow<ExercisesState> = combine(training.data.filterNotNull(), query, filter, catalogReady, selected) { data, q, f, _, chosen ->
         val trained = data.workouts.flatMap { w -> w.exercises.map { it.exerciseId } }.toSet()
         val best = trained.associateWith { id -> History.sessions(id, data.workouts).mapNotNull { it.bestOneRepMax }.maxOrNull() }
         val favorites = data.settings.favoriteExercises.toSet()
@@ -60,6 +64,7 @@ class ExercisesViewModel(
             recent = recentIds.mapNotNull(training::exercise).filterNot { it.archived }.map(::row),
             custom = data.customExercises.filterNot { it.archived }.sortedBy { it.name(german).lowercase() }.map(::row),
             rows = ordered.map(::row),
+            selected = chosen,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ExercisesState())
 
@@ -71,6 +76,16 @@ class ExercisesViewModel(
     fun setEquipment(value: Equipment?) = filter.update { it.copy(equipment = value) }
     fun setLevel(value: ExerciseLevel?) = filter.update { it.copy(level = value) }
     fun toggleCustomOnly() = filter.update { it.copy(customOnly = !it.customOnly) }
+    /** Picker: tapping an exercise adds it to the selection, tapping it again takes it out. */
+    fun toggleSelected(id: String) = selected.update { if (id in it) it - id else it + id }
+
+    /** Picker: an own exercise just created joins the selection. */
+    fun select(id: String) = selected.update { if (id in it) it else it + id }
+
+    fun clearSelection() {
+        selected.value = emptyList()
+    }
+
     fun clearFilters() {
         filter.value = ExerciseFilter()
     }

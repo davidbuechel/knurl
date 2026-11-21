@@ -82,7 +82,7 @@ private const val SCALE_MAX = 25.0
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProgressScreen(go: Navigator) {
-    val vm = knurlViewModel { ProgressViewModel(it.training) }
+    val vm = knurlViewModel { ProgressViewModel(it.training, it.statsPeriod) }
     val state by vm.state.collectAsStateWithLifecycle()
     var selectedMuscle by rememberSaveable { mutableStateOf<Muscle?>(null) }
     val german = isGerman()

@@ -45,7 +45,7 @@
     <string name="training_history">History</string>
 
     <!-- Exercises -->
-    <string name="exercises_pick_title">Add exercise</string>
+    <string name="exercises_pick_title">Add exercises</string>
     <string name="detail_e1rm">Estimated 1RM</string>
     <string name="detail_no_data">No sets logged yet. Your estimated max appears after the first workout.</string>
     <string name="detail_records">Best</string>
@@ -668,4 +668,18 @@
     <string name="notif_action_done">Set done</string>
     <string name="notif_action_rest_add">+%1$d s</string>
     <string name="notif_action_rest_skip">Skip rest</string>
+
+    <!-- Exercise picker -->
+    <string name="picker_already_added">Added · %1$s</string>
+    <string name="picker_select">Add to selection</string>
+    <string name="picker_details">Show details</string>
+    <string name="picker_discard_title">Discard selection?</string>
+    <plurals name="picker_add">
+        <item quantity="one">Add %d exercise</item>
+        <item quantity="other">Add %d exercises</item>
+    </plurals>
+    <plurals name="picker_discard_body">
+        <item quantity="one">The exercise you picked will not be added.</item>
+        <item quantity="other">The %d exercises you picked will not be added.</item>
+    </plurals>
 </resources>

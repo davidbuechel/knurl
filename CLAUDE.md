@@ -47,6 +47,10 @@ calculations in Kotlin Multiplatform (`:shared`). Firebase backend (Auth, Firest
 - **Back never loses work.** A `BackHandler` closes what is open first (number pad, sheet) and
   guards unsaved edits, and is only enabled while there is something to guard, so the back
   gesture animates normally otherwise. Back on a tab other than Today returns to Today.
+- **An exercise's photo or name always opens the exercise** (details, history), wherever it is
+  shown. The picker selects several exercises at once (row = select, photo = details), keeps its
+  filter between visits (`AppContainer.pickerFilter`) and marks exercises already added.
+  Choices people make on a screen (filters, tabs, periods) are kept while the app runs.
 - **Numbers read the local way:** `Formatting.weight/tonnage/percent/length`, units joined with
   `Formatting.NBSP`; the decimal key and typed values use `Formatting.decimalSeparator()`.
   Screens add no transitions.

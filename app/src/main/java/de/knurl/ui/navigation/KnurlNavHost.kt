@@ -46,8 +46,9 @@ import kotlinx.serialization.Serializable
 @Serializable data class EditWorkoutRoute(val id: String)
 @Serializable data class SummaryRoute(val workoutId: String)
 @Serializable data class RoutineEditorRoute(val id: String? = null)
-@Serializable data object PickExerciseRoute
-@Serializable data class ExerciseRoute(val id: String)
+/** [added]: ids already in the workout or routine, comma-separated, marked in the list. */
+@Serializable data class PickExerciseRoute(val added: String = "")
+@Serializable data class ExerciseRoute(val id: String, val pick: Boolean = false)
 @Serializable data class CustomExerciseRoute(val id: String? = null, val name: String = "", val pick: Boolean = false)
 @Serializable data object SettingsRoute
 @Serializable data object StatsRoute
@@ -83,6 +84,13 @@ class Navigator(private val nav: NavHostController, private val entry: NavBackSt
         nav.popBackStack()
     }
 
+    /** Goes back and hands the previous screen several values (the exercises picked, in order). */
+    fun backWithResults(key: String, values: List<String>) {
+        if (!ready()) return
+        nav.previousBackStackEntry?.savedStateHandle?.set(key, ArrayList(values))
+        nav.popBackStack()
+    }
+
     /** Replaces the current screen, so back skips it (workout → summary). */
     fun <T : Any> replace(route: T) {
         if (!ready()) return
@@ -90,7 +98,10 @@ class Navigator(private val nav: NavHostController, private val entry: NavBackSt
     }
 
     companion object {
+        /** One exercise: an own exercise just created, handed back to the picker. */
         const val RESULT_EXERCISE = "pickedExercise"
+        /** The exercises picked, in the order they were tapped, handed to the workout or routine. */
+        const val RESULT_EXERCISES = "pickedExercises"
     }
 }
 
@@ -133,8 +144,11 @@ private fun Destinations(nav: NavHostController) {
             screen<EditWorkoutRoute>(nav) { go, entry -> ActiveWorkoutScreen(go, entry.savedStateHandle, editWorkoutId = entry.toRoute<EditWorkoutRoute>().id) }
             screen<SummaryRoute>(nav) { go, entry -> SummaryScreen(go, entry.toRoute<SummaryRoute>().workoutId) }
             screen<RoutineEditorRoute>(nav) { go, entry -> RoutineEditorScreen(go, entry.toRoute<RoutineEditorRoute>().id, entry.savedStateHandle) }
-            screen<PickExerciseRoute>(nav) { go, entry -> ExercisesScreen(go, pickForWorkout = true, savedState = entry.savedStateHandle) }
-            screen<ExerciseRoute>(nav) { go, entry -> ExerciseDetailScreen(go, entry.toRoute<ExerciseRoute>().id) }
+            screen<PickExerciseRoute>(nav) { go, entry ->
+                val added = entry.toRoute<PickExerciseRoute>().added.split(',').filter { it.isNotBlank() }.toSet()
+                ExercisesScreen(go, pickForWorkout = true, savedState = entry.savedStateHandle, alreadyAdded = added)
+            }
+            screen<ExerciseRoute>(nav) { go, entry -> entry.toRoute<ExerciseRoute>().let { ExerciseDetailScreen(go, it.id, pickForWorkout = it.pick) } }
             screen<CustomExerciseRoute>(nav) { go, entry ->
                 val route = entry.toRoute<CustomExerciseRoute>()
                 CustomExerciseScreen(go, route.id, route.name, pickForWorkout = route.pick)

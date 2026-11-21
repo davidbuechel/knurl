@@ -36,6 +36,12 @@ import de.knurl.domain.calc.Progress
 import de.knurl.feature.common.SectionHeader
 import de.knurl.feature.common.setText
 import de.knurl.R
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material3.Button
 import de.knurl.feature.common.estimateText
 import de.knurl.feature.common.SegmentedTabs
 import de.knurl.feature.common.Pill
@@ -71,7 +77,8 @@ import de.knurl.ui.theme.Knurl
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
+/** With [pickForWorkout] (opened from the picker's photo), a button adds the exercise to the picker's selection. */
+fun ExerciseDetailScreen(go: Navigator, exerciseId: String, pickForWorkout: Boolean = false) {
     val vm = knurlViewModel(key = "exercise-$exerciseId") { ExerciseDetailViewModel(it.training, exerciseId) }
     val state by vm.state.collectAsStateWithLifecycle()
     val unit = LocalWeightUnit.current
@@ -104,6 +111,19 @@ fun ExerciseDetailScreen(go: Navigator, exerciseId: String) {
                     }
                 },
             )
+        },
+        bottomBar = {
+            if (pickForWorkout) {
+                Surface(color = MaterialTheme.colorScheme.background) {
+                    Button(
+                        onClick = { go.backWithResult(Navigator.RESULT_EXERCISE, exerciseId) },
+                        modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp).height(52.dp),
+                    ) {
+                        Icon(Icons.Rounded.Add, contentDescription = null)
+                        Text(stringResource(R.string.picker_select))
+                    }
+                }
+            }
         },
     ) { padding ->
         val s = state ?: return@Scaffold BrandLoadingBox(Modifier.padding(padding))

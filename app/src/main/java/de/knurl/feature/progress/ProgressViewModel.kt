@@ -48,9 +48,11 @@ data class ProgressState(
     val trainingDays: Set<java.time.LocalDate>,
 )
 
-class ProgressViewModel(private val training: TrainingRepository) : ViewModel() {
-
-    private val period = MutableStateFlow(Period.WEEK)
+class ProgressViewModel(
+    private val training: TrainingRepository,
+    /** The chosen week/month/year; Statistics passes the app-wide one so it stays chosen. */
+    private val period: MutableStateFlow<Period> = MutableStateFlow(Period.WEEK),
+) : ViewModel() {
 
     fun setPeriod(value: Period) {
         period.value = value

@@ -48,6 +48,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import de.knurl.R
+import de.knurl.ui.navigation.ExerciseRoute
 import de.knurl.feature.common.Formatting
 import de.knurl.data.repository.TrainingRepository
 import de.knurl.domain.achievements.MonthRecap
@@ -148,7 +149,7 @@ fun MonthRecapScreen(go: Navigator, year: Int, monthNumber: Int) {
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = padding.calculateTopPadding() + 4.dp, bottom = padding.calculateBottomPadding() + 16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            item { RecapCard(r, monthName, year, vm::exercise, german) }
+            item { RecapCard(r, monthName, year, vm::exercise, german, onExercise = { go.to(ExerciseRoute(it)) }) }
             if (r.unlocked.isNotEmpty()) {
                 item { SectionHeader(stringResource(R.string.recap_unlocked)) }
                 item {
@@ -168,7 +169,7 @@ fun MonthRecapScreen(go: Navigator, year: Int, monthNumber: Int) {
 }
 
 @Composable
-private fun RecapCard(r: MonthRecap, monthName: String, year: Int, exercise: (String) -> Exercise?, german: Boolean) {
+private fun RecapCard(r: MonthRecap, monthName: String, year: Int, exercise: (String) -> Exercise?, german: Boolean, onExercise: ((String) -> Unit)? = null) {
     val brush = Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)))
     Column(
         Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)).background(MaterialTheme.colorScheme.background),
@@ -201,6 +202,7 @@ private fun RecapCard(r: MonthRecap, monthName: String, year: Int, exercise: (St
                     subtitle = pluralStringResource(R.plurals.recap_favorite, r.favoriteSets, r.favoriteSets),
                     leading = { ExerciseThumbnail(favorite, Modifier.size(44.dp)) },
                     divider = r.topGain != null,
+                    onClick = onExercise?.let { open -> { open(favorite.id) } },
                 )
             }
             r.topGain?.let { gain ->
@@ -211,6 +213,7 @@ private fun RecapCard(r: MonthRecap, monthName: String, year: Int, exercise: (St
                     leading = { ex?.let { ExerciseThumbnail(it, Modifier.size(44.dp)) } },
                     trailing = { Text(Formatting.percent(gain.percent.roundToInt(), signed = true), style = MaterialTheme.typography.titleSmall, color = Knurl.colors.success) },
                     divider = false,
+                    onClick = onExercise?.let { open -> { open(gain.exerciseId) } },
                 )
             }
         }

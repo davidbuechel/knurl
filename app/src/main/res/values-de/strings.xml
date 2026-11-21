@@ -43,7 +43,7 @@
     <string name="training_history">Verlauf</string>
 
     <!-- Exercises -->
-    <string name="exercises_pick_title">Übung hinzufügen</string>
+    <string name="exercises_pick_title">Übungen hinzufügen</string>
     <string name="detail_e1rm">Geschätztes 1RM</string>
     <string name="detail_no_data">Noch keine Sätze. Dein geschätztes Maximum erscheint nach dem ersten Training.</string>
     <string name="detail_records">Bestwerte</string>
@@ -666,4 +666,18 @@
     <string name="notif_action_done">Satz erledigt</string>
     <string name="notif_action_rest_add">+%1$d s</string>
     <string name="notif_action_rest_skip">Pause überspringen</string>
+
+    <!-- Exercise picker -->
+    <string name="picker_already_added">Hinzugefügt · %1$s</string>
+    <string name="picker_select">Zur Auswahl hinzufügen</string>
+    <string name="picker_details">Details anzeigen</string>
+    <string name="picker_discard_title">Auswahl verwerfen?</string>
+    <plurals name="picker_add">
+        <item quantity="one">%d Übung hinzufügen</item>
+        <item quantity="other">%d Übungen hinzufügen</item>
+    </plurals>
+    <plurals name="picker_discard_body">
+        <item quantity="one">Die gewählte Übung wird nicht hinzugefügt.</item>
+        <item quantity="other">Die %d gewählten Übungen werden nicht hinzugefügt.</item>
+    </plurals>
 </resources>

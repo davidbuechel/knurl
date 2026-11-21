@@ -125,10 +125,10 @@ fun ActiveWorkoutScreen(go: Navigator, savedState: SavedStateHandle, editWorkout
     }
     // The library hands the picked exercise back here.
     LaunchedEffect(savedState) {
-        savedState.getStateFlow<String?>(Navigator.RESULT_EXERCISE, null).collect { id ->
-            if (id != null) {
-                vm.addExercise(id)
-                savedState[Navigator.RESULT_EXERCISE] = null
+        savedState.getStateFlow<ArrayList<String>?>(Navigator.RESULT_EXERCISES, null).collect { ids ->
+            if (ids != null) {
+                ids.forEach { id -> vm.addExercise(id) }
+                savedState[Navigator.RESULT_EXERCISES] = null
             }
         }
     }
@@ -314,7 +314,7 @@ fun ActiveWorkoutScreen(go: Navigator, savedState: SavedStateHandle, editWorkout
                 item { BrandEmptyState(stringResource(R.string.empty_workout_title), stringResource(R.string.empty_workout_body)) }
             }
             item {
-                OutlinedButton(onClick = { go.to(PickExerciseRoute) }, modifier = Modifier.fillMaxWidth().height(52.dp)) {
+                OutlinedButton(onClick = { go.to(PickExerciseRoute(s.cards.joinToString(",") { it.exerciseId })) }, modifier = Modifier.fillMaxWidth().height(52.dp)) {
                     Icon(Icons.Rounded.Add, contentDescription = null)
                     Text(stringResource(R.string.action_add_exercise))
                 }

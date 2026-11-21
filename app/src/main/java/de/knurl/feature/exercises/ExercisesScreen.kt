@@ -50,9 +50,22 @@ import androidx.compose.material.icons.rounded.Add
 import de.knurl.ui.navigation.CustomExerciseRoute
 import androidx.compose.runtime.saveable.rememberSaveable
 import de.knurl.R
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.compose.material3.Surface
+import de.knurl.feature.common.ConfirmDialog
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
+import androidx.compose.material.icons.rounded.Info
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
+import androidx.compose.foundation.background
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.AnimatedVisibility
+import androidx.activity.compose.BackHandler
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -79,31 +92,43 @@ import de.knurl.ui.navigation.Navigator
 
 /**
  * The exercise library. One screen for both uses: as a tab it opens an exercise's details,
- * with [pickForWorkout] it hands the tapped exercise back to the screen that asked (workout, routine editor).
+ * with [pickForWorkout] it collects several exercises and hands them back to the screen that asked (workout, routine editor).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean, savedState: SavedStateHandle? = null) {
+fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean, savedState: SavedStateHandle? = null, alreadyAdded: Set<String> = emptySet()) {
     val german = isGerman()
-    val vm = knurlViewModel(key = "exercises-$pickForWorkout") { ExercisesViewModel(it.training, german, it.catalogReady) }
-    val state by vm.state.collectAsStateWithLifecycle()
-    val open: (String) -> Unit = { id ->
-        if (pickForWorkout) go.backWithResult(Navigator.RESULT_EXERCISE, id) else go.to(ExerciseRoute(id))
+    val vm = knurlViewModel(key = "exercises-$pickForWorkout") {
+        if (pickForWorkout) ExercisesViewModel(it.training, german, it.catalogReady, it.pickerFilter)
+        else ExercisesViewModel(it.training, german, it.catalogReady)
     }
-    // An own exercise created from the picker comes back here and goes straight on to whoever asked.
+    val state by vm.state.collectAsStateWithLifecycle()
+    // Library: a tap opens the exercise. Picker: a tap selects it (several at once, kept in order),
+    // the photo opens the details, and "Add" hands them all back.
+    val details: (String) -> Unit = { id -> go.to(ExerciseRoute(id, pick = pickForWorkout)) }
+    val open: (String) -> Unit = { id -> if (pickForWorkout) vm.toggleSelected(id) else details(id) }
+    var confirmDiscard by rememberSaveable { mutableStateOf(false) }
+    if (pickForWorkout) BackHandler(enabled = state.selected.isNotEmpty()) { confirmDiscard = true }
+    // An own exercise created from the picker comes back here and joins the selection.
     if (savedState != null) {
-        // Only once this screen is back on top: during the way back it could not navigate yet.
-        val lifecycle = LocalLifecycleOwner.current.lifecycle
         LaunchedEffect(savedState) {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                savedState.getStateFlow<String?>(Navigator.RESULT_EXERCISE, null).collect { id ->
-                    if (id != null) {
-                        savedState[Navigator.RESULT_EXERCISE] = null
-                        go.backWithResult(Navigator.RESULT_EXERCISE, id)
-                    }
+            savedState.getStateFlow<String?>(Navigator.RESULT_EXERCISE, null).collect { id ->
+                if (id != null) {
+                    savedState[Navigator.RESULT_EXERCISE] = null
+                    vm.select(id)
                 }
             }
         }
+    }
+    val rowContent: @Composable (ExerciseRow, Int, Int) -> Unit = { row, i, count ->
+        val id = row.exercise.id
+        ExerciseListRow(
+            row, i, count,
+            onClick = { open(id) },
+            selection = if (pickForWorkout) state.selected.indexOf(id) + 1 else null,
+            onDetails = if (pickForWorkout) ({ details(id) }) else null,
+            added = id in alreadyAdded,
+        )
     }
     // The field owns its text; the list follows. Bound to the computed state, fast typing would lose letters.
     var query by rememberSaveable { mutableStateOf(state.query) }
@@ -148,7 +173,9 @@ fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean, savedState: SavedSta
                 )
             }
             item {
-                LazyRow(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                // Opens scrolled to the active muscle, so a remembered filter is visible at once.
+                val chips = rememberLazyListState(initialFirstVisibleItemIndex = state.filter.muscle?.let { 3 + Muscle.entries.indexOf(it) } ?: 0)
+                LazyRow(Modifier.padding(top = 10.dp), state = chips, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     item {
                         ChoiceChip(stringResource(R.string.filter_equipment), state.filter.equipment?.let { stringResource(it.label()) }, Equipment.entries, { stringResource(it.label()) }, vm::setEquipment)
                     }
@@ -164,9 +191,9 @@ fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean, savedState: SavedSta
                 }
             }
             if (state.browsing) {
-                section("fav", favoritesTitle, state.favorites, open)
-                section("custom", customTitle, state.custom, open)
-                section("recent", recentTitle, state.recent, open)
+                section("fav", favoritesTitle, state.favorites, rowContent)
+                section("custom", customTitle, state.custom, rowContent)
+                section("recent", recentTitle, state.recent, rowContent)
                 item { SectionHeader(stringResource(R.string.exercises_all, state.rows.size), Modifier.padding(top = 14.dp, bottom = 8.dp)) }
             } else {
                 item {
@@ -188,9 +215,7 @@ fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean, savedState: SavedSta
                     }
                 }
             }
-            itemsIndexed(state.rows, key = { _, row -> "all-" + row.exercise.id }) { i, row ->
-                ExerciseListRow(row, i, state.rows.size, onClick = { open(row.exercise.id) })
-            }
+            itemsIndexed(state.rows, key = { _, row -> "all-" + row.exercise.id }) { i, row -> rowContent(row, i, state.rows.size) }
         }
     }
 
@@ -200,41 +225,104 @@ fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean, savedState: SavedSta
                 TopAppBar(
                     title = { Text(stringResource(R.string.exercises_pick_title)) },
                     navigationIcon = {
-                        IconButton(onClick = go::back) {
+                        IconButton(onClick = { if (state.selected.isNotEmpty()) confirmDiscard = true else go.back() }) {
                             Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.action_back))
                         }
                     },
                 )
             },
+            bottomBar = {
+                AnimatedVisibility(state.selected.isNotEmpty(), enter = slideInVertically { it }, exit = slideOutVertically { it }) {
+                    val count = state.selected.size.coerceAtLeast(1)
+                    Surface(color = MaterialTheme.colorScheme.background) {
+                        Button(
+                            onClick = { go.backWithResults(Navigator.RESULT_EXERCISES, state.selected) },
+                            modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp).height(52.dp),
+                        ) { Text(pluralStringResource(R.plurals.picker_add, count, count)) }
+                    }
+                }
+            },
         ) { padding -> content(Modifier.padding(padding)) }
     } else {
         content(Modifier)
     }
+
+    if (confirmDiscard) {
+        ConfirmDialog(
+            title = stringResource(R.string.picker_discard_title),
+            body = pluralStringResource(R.plurals.picker_discard_body, state.selected.size, state.selected.size),
+            confirm = stringResource(R.string.action_discard),
+            onDismiss = { confirmDiscard = false },
+            onConfirm = { confirmDiscard = false; vm.clearSelection(); go.back() },
+        )
+    }
 }
 
-private fun LazyListScope.section(key: String, title: String, rows: List<ExerciseRow>, open: (String) -> Unit) {
+private fun LazyListScope.section(key: String, title: String, rows: List<ExerciseRow>, rowContent: @Composable (ExerciseRow, Int, Int) -> Unit) {
     if (rows.isEmpty()) return
     item { SectionHeader(title, Modifier.padding(top = 14.dp, bottom = 8.dp)) }
-    itemsIndexed(rows, key = { _, row -> "$key-" + row.exercise.id }) { i, row -> ExerciseListRow(row, i, rows.size, onClick = { open(row.exercise.id) }) }
+    itemsIndexed(rows, key = { _, row -> "$key-" + row.exercise.id }) { i, row -> rowContent(row, i, rows.size) }
 }
 
-/** One exercise as a row; consecutive rows look like one [de.knurl.feature.common.ListGroup]. */
+/**
+ * One exercise as a row; consecutive rows look like one [de.knurl.feature.common.ListGroup].
+ * In the picker, [selection] is its place in the selection (0 = not chosen) and the photo has its
+ * own tap: [onDetails] opens the exercise without choosing it.
+ */
 @Composable
-private fun ExerciseListRow(row: ExerciseRow, index: Int, count: Int, onClick: () -> Unit) {
+private fun ExerciseListRow(
+    row: ExerciseRow, index: Int, count: Int, onClick: () -> Unit,
+    selection: Int? = null, onDetails: (() -> Unit)? = null,
+    /** Already in the workout or routine (picker): marked, still selectable for a second round. */
+    added: Boolean = false,
+) {
+    val chosen = selection != null && selection > 0
     ListRow(
         row.exercise.displayName(),
-        modifier = Modifier.groupedItem(index, count),
-        subtitle = row.exercise.subtitle(),
-        leading = { ExerciseThumbnail(row.exercise, Modifier.size(44.dp)) },
+        modifier = Modifier.groupedItem(index, count)
+            .background(if (chosen) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f) else Color.Transparent),
+        subtitle = if (added) stringResource(R.string.picker_already_added, row.exercise.subtitle()) else row.exercise.subtitle(),
+        leading = {
+            val details = stringResource(R.string.picker_details)
+            Box(
+                if (onDetails != null) Modifier.clip(MaterialTheme.shapes.small).clickable(onClickLabel = details, onClick = onDetails) else Modifier,
+            ) {
+                ExerciseThumbnail(row.exercise, Modifier.size(44.dp))
+                // A small "i" says the photo opens the details.
+                if (onDetails != null) {
+                    Icon(
+                        Icons.Rounded.Info, contentDescription = details,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.align(Alignment.BottomEnd).size(16.dp)
+                            .background(MaterialTheme.colorScheme.surfaceContainerLowest, CircleShape),
+                    )
+                }
+            }
+        },
         trailing = {
             Column(horizontalAlignment = Alignment.End) {
                 if (row.favorite) Icon(Icons.Rounded.Star, contentDescription = stringResource(R.string.exercises_favorites), tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
                 row.bestOneRepMaxKg?.let { Text(stringResource(R.string.unit_e1rm, estimateText(it)), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             }
+            if (selection != null) SelectionMark(selection)
         },
         divider = index < count - 1,
         onClick = onClick,
     )
+}
+
+/** Picker: an empty ring, or a filled one with the exercise's place in the selection. */
+@Composable
+private fun SelectionMark(place: Int) {
+    val chosen = place > 0
+    Box(
+        Modifier.size(28.dp).clip(CircleShape)
+            .background(if (chosen) MaterialTheme.colorScheme.primary else Color.Transparent)
+            .border(2.dp, if (chosen) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline, CircleShape),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (chosen) Text("$place", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onPrimary)
+    }
 }
 
 /** A chip that opens a list of choices, with "all" to clear it. */

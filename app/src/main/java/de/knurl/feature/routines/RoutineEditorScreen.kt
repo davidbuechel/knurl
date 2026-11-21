@@ -56,6 +56,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.knurl.R
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.clickable
+import de.knurl.ui.navigation.ExerciseRoute
 import de.knurl.data.repository.TrainingRepository
 import de.knurl.domain.RoutineEditing
 import de.knurl.domain.model.RepRange
@@ -115,10 +118,10 @@ fun RoutineEditorScreen(go: Navigator, routineId: String?, savedState: SavedStat
     BackHandler(enabled = vm.hasChanges()) { confirmDiscard = true }
 
     LaunchedEffect(savedState) {
-        savedState.getStateFlow<String?>(Navigator.RESULT_EXERCISE, null).collect { id ->
-            if (id != null) {
-                vm.add(id)
-                savedState[Navigator.RESULT_EXERCISE] = null
+        savedState.getStateFlow<ArrayList<String>?>(Navigator.RESULT_EXERCISES, null).collect { ids ->
+            if (ids != null) {
+                ids.forEach { id -> vm.add(id) }
+                savedState[Navigator.RESULT_EXERCISES] = null
             }
         }
     }
@@ -143,7 +146,7 @@ fun RoutineEditorScreen(go: Navigator, routineId: String?, savedState: SavedStat
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { go.to(PickExerciseRoute) },
+                onClick = { go.to(PickExerciseRoute(routine.items.joinToString(",") { it.exerciseId })) },
                 icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
                 text = { Text(stringResource(R.string.action_add_exercise)) },
             )
@@ -175,8 +178,10 @@ fun RoutineEditorScreen(go: Navigator, routineId: String?, savedState: SavedStat
                 }
                 val card: @Composable (Modifier) -> Unit = { cardModifier -> KnurlCard(cardModifier) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        exercise?.let { ExerciseThumbnail(it, Modifier.size(44.dp)) }
-                        Column(Modifier.weight(1f)) {
+                        // Photo and name open the exercise (details, history), as in the workout.
+                        val details = Modifier.clip(MaterialTheme.shapes.small).clickable { go.to(ExerciseRoute(item.exerciseId)) }
+                        exercise?.let { Box(details) { ExerciseThumbnail(it, Modifier.size(44.dp)) } }
+                        Column(Modifier.weight(1f).clip(MaterialTheme.shapes.small).clickable { go.to(ExerciseRoute(item.exerciseId)) }) {
                             Text(exercise?.name(german) ?: item.exerciseId, style = MaterialTheme.typography.titleMedium)
                             exercise?.let { Text(it.subtitle(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                         }

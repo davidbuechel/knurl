@@ -6,6 +6,8 @@ import android.os.Bundle
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.FirebaseFirestore
+import de.knurl.domain.search.ExerciseFilter
+import de.knurl.domain.calc.Period
 import de.knurl.core.notifications.Notifications
 import de.knurl.core.notifications.PushRegistration
 import de.knurl.core.notifications.ReminderScheduler
@@ -79,6 +81,15 @@ class AppContainer(val app: Application) {
     )
 
     val restTimer = RestTimer(app)
+
+    /**
+     * The exercise picker's filter, kept between visits: building a chest routine means picking
+     * chest again and again, and the filter should still be set when the picker opens next time.
+     */
+    val pickerFilter = MutableStateFlow(ExerciseFilter())
+
+    /** Statistics' week/month/year, kept between visits. */
+    val statsPeriod = MutableStateFlow(Period.WEEK)
 
     private val _catalogReady = MutableStateFlow(false)
     /** True once the full exercise catalog is read from assets; the core list works before that. */
