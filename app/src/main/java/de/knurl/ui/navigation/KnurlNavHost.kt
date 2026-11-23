@@ -32,6 +32,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import de.knurl.feature.achievements.AchievementsScreen
+import de.knurl.feature.nutrition.AddFoodScreen
+import de.knurl.feature.nutrition.NutritionGoalScreen
 import de.knurl.feature.exercises.CustomExerciseScreen
 import de.knurl.feature.recap.MonthRecapScreen
 import de.knurl.feature.exercises.ExerciseDetailScreen
@@ -54,6 +56,9 @@ import kotlinx.serialization.Serializable
 @Serializable data object CalendarRoute
 @Serializable data object AccountRoute
 @Serializable data object AchievementsRoute
+/** [day]: ISO date the food goes to; [scan] opens the barcode scanner right away. */
+@Serializable data class AddFoodRoute(val day: String, val scan: Boolean = false)
+@Serializable data object NutritionGoalRoute
 @Serializable data class RecapRoute(val year: Int, val month: Int)
 @Serializable data class LegalRoute(val page: LegalPage)
 
@@ -156,6 +161,8 @@ private fun Destinations(nav: NavHostController) {
             screen<CalendarRoute>(nav) { go, _ -> CalendarScreen(go) }
             screen<AccountRoute>(nav) { go, _ -> AccountScreen(go) }
             screen<AchievementsRoute>(nav) { go, _ -> AchievementsScreen(go) }
+            screen<AddFoodRoute>(nav) { go, entry -> entry.toRoute<AddFoodRoute>().let { AddFoodScreen(go, it.day, it.scan) } }
+            screen<NutritionGoalRoute>(nav) { go, _ -> NutritionGoalScreen(go) }
             screen<RecapRoute>(nav) { go, entry -> entry.toRoute<RecapRoute>().let { MonthRecapScreen(go, it.year, it.month) } }
             screen<LegalRoute>(nav) { go, entry -> LegalScreen(go, entry.toRoute<LegalRoute>().page) }
         }

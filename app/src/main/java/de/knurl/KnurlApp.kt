@@ -82,6 +82,9 @@ class AppContainer(val app: Application) {
 
     val restTimer = RestTimer(app)
 
+    /** Food log and saved foods, following the signed-in account like [training]. */
+    val nutrition = de.knurl.data.nutrition.NutritionRepository(firestore, auth.uid, scope)
+
     /**
      * The exercise picker's filter, kept between visits: building a chest routine means picking
      * chest again and again, and the filter should still be set when the picker opens next time.

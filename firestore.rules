@@ -86,6 +86,39 @@ service cloud.firestore {
         && stampedNow();
     }
 
+    function optionalNumber(field, max) {
+      return !(field in data()) || data()[field] == null || (data()[field] is number && data()[field] >= 0 && data()[field] <= max);
+    }
+
+    // One thing eaten on a day (ISO date). Quick entries have no grams or food.
+    function validFoodEntry(id) {
+      return data().keys().hasOnly(['id', 'day', 'atMs', 'name', 'kcal', 'proteinG', 'carbsG', 'fatG', 'grams', 'foodId', 'updatedAt'])
+        && data().id == id
+        && data().day is string && data().day.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}')
+        && data().atMs is int
+        && text(data().name, 1, 160)
+        && data().kcal is int && data().kcal >= 0 && data().kcal <= 20000
+        && data().proteinG is number && data().proteinG >= 0 && data().proteinG <= 2000
+        && optionalNumber('carbsG', 5000) && optionalNumber('fatG', 2000) && optionalNumber('grams', 10000)
+        && (!('foodId' in data()) || data().foodId == null || text(data().foodId, 1, 100))
+        && stampedNow();
+    }
+
+    // A food used before, values per 100 g.
+    function validFood(id) {
+      return data().keys().hasOnly(['id', 'name', 'brand', 'barcode', 'kcalPer100', 'proteinPer100', 'carbsPer100', 'fatPer100',
+                                    'servingG', 'lastUsedMs', 'updatedAt'])
+        && data().id == id
+        && text(data().name, 1, 120)
+        && (!('brand' in data()) || text(data().brand, 0, 120))
+        && (!('barcode' in data()) || data().barcode == null || text(data().barcode, 1, 32))
+        && data().kcalPer100 is number && data().kcalPer100 >= 0 && data().kcalPer100 <= 1000
+        && data().proteinPer100 is number && data().proteinPer100 >= 0 && data().proteinPer100 <= 100
+        && optionalNumber('carbsPer100', 100) && optionalNumber('fatPer100', 100) && optionalNumber('servingG', 5000)
+        && (!('lastUsedMs' in data()) || data().lastUsedMs is int)
+        && stampedNow();
+    }
+
     function validDevice() {
       return data().keys().hasOnly(['token', 'platform', 'locale', 'updatedAt'])
         && text(data().token, 1, 4096)
@@ -127,6 +160,16 @@ service cloud.firestore {
       match /state/{doc} {
         allow read, delete: if owner(uid) && doc == 'active';
         allow create, update: if owner(uid) && doc == 'active' && validWorkout(data().id);
+      }
+
+      match /foodLog/{id} {
+        allow read, delete: if owner(uid);
+        allow create, update: if owner(uid) && validFoodEntry(id);
+      }
+
+      match /foods/{id} {
+        allow read, delete: if owner(uid);
+        allow create, update: if owner(uid) && validFood(id);
       }
 
       // One document per installation, for push messages.

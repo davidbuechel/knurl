@@ -52,6 +52,21 @@ await check("owner logs body weight", assertSucceeds(setDoc(doc(alice, `users/${
 await check("body weight must be plausible", assertFails(setDoc(doc(alice, `users/${ALICE}/bodyWeights/b2`), weight("b2", { weightKg: -1 }))));
 await check("someone else cannot read body weight", assertFails(getDoc(doc(bob, `users/${ALICE}/bodyWeights/b1`))));
 
+console.log("nutrition");
+const entry = (id, overrides = {}) => ({ id, day: "2026-11-23", atMs: 1_700_000_000_000, name: "Skyr", kcal: 158, proteinG: 27.5,
+  carbsG: 10, fatG: 0.5, grams: 250, foodId: "f1", updatedAt: serverTimestamp(), ...overrides });
+await check("owner logs food", assertSucceeds(setDoc(doc(alice, `users/${ALICE}/foodLog/e1`), entry("e1"))));
+await check("a quick entry needs no grams or food", assertSucceeds(setDoc(doc(alice, `users/${ALICE}/foodLog/e2`), entry("e2", { grams: null, foodId: null, carbsG: null, fatG: null }))));
+await check("day must be a date", assertFails(setDoc(doc(alice, `users/${ALICE}/foodLog/e3`), entry("e3", { day: "monday" }))));
+await check("calories must be plausible", assertFails(setDoc(doc(alice, `users/${ALICE}/foodLog/e4`), entry("e4", { kcal: -5 }))));
+await check("someone else cannot read the food log", assertFails(getDoc(doc(bob, `users/${ALICE}/foodLog/e1`))));
+const food = (id, overrides = {}) => ({ id, name: "Skyr", brand: "Arla", barcode: "5701234567890", kcalPer100: 63, proteinPer100: 11,
+  carbsPer100: 4, fatPer100: 0.2, servingG: 150, lastUsedMs: 1_700_000_000_000, updatedAt: serverTimestamp(), ...overrides });
+await check("owner saves a food", assertSucceeds(setDoc(doc(alice, `users/${ALICE}/foods/f1`), food("f1"))));
+await check("per 100 g values must be plausible", assertFails(setDoc(doc(alice, `users/${ALICE}/foods/f2`), food("f2", { proteinPer100: 150 }))));
+await check("unknown food fields are refused", assertFails(setDoc(doc(alice, `users/${ALICE}/foods/f3`), food("f3", { price: 2 }))));
+await check("someone else cannot write foods", assertFails(setDoc(doc(bob, `users/${ALICE}/foods/f4`), food("f4"))));
+
 console.log("own exercises and photos");
 const custom = (id, overrides = {}) => ({
   id, nameDe: "Landmine Press", nameEn: "Landmine Press", primary: "SHOULDERS", secondary: ["TRICEPS"], equipment: "BARBELL",

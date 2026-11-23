@@ -3,6 +3,7 @@ package de.knurl.feature.account
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.knurl.core.export.DataExport
+import de.knurl.data.nutrition.NutritionRepository
 import de.knurl.core.notifications.PushRegistration
 import de.knurl.data.firebase.AccountError
 import de.knurl.data.firebase.AccountResult
@@ -33,6 +34,7 @@ class AccountViewModel(
     private val auth: AuthRepository,
     private val training: TrainingRepository,
     private val push: PushRegistration,
+    private val nutrition: NutritionRepository,
 ) : ViewModel() {
 
     private val busy = MutableStateFlow(false)
@@ -76,7 +78,14 @@ class AccountViewModel(
         if (training.deleteAllData()) auth.deleteUser() else AccountError.NETWORK
     }
 
-    fun exportJson(): String? = training.data.value?.let(DataExport::json)
+    /** Training plus the whole food log (fetched for the export), handed to [write]. */
+    fun exportJson(write: (String) -> Boolean) {
+        viewModelScope.launch {
+            val data = training.data.value ?: return@launch
+            val food = runCatching { nutrition.everything() }.getOrNull()
+            if (write(DataExport.json(data, food))) exported()
+        }
+    }
 
     fun exportCsv(): String? = training.data.value?.let { DataExport.csv(it, training::exercise) }
 

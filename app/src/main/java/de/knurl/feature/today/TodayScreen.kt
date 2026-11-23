@@ -33,6 +33,7 @@ import de.knurl.ui.theme.Knurl
 import de.knurl.feature.home.HomeTab
 import de.knurl.feature.common.weightText
 import de.knurl.R
+import androidx.compose.material.icons.rounded.Restaurant
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.automirrored.rounded.TrendingUp
@@ -78,7 +79,7 @@ import java.time.format.TextStyle
 /** Today: one clear next step, the week at a glance, and what improved lately. */
 @Composable
 fun TodayScreen(go: Navigator, openTab: (HomeTab) -> Unit = {}) {
-    val vm = knurlViewModel { TodayViewModel(it.training) }
+    val vm = knurlViewModel { TodayViewModel(it.training, it.nutrition) }
     val state by vm.state.collectAsStateWithLifecycle()
     val s = state ?: return BrandLoadingBox()
     val german = isGerman()
@@ -166,6 +167,21 @@ fun TodayScreen(go: Navigator, openTab: (HomeTab) -> Unit = {}) {
                         subtitle = ready.take(3).joinToString(", ") { it.name(german) } + if (ready.size > 3) " +${ready.size - 3}" else "",
                         leading = { IconTile(Icons.AutoMirrored.Rounded.TrendingUp, Knurl.colors.success) },
                         divider = false,
+                    )
+                }
+            }
+        }
+
+        // What was eaten today against the targets, one tap to the food log.
+        s.food?.let { food ->
+            item {
+                ListGroup {
+                    ListRow(
+                        stringResource(R.string.today_food, Formatting.kg(food.kcal.toDouble()), Formatting.kg(food.kcalTarget.toDouble())),
+                        subtitle = stringResource(R.string.today_food_protein, Formatting.kg(food.proteinG.roundToInt().toDouble()), food.proteinTarget),
+                        leading = { IconTile(Icons.Rounded.Restaurant, Knurl.colors.warning) },
+                        divider = false,
+                        onClick = { openTab(HomeTab.NUTRITION) },
                     )
                 }
             }

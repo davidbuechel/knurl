@@ -79,7 +79,7 @@ private fun Context.writeText(uri: Uri, text: String): Boolean =
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountScreen(go: Navigator) {
-    val vm = knurlViewModel { AccountViewModel(it.auth, it.training, it.push) }
+    val vm = knurlViewModel { AccountViewModel(it.auth, it.training, it.push, it.nutrition) }
     val state by vm.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -92,8 +92,7 @@ fun AccountScreen(go: Navigator) {
     var pendingGoogleSignIn by rememberSaveable { mutableStateOf(false) }
 
     val exportJson = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
-        val text = vm.exportJson()
-        if (uri != null && text != null && context.writeText(uri, text)) vm.exported()
+        if (uri != null) vm.exportJson { text -> context.writeText(uri, text) }
     }
     val exportCsv = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
         val text = vm.exportCsv()

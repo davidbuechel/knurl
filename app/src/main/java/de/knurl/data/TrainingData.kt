@@ -47,6 +47,8 @@ data class Settings(
     /** Optional, only for energy from heart rate (Keytel needs age and sex). Never required. */
     val birthYear: Int? = null,
     val sex: Sex? = null,
+    /** Nutrition targets; null until the person sets them up. */
+    val nutrition: de.knurl.domain.model.NutritionGoal? = null,
 )
 
 @Serializable

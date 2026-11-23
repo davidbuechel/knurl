@@ -65,6 +65,8 @@ dependencies {
     // Per-app language (AppCompatDelegate.setApplicationLocales) and night mode outside Compose.
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.health.connect)
+    // Barcode scanning through Google Play services: no camera permission, the scanner UI is Google's.
+    implementation(libs.play.services.code.scanner)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)

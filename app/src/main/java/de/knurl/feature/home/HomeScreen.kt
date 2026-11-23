@@ -30,6 +30,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import de.knurl.R
+import androidx.compose.material.icons.rounded.Restaurant
+import de.knurl.feature.nutrition.NutritionScreen
 import de.knurl.feature.progress.ProgressScreen
 import androidx.compose.material.icons.rounded.Insights
 import de.knurl.feature.settings.ProfileScreen
@@ -38,18 +40,19 @@ import de.knurl.feature.training.TrainingScreen
 import de.knurl.ui.navigation.Navigator
 
 /**
- * Four places: what to do today, everything to train with (routines, history, exercises), how
- * it's going (statistics, body weight, calendar, achievements), and you (account, settings).
+ * Five places: what to do today, everything to train with (routines, history, exercises), what
+ * you eat (targets, food log, scanner), how it's going (statistics, body weight, calendar, achievements), and you (account, settings).
  */
 enum class HomeTab(@StringRes val label: Int, val icon: ImageVector) {
     TODAY(R.string.tab_today, Icons.Rounded.Today),
     TRAINING(R.string.tab_training, Icons.Rounded.FitnessCenter),
+    NUTRITION(R.string.tab_nutrition, Icons.Rounded.Restaurant),
     PROGRESS(R.string.tab_progress, Icons.Rounded.Insights),
     PROFILE(R.string.tab_profile, Icons.Rounded.Person),
 }
 
 /**
- * The four tabs (see [HomeTab]). A tab change fades through (the old tab leaves quickly, the new one comes in), each
+ * The five tabs (see [HomeTab]). A tab change fades through (the old tab leaves quickly, the new one comes in), each
  * tab keeps its scroll position, and back on another tab returns to Today before it leaves the app.
  * Everything that opens on top slides (see ScreenMotion).
  */
@@ -85,6 +88,7 @@ fun HomeScreen(go: Navigator) {
                     when (current) {
                         HomeTab.TODAY -> TodayScreen(go, openTab = { tab = it })
                         HomeTab.TRAINING -> TrainingScreen(go)
+                        HomeTab.NUTRITION -> NutritionScreen(go)
                         HomeTab.PROGRESS -> ProgressScreen(go)
                         HomeTab.PROFILE -> ProfileScreen(go)
                     }

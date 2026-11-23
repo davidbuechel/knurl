@@ -135,7 +135,8 @@ private class FirestoreUserStore(private val user: DocumentReference) : UserTrai
 
     override suspend fun deleteEverything() {
         // Firestore has no recursive delete on clients: remove every known subcollection, then the profile.
-        for (collection in listOf(workouts, routines, photos, customExercises, bodyWeights, user.collection("state"), user.collection("devices"))) {
+        for (collection in listOf(workouts, routines, photos, customExercises, bodyWeights, user.collection("state"), user.collection("devices"),
+            user.collection("foodLog"), user.collection("foods"))) {
             collection.get().await().documents.chunked(400).forEach { chunk ->
                 val batch = user.firestore.batch()
                 chunk.forEach { batch.delete(it.reference) }

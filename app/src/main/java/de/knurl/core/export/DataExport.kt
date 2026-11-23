@@ -1,5 +1,12 @@
 package de.knurl.core.export
 
+import de.knurl.data.nutrition.NutritionData
+import de.knurl.domain.model.Food
+import de.knurl.domain.model.FoodEntry
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
+
 import de.knurl.data.TrainingData
 import de.knurl.domain.calc.ExerciseLookup
 import kotlinx.serialization.json.Json
@@ -15,7 +22,16 @@ object DataExport {
         encodeDefaults = true
     }
 
-    fun json(data: TrainingData): String = json.encodeToString(TrainingData.serializer(), data)
+    /** Training and, when given, the whole food log and saved foods, in one JSON file. */
+    fun json(data: TrainingData, nutrition: NutritionData? = null): String {
+        val training = json.encodeToJsonElement(TrainingData.serializer(), data).jsonObject
+        if (nutrition == null) return json.encodeToString(JsonObject.serializer(), training)
+        val all = JsonObject(training + mapOf(
+            "foodLog" to json.encodeToJsonElement(ListSerializer(FoodEntry.serializer()), nutrition.entries),
+            "foods" to json.encodeToJsonElement(ListSerializer(Food.serializer()), nutrition.foods),
+        ))
+        return json.encodeToString(JsonObject.serializer(), all)
+    }
 
     /** One row per set, oldest first. Weights in kilograms, as stored. */
     fun csv(data: TrainingData, lookup: ExerciseLookup): String = buildString {

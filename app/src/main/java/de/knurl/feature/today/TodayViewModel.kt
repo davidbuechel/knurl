@@ -18,6 +18,11 @@ import de.knurl.domain.model.Exercise
 import de.knurl.domain.model.Routine
 import de.knurl.domain.model.Workout
 import de.knurl.domain.calc.Progression
+import de.knurl.data.nutrition.NutritionRepository
+import de.knurl.data.nutrition.NutritionData
+import de.knurl.domain.calc.Nutrition
+import de.knurl.feature.nutrition.targetsFor
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -65,17 +70,29 @@ data class TodayState(
     val recap: Pair<Int, Int>?,
     /** No workout finished yet: the screen explains how training works instead of showing zeros. */
     val firstTime: Boolean = false,
+    /** Eaten today against the targets; null until nutrition is set up. */
+    val food: FoodToday? = null,
 )
 
-class TodayViewModel(private val training: TrainingRepository) : ViewModel() {
+data class FoodToday(val kcal: Int, val kcalTarget: Int, val proteinG: Double, val proteinTarget: Int)
 
-    val state: StateFlow<TodayState?> = training.data.filterNotNull()
-        .map(::build)
+class TodayViewModel(private val training: TrainingRepository, nutrition: NutritionRepository) : ViewModel() {
+
+    val state: StateFlow<TodayState?> = combine(training.data.filterNotNull(), nutrition.data) { data, food ->
+        build(data).copy(food = foodToday(data, food))
+    }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     fun startRoutine(routine: Routine, freeName: String) = training.startWorkout(routine, freeName)
 
     fun startFree(freeName: String) = training.startWorkout(null, freeName)
+
+    private fun foodToday(data: TrainingData, food: NutritionData?): FoodToday? {
+        val targets = targetsFor(data) ?: return null
+        val today = java.time.LocalDate.now().toString()
+        val totals = Nutrition.totals(food?.entries.orEmpty().filter { it.day == today })
+        return FoodToday(totals.kcal, targets.kcal, totals.proteinG, targets.proteinG)
+    }
 
     private fun build(data: TrainingData): TodayState {
         val zone = TimeZone.currentSystemDefault()
