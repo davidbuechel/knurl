@@ -25,7 +25,6 @@ import de.knurl.feature.legal.LegalScreen
 import de.knurl.feature.settings.SettingsScreen
 import de.knurl.feature.progress.BodyWeightScreen
 import de.knurl.feature.progress.CalendarScreen
-import de.knurl.feature.progress.ProgressScreen
 import androidx.compose.runtime.remember
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
@@ -51,7 +50,6 @@ import kotlinx.serialization.Serializable
 @Serializable data class ExerciseRoute(val id: String, val pick: Boolean = false)
 @Serializable data class CustomExerciseRoute(val id: String? = null, val name: String = "", val pick: Boolean = false)
 @Serializable data object SettingsRoute
-@Serializable data object StatsRoute
 @Serializable data object BodyWeightRoute
 @Serializable data object CalendarRoute
 @Serializable data object AccountRoute
@@ -154,7 +152,6 @@ private fun Destinations(nav: NavHostController) {
                 CustomExerciseScreen(go, route.id, route.name, pickForWorkout = route.pick)
             }
             screen<SettingsRoute>(nav) { go, _ -> SettingsScreen(go) }
-            screen<StatsRoute>(nav) { go, _ -> ProgressScreen(go) }
             screen<BodyWeightRoute>(nav) { go, _ -> BodyWeightScreen(go) }
             screen<CalendarRoute>(nav) { go, _ -> CalendarScreen(go) }
             screen<AccountRoute>(nav) { go, _ -> AccountScreen(go) }

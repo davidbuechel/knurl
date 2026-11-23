@@ -17,6 +17,8 @@ import de.knurl.domain.model.BodyWeight
 import de.knurl.domain.model.Exercise
 import de.knurl.domain.model.Muscle
 import kotlinx.coroutines.flow.MutableStateFlow
+import de.knurl.feature.achievements.achievements
+import de.knurl.domain.achievements.Achievements
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -46,6 +48,10 @@ data class ProgressState(
     val weeklyGoal: Int,
     val bodyWeights: List<BodyWeight>,
     val trainingDays: Set<java.time.LocalDate>,
+    /** For the shortcuts at the top of the Progress tab. */
+    val daysThisMonth: Int = 0,
+    val achievementsUnlocked: Int = 0,
+    val achievementsTotal: Int = 0,
 )
 
 class ProgressViewModel(
@@ -89,6 +95,10 @@ class ProgressViewModel(
             trainingDays = data.workouts.map {
                 java.time.Instant.ofEpochMilli(it.startedAtMs).atZone(java.time.ZoneId.systemDefault()).toLocalDate()
             }.toSet(),
+            daysThisMonth = data.workouts.map { java.time.Instant.ofEpochMilli(it.startedAtMs).atZone(java.time.ZoneId.systemDefault()).toLocalDate() }
+                .filter { java.time.YearMonth.from(it) == java.time.YearMonth.now() }.toSet().size,
+            achievementsUnlocked = data.achievements().count { it.unlocked },
+            achievementsTotal = Achievements.all.size,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 

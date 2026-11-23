@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.FitnessCenter
 import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Today
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -31,21 +30,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import de.knurl.R
-import de.knurl.feature.exercises.ExercisesScreen
+import de.knurl.feature.progress.ProgressScreen
+import androidx.compose.material.icons.rounded.Insights
 import de.knurl.feature.settings.ProfileScreen
 import de.knurl.feature.today.TodayScreen
 import de.knurl.feature.training.TrainingScreen
 import de.knurl.ui.navigation.Navigator
 
-private enum class HomeTab(@StringRes val label: Int, val icon: ImageVector) {
+/**
+ * Four places: what to do today, everything to train with (routines, history, exercises), how
+ * it's going (statistics, body weight, calendar, achievements), and you (account, settings).
+ */
+enum class HomeTab(@StringRes val label: Int, val icon: ImageVector) {
     TODAY(R.string.tab_today, Icons.Rounded.Today),
     TRAINING(R.string.tab_training, Icons.Rounded.FitnessCenter),
-    EXERCISES(R.string.tab_exercises, Icons.Rounded.Search),
+    PROGRESS(R.string.tab_progress, Icons.Rounded.Insights),
     PROFILE(R.string.tab_profile, Icons.Rounded.Person),
 }
 
 /**
- * The four tabs. A tab change fades through (the old tab leaves quickly, the new one comes in), each
+ * The four tabs (see [HomeTab]). A tab change fades through (the old tab leaves quickly, the new one comes in), each
  * tab keeps its scroll position, and back on another tab returns to Today before it leaves the app.
  * Everything that opens on top slides (see ScreenMotion).
  */
@@ -79,9 +83,9 @@ fun HomeScreen(go: Navigator) {
             Box(Modifier.fillMaxSize()) {
                 tabs.SaveableStateProvider(current.name) {
                     when (current) {
-                        HomeTab.TODAY -> TodayScreen(go)
+                        HomeTab.TODAY -> TodayScreen(go, openTab = { tab = it })
                         HomeTab.TRAINING -> TrainingScreen(go)
-                        HomeTab.EXERCISES -> ExercisesScreen(go, pickForWorkout = false)
+                        HomeTab.PROGRESS -> ProgressScreen(go)
                         HomeTab.PROFILE -> ProfileScreen(go)
                     }
                 }

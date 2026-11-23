@@ -54,6 +54,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.knurl.R
+import de.knurl.ui.navigation.CustomExerciseRoute
+import de.knurl.feature.exercises.ExercisesScreen
 import de.knurl.ui.theme.Knurl
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.AlertDialog
@@ -78,7 +80,7 @@ import de.knurl.ui.navigation.Navigator
 import de.knurl.ui.navigation.RoutineEditorRoute
 import kotlinx.coroutines.launch
 
-private enum class Tab { ROUTINES, HISTORY }
+private enum class Tab { ROUTINES, HISTORY, EXERCISES }
 
 private sealed interface Naming {
     data class Duplicate(val routine: Routine) : Naming
@@ -116,18 +118,25 @@ fun TrainingScreen(go: Navigator) {
     }
 
     Box(Modifier.fillMaxSize()) {
-        LazyColumn(contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            item {
-                Row(Modifier.padding(top = 8.dp, start = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(R.string.tab_training), style = MaterialTheme.typography.headlineLarge, modifier = Modifier.weight(1f))
-                    FilledTonalButton(onClick = { go.to(RoutineEditorRoute()) }) {
+      Column(Modifier.fillMaxSize()) {
+        // Title and tabs stay put; the button adds what the tab is about.
+        Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 10.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Row(Modifier.padding(top = 8.dp, start = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.tab_training), style = MaterialTheme.typography.headlineLarge, modifier = Modifier.weight(1f))
+                if (tab != Tab.HISTORY) {
+                    FilledTonalButton(onClick = { if (tab == Tab.EXERCISES) go.to(CustomExerciseRoute()) else go.to(RoutineEditorRoute()) }) {
                         Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Text(stringResource(R.string.routine_short))
+                        Text(stringResource(if (tab == Tab.EXERCISES) R.string.custom_add else R.string.routine_short))
                     }
                 }
             }
-            item { SegmentedTabs(Tab.entries, tab, { stringResource(if (it == Tab.ROUTINES) R.string.training_routines else R.string.training_history) }, { tab = it }) }
-
+            SegmentedTabs(Tab.entries, tab, {
+                stringResource(when (it) { Tab.ROUTINES -> R.string.training_routines; Tab.HISTORY -> R.string.training_history; Tab.EXERCISES -> R.string.tab_exercises })
+            }, { tab = it })
+        }
+        if (tab == Tab.EXERCISES) {
+            ExercisesScreen(go, pickForWorkout = false, embedded = true)
+        } else LazyColumn(contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             if (tab == Tab.ROUTINES) {
                 // A running workout comes first, so it is never mistaken for one still to start.
                 s.activeName?.let { name ->
@@ -184,6 +193,7 @@ fun TrainingScreen(go: Navigator) {
                 }
             }
         }
+      }
         SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).padding(16.dp))
     }
 

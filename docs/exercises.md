@@ -46,7 +46,7 @@ eight letters). Every query word must match. Tested in `ExerciseSearchTest`.
 
 ## Own exercises
 
-People add their own from the Exercises tab ("+ Custom") or from the picker when a search finds
+People add their own from Training → Exercises ("+ Custom") or from the picker when a search finds
 nothing. One name for both languages, main muscle, up to three more, equipment, own cues and an
 optional photo (gallery or camera, cropped to a 480 px square WebP on the device, stored in
 `exercisePhotos`). Ids start with `custom_`. Deleting one that the history or a plan uses only

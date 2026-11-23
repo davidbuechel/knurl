@@ -17,6 +17,7 @@ import de.knurl.domain.calc.Weeks
 import de.knurl.domain.model.Exercise
 import de.knurl.domain.model.Routine
 import de.knurl.domain.model.Workout
+import de.knurl.domain.calc.Progression
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -36,6 +37,8 @@ data class NextUp(
     val minutes: Int,
     /** Days since this routine was last done, null if never. */
     val daysAgo: Int?,
+    /** Exercises of this routine where the last session says: go heavier today. */
+    val readyToGoUp: List<Exercise> = emptyList(),
 )
 
 data class RecordRow(val record: PersonalRecord, val exercise: Exercise?)
@@ -60,6 +63,8 @@ data class TodayState(
     val hour: Int,
     /** Year and month of last month's review, shown in the first week of a month if there was training. */
     val recap: Pair<Int, Int>?,
+    /** No workout finished yet: the screen explains how training works instead of showing zeros. */
+    val firstTime: Boolean = false,
 )
 
 class TodayViewModel(private val training: TrainingRepository) : ViewModel() {
@@ -92,6 +97,7 @@ class TodayViewModel(private val training: TrainingRepository) : ViewModel() {
             streakWeeks = Weeks.streak(data.workouts, today, zone, data.settings.weeklyGoal),
             recentRecords = History.records(data.workouts).takeLast(4).reversed().map { RecordRow(it, training.exercise(it.exerciseId)) },
             hour = java.time.LocalTime.now().hour,
+            firstTime = data.workouts.isEmpty(),
             recap = java.time.YearMonth.now().minusMonths(1).let { last ->
                 val trained = data.workouts.any { java.time.YearMonth.from(java.time.Instant.ofEpochMilli(it.startedAtMs).atZone(java.time.ZoneId.systemDefault())) == last }
                 if (today.day <= 7 && trained) last.year to last.monthValue else null
@@ -114,6 +120,11 @@ class TodayViewModel(private val training: TrainingRepository) : ViewModel() {
             of = routines.size,
             minutes = Estimates.minutes(routine),
             daysAgo = lastDone?.let { Weeks.dateOf(it, zone).daysUntil(today) },
+            readyToGoUp = routine.items.mapNotNull { item ->
+                val exercise = training.exercise(item.exerciseId) ?: return@mapNotNull null
+                val last = History.lastSets(item.exerciseId, data.workouts)
+                exercise.takeIf { Progression.suggest(last, item.repRange, it.equipment)?.increased == true }
+            },
         )
     }
 }

@@ -88,8 +88,8 @@ class AppContainer(val app: Application) {
      */
     val pickerFilter = MutableStateFlow(ExerciseFilter())
 
-    /** Statistics' week/month/year, kept between visits. */
-    val statsPeriod = MutableStateFlow(Period.WEEK)
+    /** Statistics' week/month/year, kept between visits; a month says more than a week just begun. */
+    val statsPeriod = MutableStateFlow(Period.MONTH)
 
     private val _catalogReady = MutableStateFlow(false)
     /** True once the full exercise catalog is read from assets; the core list works before that. */

@@ -58,6 +58,18 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.math.roundToInt
 import de.knurl.R
+import androidx.compose.foundation.layout.Column
+import de.knurl.ui.navigation.AchievementsRoute
+import de.knurl.ui.navigation.CalendarRoute
+import de.knurl.ui.navigation.BodyWeightRoute
+import de.knurl.feature.common.ScreenTitle
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.material.icons.rounded.MilitaryTech
+import androidx.compose.material.icons.rounded.CalendarMonth
+import androidx.compose.material.icons.rounded.MonitorWeight
 import de.knurl.feature.common.Formatting
 import de.knurl.feature.common.estimateText
 import de.knurl.ui.navigation.Navigator
@@ -88,19 +100,30 @@ fun ProgressScreen(go: Navigator) {
     val german = isGerman()
     val locale = LocalConfiguration.current.locales[0]
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.stats_title)) },
-                navigationIcon = { IconButton(onClick = go::back) { Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.action_back)) } },
-            )
-        },
-    ) { padding ->
-        val s = state ?: return@Scaffold BrandLoadingBox(Modifier.padding(padding))
+    run {
+        val s = state ?: return BrandLoadingBox()
         LazyColumn(
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = padding.calculateTopPadding(), bottom = padding.calculateBottomPadding() + 24.dp),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
+            item { ScreenTitle(stringResource(R.string.tab_progress), Modifier.padding(top = 8.dp, start = 4.dp)) }
+            // Body weight, calendar and achievements, one tap away.
+            item {
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Shortcut(
+                        stringResource(R.string.body_weight), s.bodyWeights.lastOrNull()?.let { weightText(it.weightKg) } ?: "–",
+                        Icons.Rounded.MonitorWeight, Modifier.weight(1f),
+                    ) { go.to(BodyWeightRoute) }
+                    Shortcut(
+                        stringResource(R.string.calendar), pluralStringResource(R.plurals.days_short, s.daysThisMonth, s.daysThisMonth),
+                        Icons.Rounded.CalendarMonth, Modifier.weight(1f),
+                    ) { go.to(CalendarRoute) }
+                    Shortcut(
+                        stringResource(R.string.achievements_title), "${s.achievementsUnlocked}/${s.achievementsTotal}",
+                        Icons.Rounded.MilitaryTech, Modifier.weight(1f), Knurl.colors.gold,
+                    ) { go.to(AchievementsRoute) }
+                }
+            }
             item {
                 SegmentedTabs(Period.entries, s.period, {
                     stringResource(when (it) { Period.WEEK -> R.string.period_week; Period.MONTH -> R.string.period_month; Period.YEAR -> R.string.period_year })
@@ -111,8 +134,9 @@ fun ProgressScreen(go: Navigator) {
             item {
                 KpiRow(
                     listOf(
-                        Kpi("${s.stats.workouts}", stringResource(R.string.stat_sessions), Change(s.stats.workouts.toDouble(), s.previous.workouts.toDouble()).percent),
-                        Kpi(tonnageText(s.stats.volumeKg), stringResource(R.string.stat_volume), Change(s.stats.volumeKg, s.previous.volumeKg).percent),
+                        // A change only once there is something this period: "▼ 100 %" on a Monday morning says nothing.
+                        Kpi("${s.stats.workouts}", stringResource(R.string.stat_sessions), Change(s.stats.workouts.toDouble(), s.previous.workouts.toDouble()).percent.takeIf { s.stats.workouts > 0 }),
+                        Kpi(tonnageText(s.stats.volumeKg), stringResource(R.string.stat_volume), Change(s.stats.volumeKg, s.previous.volumeKg).percent.takeIf { s.stats.workouts > 0 }),
                         Kpi("${s.stats.records}", stringResource(R.string.stat_records)),
                     ),
                 )
@@ -122,7 +146,7 @@ fun ProgressScreen(go: Navigator) {
                     listOf(
                         Kpi("${s.stats.trainingDays}", stringResource(R.string.stat_days)),
                         Kpi(hoursText(s.stats.minutes, s.stats.workouts), stringResource(R.string.stat_time)),
-                        Kpi(s.kcal?.let { Formatting.compact(it.toDouble()) } ?: "–", stringResource(R.string.stat_kcal), s.kcal?.let { now -> s.kcalPrevious?.let { Change(now.toDouble(), it.toDouble()).percent } }),
+                        Kpi(s.kcal?.let { Formatting.compact(it.toDouble()) } ?: "–", stringResource(R.string.stat_kcal), s.kcal?.let { now -> s.kcalPrevious?.let { Change(now.toDouble(), it.toDouble()).percent } }?.takeIf { s.stats.workouts > 0 }),
                     ),
                 )
             }
@@ -207,6 +231,19 @@ fun ProgressScreen(go: Navigator) {
                 }
             }
         }
+    }
+}
+
+/** A small tile that opens a page: icon, value, label. */
+@Composable
+private fun Shortcut(label: String, value: String, icon: ImageVector, modifier: Modifier, tint: Color = MaterialTheme.colorScheme.primary, onClick: () -> Unit) {
+    Column(
+        modifier.clip(MaterialTheme.shapes.large).background(MaterialTheme.colorScheme.surfaceContainerLowest).clickable(onClick = onClick).padding(14.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(22.dp))
+        Text(value, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 

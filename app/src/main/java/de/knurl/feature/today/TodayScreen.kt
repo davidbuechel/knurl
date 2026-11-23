@@ -30,9 +30,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlin.math.roundToInt
 import de.knurl.ui.theme.Knurl
-import de.knurl.ui.navigation.StatsRoute
+import de.knurl.feature.home.HomeTab
 import de.knurl.feature.common.weightText
 import de.knurl.R
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.Tune
+import androidx.compose.material.icons.automirrored.rounded.TrendingUp
 import androidx.compose.ui.graphics.vector.ImageVector
 import de.knurl.ui.navigation.RecapRoute
 import de.knurl.feature.common.IconTile
@@ -74,7 +77,7 @@ import java.time.format.TextStyle
 
 /** Today: one clear next step, the week at a glance, and what improved lately. */
 @Composable
-fun TodayScreen(go: Navigator) {
+fun TodayScreen(go: Navigator, openTab: (HomeTab) -> Unit = {}) {
     val vm = knurlViewModel { TodayViewModel(it.training) }
     val state by vm.state.collectAsStateWithLifecycle()
     val s = state ?: return BrandLoadingBox()
@@ -153,6 +156,34 @@ fun TodayScreen(go: Navigator) {
             }
         }
 
+        // One concrete thing for today instead of numbers: where the last session says "go heavier".
+        val ready = s.next?.readyToGoUp.orEmpty()
+        if (s.active == null && ready.isNotEmpty()) {
+            item {
+                ListGroup {
+                    ListRow(
+                        pluralStringResource(R.plurals.today_go_up_title, ready.size, ready.size),
+                        subtitle = ready.take(3).joinToString(", ") { it.name(german) } + if (ready.size > 3) " +${ready.size - 3}" else "",
+                        leading = { IconTile(Icons.AutoMirrored.Rounded.TrendingUp, Knurl.colors.success) },
+                        divider = false,
+                    )
+                }
+            }
+        }
+
+        // Before the first workout: how training works here, not a wall of zeros.
+        if (s.firstTime) {
+            item { SectionHeader(stringResource(R.string.first_title)) }
+            item {
+                ListGroup {
+                    ListRow(stringResource(R.string.first_focus), subtitle = stringResource(R.string.first_focus_body), leading = { IconTile(Icons.Rounded.PlayArrow) })
+                    ListRow(stringResource(R.string.first_weights), subtitle = stringResource(R.string.first_weights_body), leading = { IconTile(Icons.Rounded.Tune) })
+                    ListRow(stringResource(R.string.first_lock), subtitle = stringResource(R.string.first_lock_body), leading = { IconTile(Icons.Rounded.Lock) }, divider = false)
+                }
+            }
+            return@LazyColumn
+        }
+
         item {
             SectionHeader(stringResource(R.string.today_this_week))
         }
@@ -174,7 +205,7 @@ fun TodayScreen(go: Navigator) {
         }
 
         if (s.gains.isNotEmpty()) {
-            item { SectionHeader(stringResource(R.string.today_progress), action = stringResource(R.string.today_all), onAction = { go.to(StatsRoute) }) }
+            item { SectionHeader(stringResource(R.string.today_progress), action = stringResource(R.string.today_all), onAction = { openTab(HomeTab.PROGRESS) }) }
             item {
                 ListGroup {
                     s.gains.forEachIndexed { i, row ->

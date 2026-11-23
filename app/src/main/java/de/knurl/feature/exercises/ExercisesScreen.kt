@@ -96,7 +96,14 @@ import de.knurl.ui.navigation.Navigator
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean, savedState: SavedStateHandle? = null, alreadyAdded: Set<String> = emptySet()) {
+fun ExercisesScreen(
+    go: Navigator,
+    pickForWorkout: Boolean,
+    savedState: SavedStateHandle? = null,
+    alreadyAdded: Set<String> = emptySet(),
+    /** Inside the Train tab, which has the title and the "+ Custom" button. */
+    embedded: Boolean = false,
+) {
     val german = isGerman()
     val vm = knurlViewModel(key = "exercises-$pickForWorkout") {
         if (pickForWorkout) ExercisesViewModel(it.training, german, it.catalogReady, it.pickerFilter)
@@ -144,8 +151,8 @@ fun ExercisesScreen(go: Navigator, pickForWorkout: Boolean, savedState: SavedSta
     LaunchedEffect(listState.isScrollInProgress) { if (listState.isScrollInProgress) focusManager.clearFocus() }
 
     val content: @Composable (Modifier) -> Unit = { modifier ->
-        LazyColumn(modifier.fillMaxSize(), state = listState, contentPadding = PaddingValues(16.dp)) {
-            if (!pickForWorkout) item {
+        LazyColumn(modifier.fillMaxSize(), state = listState, contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = if (embedded) 4.dp else 16.dp, bottom = 16.dp)) {
+            if (!pickForWorkout && !embedded) item {
                 Row(Modifier.padding(bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                     ScreenTitle(stringResource(R.string.tab_exercises), Modifier.weight(1f))
                     FilledTonalButton(onClick = create) {

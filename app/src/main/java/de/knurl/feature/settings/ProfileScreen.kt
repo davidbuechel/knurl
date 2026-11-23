@@ -37,7 +37,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import de.knurl.R
-import de.knurl.ui.navigation.AchievementsRoute
 import de.knurl.ui.theme.Knurl
 import androidx.compose.material.icons.rounded.MilitaryTech
 import de.knurl.domain.achievements.Achievements
@@ -59,11 +58,8 @@ import de.knurl.feature.common.tonnageText
 import de.knurl.feature.common.weightText
 import de.knurl.ui.brand.BrandLoadingBox
 import de.knurl.ui.navigation.AccountRoute
-import de.knurl.ui.navigation.BodyWeightRoute
-import de.knurl.ui.navigation.CalendarRoute
 import de.knurl.ui.navigation.Navigator
 import de.knurl.ui.navigation.SettingsRoute
-import de.knurl.ui.navigation.StatsRoute
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -80,16 +76,10 @@ data class ProfileState(
     val totalVolumeKg: Double,
     val records: Int,
     val firstWorkoutMs: Long?,
-    val latestWeightKg: Double?,
-    val trainingDaysThisMonth: Int,
-    val achievementsUnlocked: Int,
-    val achievementsTotal: Int,
 )
 
 class ProfileViewModel(training: TrainingRepository, private val auth: AuthRepository) : ViewModel() {
     val state: StateFlow<ProfileState?> = combine(training.data.filterNotNull(), auth.state) { data, authState ->
-        val zone = ZoneId.systemDefault()
-        val month = YearMonth.now()
         ProfileState(
             anonymous = (authState as? AuthState.SignedIn)?.anonymous ?: true,
             email = auth.email(),
@@ -97,11 +87,6 @@ class ProfileViewModel(training: TrainingRepository, private val auth: AuthRepos
             totalVolumeKg = data.workouts.sumOf(Volume::of),
             records = History.records(data.workouts).size,
             firstWorkoutMs = data.workouts.minOfOrNull { it.startedAtMs },
-            latestWeightKg = data.bodyWeights.lastOrNull()?.weightKg,
-            achievementsUnlocked = data.achievements().count { it.unlocked },
-            achievementsTotal = Achievements.all.size,
-            trainingDaysThisMonth = data.workouts.map { Instant.ofEpochMilli(it.startedAtMs).atZone(zone).toLocalDate() }
-                .filter { YearMonth.from(it) == month }.toSet().size,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 }
@@ -157,7 +142,8 @@ fun ProfileScreen(go: Navigator) {
             }
         }
 
-        item {
+        // Totals only once there are any: three zeros say nothing.
+        if (s.workouts > 0) item {
             KpiRow(
                 listOf(
                     Kpi("${s.workouts}", stringResource(R.string.profile_workouts)),
@@ -165,42 +151,6 @@ fun ProfileScreen(go: Navigator) {
                     Kpi("${s.records}", stringResource(R.string.stat_records)),
                 ),
             )
-        }
-
-        item { SectionHeader(stringResource(R.string.profile_progress)) }
-        item {
-            ListGroup {
-                ListRow(stringResource(R.string.stats_title), subtitle = stringResource(R.string.stats_subtitle_short), leading = { IconTile(Icons.Rounded.Insights) }) { go.to(StatsRoute) }
-                ListRow(
-                    stringResource(R.string.achievements_title),
-                    subtitle = stringResource(R.string.achievements_hint),
-                    leading = { IconTile(Icons.Rounded.MilitaryTech, Knurl.colors.gold) },
-                    trailing = {
-                        Text("${s.achievementsUnlocked}/${s.achievementsTotal}", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.outline)
-                    },
-                    onClick = { go.to(AchievementsRoute) },
-                )
-                ListRow(
-                    stringResource(R.string.body_weight),
-                    leading = { IconTile(Icons.Rounded.MonitorWeight, MaterialTheme.colorScheme.secondary) },
-                    trailing = {
-                        s.latestWeightKg?.let { Text(weightText(it), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-                        Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.outline)
-                    },
-                    onClick = { go.to(BodyWeightRoute) },
-                )
-                ListRow(
-                    stringResource(R.string.calendar),
-                    leading = { IconTile(Icons.Rounded.CalendarMonth, MaterialTheme.colorScheme.secondary) },
-                    trailing = {
-                        Text(pluralStringResource(R.plurals.calendar_days, s.trainingDaysThisMonth, s.trainingDaysThisMonth), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.outline)
-                    },
-                    divider = false,
-                    onClick = { go.to(CalendarRoute) },
-                )
-            }
         }
 
         item { SectionHeader(stringResource(R.string.profile_app)) }
