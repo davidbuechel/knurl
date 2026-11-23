@@ -44,6 +44,13 @@ class FormattingTest {
         assertEquals("12 %", Formatting.percent(12, locale = java.util.Locale.GERMANY))
     }
 
+    @Test fun compactCountsFitSmallTiles() {
+        assertEquals("850", Formatting.compact(850.0, en))
+        assertEquals("3.4k", Formatting.compact(3_480.0, en))
+        assertEquals("3,4k", Formatting.compact(3_480.0, java.util.Locale.GERMANY))
+        assertEquals("12k", Formatting.compact(12_400.0, en))
+    }
+
     @Test fun decimalSeparatorFollowsTheLanguage() {
         assertEquals('.', Formatting.decimalSeparator(en))
         assertEquals(',', Formatting.decimalSeparator(java.util.Locale.GERMANY))

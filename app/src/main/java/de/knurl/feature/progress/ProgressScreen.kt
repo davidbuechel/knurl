@@ -122,7 +122,7 @@ fun ProgressScreen(go: Navigator) {
                     listOf(
                         Kpi("${s.stats.trainingDays}", stringResource(R.string.stat_days)),
                         Kpi(hoursText(s.stats.minutes, s.stats.workouts), stringResource(R.string.stat_time)),
-                        Kpi(s.kcal?.let { "≈ " + Formatting.kg(it.toDouble()) } ?: "–", stringResource(R.string.stat_kcal), s.kcal?.let { now -> s.kcalPrevious?.let { Change(now.toDouble(), it.toDouble()).percent } }),
+                        Kpi(s.kcal?.let { Formatting.compact(it.toDouble()) } ?: "–", stringResource(R.string.stat_kcal), s.kcal?.let { now -> s.kcalPrevious?.let { Change(now.toDouble(), it.toDouble()).percent } }),
                     ),
                 )
             }

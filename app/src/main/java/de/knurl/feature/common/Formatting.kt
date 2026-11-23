@@ -26,6 +26,13 @@ object Formatting {
     /** The decimal separator people expect: "," in German, "." in English. */
     fun decimalSeparator(locale: Locale = Locale.getDefault()): Char = java.text.DecimalFormatSymbols.getInstance(locale).decimalSeparator
 
+    /** Large counts for small tiles: "850", "3.4k", "12k" (German "3,4k"). */
+    fun compact(value: Double, locale: Locale = Locale.getDefault()): String = when {
+        value < 1000 -> kg(Math.round(value).toDouble(), locale)
+        value < 10_000 -> NumberFormat.getNumberInstance(locale).apply { maximumFractionDigits = 1 }.format(Math.floor(value / 100) / 10) + "k"
+        else -> "${Math.round(value / 1000)}k"
+    }
+
     /** A plain number with up to two decimals. */
     fun kg(value: Double, locale: Locale = Locale.getDefault()): String =
         NumberFormat.getNumberInstance(locale).apply {
