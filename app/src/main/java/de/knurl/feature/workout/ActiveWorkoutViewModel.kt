@@ -14,6 +14,8 @@ import de.knurl.domain.calc.Warmup
 import de.knurl.domain.prependWarmups
 import de.knurl.domain.setExerciseNote
 import de.knurl.domain.calc.History
+import de.knurl.domain.calc.Calibration
+import de.knurl.domain.calc.Feel
 import de.knurl.domain.calc.Progression
 import de.knurl.domain.changeWeight
 import de.knurl.domain.model.Exercise
@@ -23,6 +25,7 @@ import de.knurl.domain.model.SetKind
 import de.knurl.domain.model.Workout
 import de.knurl.domain.removeExercise
 import de.knurl.domain.removeSet
+import de.knurl.domain.doLater
 import de.knurl.domain.updateSet
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -67,6 +70,15 @@ data class ActiveWorkoutState(
     val restTotalSec: Long,
     val doneSets: Int,
     val totalSets: Int,
+    /** Focus mode: the set to do now (next open one after the furthest done), null when all are done. */
+    val upNext: SetRef? = null,
+    /** The set ticked last, for the rest screen. */
+    val lastDone: SetRef? = null,
+    /**
+     * The exercise of [lastDone] has no history yet: ask how the set felt, so the next sets get a
+     * fitting weight (Calibration). Asked once per exercise.
+     */
+    val askFeel: Boolean = false,
 )
 
 /**
@@ -88,6 +100,13 @@ class ActiveWorkoutViewModel(
     /** Where the number pad points. Starts on the first open set of a running workout. */
     private val focus = MutableStateFlow<Focus?>(null)
 
+    private val lastDone = MutableStateFlow<SetRef?>(null)
+
+    /** Exercises whose feel was answered (or that need no question). */
+    private val calibrated = MutableStateFlow<Set<Int>>(emptySet())
+
+    private val marks = combine(focus, lastDone, calibrated) { f, l, c -> Triple(f, l, c) }
+
     private val ticker = flow {
         while (true) {
             emit(now())
@@ -96,9 +115,9 @@ class ActiveWorkoutViewModel(
     }
 
     val state: StateFlow<ActiveWorkoutState?> =
-        combine(training.data.filterNotNull(), editing, rest.endsAtMs, ticker, focus) { data, edited, restEnd, nowMs, focused ->
+        combine(training.data.filterNotNull(), editing, rest.endsAtMs, ticker, marks) { data, edited, restEnd, nowMs, (focused, lastTicked, answered) ->
             val workout = if (editWorkoutId != null) edited else data.active
-            val (done, total) = workout?.let(WorkoutFlow::progress) ?: (0 to 0)
+            val (doneCount, total) = workout?.let(WorkoutFlow::progress) ?: (0 to 0)
             // A focus that points past the end (set removed) is dropped.
             val validFocus = focused?.takeIf { f -> workout?.exercises?.getOrNull(f.ref.exercise)?.sets?.getOrNull(f.ref.set) != null }
             val history = data.workouts.filter { it.id != workout?.id }
@@ -124,8 +143,11 @@ class ActiveWorkoutViewModel(
                 changed = editWorkoutId != null && edited != original,
                 focus = validFocus,
                 restTotalSec = rest.totalMs.value / 1000,
-                doneSets = done,
+                doneSets = doneCount,
                 totalSets = total,
+                upNext = workout?.let(WorkoutFlow::upNext),
+                lastDone = lastTicked.takeIf { workout != null },
+                askFeel = workout != null && lastTicked != null && needsFeel(workout, lastTicked, answered, history),
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
@@ -149,7 +171,8 @@ class ActiveWorkoutViewModel(
 
     /**
      * Ticking a set off: starts the rest (after the last exercise of a superset round, not when
-     * editing the history) and moves the focus to the next open set in workout order.
+     * editing the history). The number pad closes: it opens again only when a value is tapped, so
+     * it never covers the screen between sets.
      */
     fun toggleDone(exercise: Int, set: Int) {
         val workout = current() ?: return
@@ -161,9 +184,39 @@ class ActiveWorkoutViewModel(
             if (nowDone && WorkoutFlow.restsAfter(workout, ref)) rest.start(item.restSec) else if (!nowDone) rest.stop()
         }
         if (nowDone) {
-            val after = current() ?: return
-            focus.value = WorkoutFlow.nextFocus(after, ref)?.let { Focus(it, Field.WEIGHT) }
+            lastDone.value = ref
+            focus.value = null
         }
+    }
+
+    /**
+     * The answer to "how did that feel?" for a new exercise: the remaining open sets of that
+     * exercise move to a fitting weight (Calibration), and the question is not asked again.
+     */
+    fun answerFeel(feel: Feel) {
+        val ref = lastDone.value ?: return
+        calibrated.update { it + ref.exercise }
+        val workout = current() ?: return
+        val item = workout.exercises.getOrNull(ref.exercise) ?: return
+        val weight = item.sets.getOrNull(ref.set)?.weightKg ?: return
+        val step = training.exercise(item.exerciseId)?.let { Progression.increment(it.equipment) }?.takeIf { it > 0 } ?: 2.5
+        val target = Calibration.next(weight, feel, step)
+        if (target == weight) return
+        edit { w ->
+            w.copy(exercises = w.exercises.mapIndexed { i, e ->
+                if (i != ref.exercise) e
+                else e.copy(sets = e.sets.map { s -> if (!s.done && s.kind != SetKind.WARMUP && s.weightKg == weight) s.copy(weightKg = target) else s })
+            })
+        }
+    }
+
+    private fun needsFeel(workout: Workout, ref: SetRef, answered: Set<Int>, history: List<Workout>): Boolean {
+        if (ref.exercise in answered) return false
+        val item = workout.exercises.getOrNull(ref.exercise) ?: return false
+        val set = item.sets.getOrNull(ref.set) ?: return false
+        if (!set.done || set.kind == SetKind.WARMUP || set.weightKg <= 0) return false
+        if (History.lastSets(item.exerciseId, history).isNotEmpty()) return false
+        return item.sets.any { !it.done && it.kind != SetKind.WARMUP }
     }
 
     fun focus(exercise: Int, set: Int, field: Field) {
@@ -183,6 +236,14 @@ class ActiveWorkoutViewModel(
             if (!set.done) toggleDone(f.ref.exercise, f.ref.set)
             else focus.value = current()?.let { WorkoutFlow.nextFocus(it, f.ref) }?.let { Focus(it, Field.WEIGHT) }
         }
+    }
+
+    /** Machine busy: this exercise moves behind the others. */
+    fun doLater(exercise: Int) {
+        focus.value = null
+        calibrated.value = emptySet() // indexes shift; answers are cheap to give again
+        lastDone.value = null
+        edit { it.doLater(exercise) }
     }
 
     fun linkWithNext(exercise: Int) = edit { it.linkWithNext(exercise) }

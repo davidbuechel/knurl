@@ -117,7 +117,11 @@ fun ActiveWorkoutScreen(go: Navigator, savedState: SavedStateHandle, editWorkout
     val state by vm.state.collectAsStateWithLifecycle()
     val unit = LocalWeightUnit.current
     val editing = editWorkoutId != null
-    val logRir by appContainer().preferences.logRir.collectAsStateWithLifecycle()
+    val prefs = appContainer().preferences
+    val logRir by prefs.logRir.collectAsStateWithLifecycle()
+    // One set at a time while training; editing a past workout always shows the list.
+    val focusPref by prefs.workoutFocus.collectAsStateWithLifecycle()
+    val focusMode = focusPref && !editing
     if (!editing) {
         KeepScreenOn()
         AskForNotificationsOnce()
@@ -192,6 +196,12 @@ fun ActiveWorkoutScreen(go: Navigator, savedState: SavedStateHandle, editWorkout
                 menuOpen = menuOpen,
                 onMenu = { menuOpen = it },
                 menu = {
+                    if (!editing) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(if (focusMode) R.string.focus_menu_list else R.string.focus_menu_focus)) },
+                            onClick = { menuOpen = false; vm.clearFocus(); prefs.setWorkoutFocus(!focusMode) },
+                        )
+                    }
                     DropdownMenuItem(text = { Text(stringResource(R.string.workout_note)) }, onClick = { menuOpen = false; noting = Noting(null) })
                     DropdownMenuItem(
                         text = { Text(stringResource(if (editing) R.string.action_discard_changes else R.string.action_discard_workout)) },
@@ -202,7 +212,8 @@ fun ActiveWorkoutScreen(go: Navigator, savedState: SavedStateHandle, editWorkout
         },
         bottomBar = {
             Column {
-                AnimatedVisibility(visible = s?.restLeftSec != null, enter = slideInVertically { it }, exit = slideOutVertically { it }) {
+                // In focus mode the rest fills the screen instead.
+                AnimatedVisibility(visible = s?.restLeftSec != null && !focusMode, enter = slideInVertically { it }, exit = slideOutVertically { it }) {
                     RestBar(s?.restLeftSec ?: 0, s?.restTotalSec ?: 0, onAdd = { vm.addRest(15) }, onSkip = vm::skipRest)
                 }
                 val focus = s?.focus
@@ -261,6 +272,28 @@ fun ActiveWorkoutScreen(go: Navigator, savedState: SavedStateHandle, editWorkout
         },
     ) { padding ->
         if (s?.workout == null) return@Scaffold BrandLoadingBox(Modifier.padding(padding))
+        if (focusMode && s.cards.isNotEmpty()) {
+            FocusView(
+                s, unit,
+                FocusActions(
+                    changeWeight = { ref, delta -> vm.changeWeight(ref.exercise, ref.set, delta) },
+                    changeReps = { ref, delta -> vm.changeReps(ref.exercise, ref.set, delta) },
+                    typeWeight = { ref -> vm.focus(ref.exercise, ref.set, Field.WEIGHT) },
+                    typeReps = { ref -> vm.focus(ref.exercise, ref.set, Field.REPS) },
+                    done = { ref -> vm.clearFocus(); vm.toggleDone(ref.exercise, ref.set) },
+                    addRest = { vm.addRest(15) },
+                    skipRest = vm::skipRest,
+                    feel = vm::answerFeel,
+                    openExercise = { go.to(ExerciseRoute(it)) },
+                    showList = { vm.clearFocus(); prefs.setWorkoutFocus(false) },
+                    later = vm::doLater,
+                    apply = { ref, kg, reps -> vm.setWeight(ref.exercise, ref.set, kg); vm.setReps(ref.exercise, ref.set, reps) },
+                    finish = { confirmFinish = true },
+                ),
+                Modifier.padding(padding),
+            )
+            return@Scaffold
+        }
         LazyColumn(
             state = listState,
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = padding.calculateTopPadding() + 12.dp, bottom = padding.calculateBottomPadding() + 24.dp),

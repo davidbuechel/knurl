@@ -78,4 +78,19 @@ class WorkoutPlanningTest {
         )
         assertEquals(listOf<Int?>(null, null), workout.removeExercise(1).exercises.map { it.group })
     }
+
+    @Test fun doLaterMovesTheExerciseAndItsSupersetToTheEnd() {
+        val workout = Workout(
+            id = "w", name = "w", startedAtMs = 0,
+            exercises = listOf(
+                WorkoutExercise("bench_press", emptyList(), group = 1),
+                WorkoutExercise("barbell_row", emptyList(), group = 1),
+                WorkoutExercise("squat", emptyList()),
+                WorkoutExercise("leg_curl", emptyList()),
+            ),
+        )
+        assertEquals(listOf("squat", "leg_curl", "bench_press", "barbell_row"), workout.doLater(1).exercises.map { it.exerciseId })
+        assertEquals(listOf("bench_press", "barbell_row", "leg_curl", "squat"), workout.doLater(2).exercises.map { it.exerciseId })
+        assertEquals(workout, workout.doLater(3))
+    }
 }

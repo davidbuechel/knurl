@@ -91,6 +91,19 @@ fun Workout.prependWarmups(exercise: Int, warmups: List<SetEntry>): Workout = up
     if (warmups.isEmpty() || item.sets.any { it.kind == SetKind.WARMUP }) item else item.copy(sets = warmups + item.sets)
 }
 
+/**
+ * "Machine busy": moves an exercise (with its superset partners) behind the others, so the
+ * workout goes on with the next one and comes back to it at the end.
+ */
+fun Workout.doLater(exercise: Int): Workout {
+    val groups = exercises.map { it.group }
+    val block = Supersets.blocks(groups).firstOrNull { exercise in it } ?: return this
+    if (block.last == exercises.lastIndex) return this
+    val moved = exercises.slice(block)
+    val rest = exercises.filterIndexed { i, _ -> i !in block }
+    return copy(exercises = rest + moved)
+}
+
 /** Removes an exercise; a superset left with one exercise dissolves. */
 fun Workout.removeExercise(exercise: Int): Workout {
     val left = exercises.filterIndexed { i, _ -> i != exercise }

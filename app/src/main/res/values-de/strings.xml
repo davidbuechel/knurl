@@ -643,10 +643,6 @@
         <item quantity="one">%1$d von %2$d Satz erledigt</item>
         <item quantity="other">%1$d von %2$d Sätzen erledigt</item>
     </plurals>
-    <plurals name="workout_notification_rest">
-        <item quantity="one">Pause · %1$d von %2$d Satz erledigt</item>
-        <item quantity="other">Pause · %1$d von %2$d Sätzen erledigt</item>
-    </plurals>
     <plurals name="reminder_training_body">
         <item quantity="one">%1$d von %2$d Training diese Woche. Bereit dafür?</item>
         <item quantity="other">%1$d von %2$d Trainings diese Woche. Bereit für das nächste?</item>
@@ -680,4 +676,28 @@
         <item quantity="one">Die gewählte Übung wird nicht hinzugefügt.</item>
         <item quantity="other">Die %d gewählten Übungen werden nicht hinzugefügt.</item>
     </plurals>
+
+    <!-- Focus mode -->
+    <string name="focus_use">Übernehmen</string>
+    <string name="focus_later">Später machen</string>
+    <string name="focus_show_list">Alle Übungen zeigen</string>
+    <string name="focus_warmup">Aufwärmen</string>
+    <string name="focus_set_of">Satz %1$d von %2$d</string>
+    <string name="focus_suggest_up">Zeit zu steigern: %1$s</string>
+    <string name="focus_last_time">Letztes Mal: %1$s</string>
+    <string name="focus_first_time">Zum ersten Mal: Wähl ein Gewicht, das für die Wiederholungen machbar ist.</string>
+    <string name="focus_reps_unit">Wdh.</string>
+    <string name="focus_done">Erledigt</string>
+    <string name="focus_rest">Pause</string>
+    <string name="focus_skip_rest">Überspringen</string>
+    <string name="focus_next">Als Nächstes</string>
+    <string name="feel_title">Wie hat sich das angefühlt?</string>
+    <string name="feel_body">Dein erstes Mal mit dieser Übung. Die nächsten Sätze passen sich deiner Antwort an.</string>
+    <string name="feel_easy">Leicht</string>
+    <string name="feel_right">Genau richtig</string>
+    <string name="feel_hard">Zu schwer</string>
+    <string name="focus_all_done">Alle Sätze erledigt</string>
+    <string name="focus_all_done_body">Stark. Beende das Training für deine Zusammenfassung.</string>
+    <string name="focus_menu_list">Ganze Liste zeigen</string>
+    <string name="focus_menu_focus">Ein Satz nach dem anderen</string>
 </resources>

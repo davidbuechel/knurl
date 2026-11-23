@@ -645,10 +645,6 @@
         <item quantity="one">%1$d of %2$d set done</item>
         <item quantity="other">%1$d of %2$d sets done</item>
     </plurals>
-    <plurals name="workout_notification_rest">
-        <item quantity="one">Rest · %1$d of %2$d set done</item>
-        <item quantity="other">Rest · %1$d of %2$d sets done</item>
-    </plurals>
     <plurals name="reminder_training_body">
         <item quantity="one">%1$d of %2$d workout this week. Ready for it?</item>
         <item quantity="other">%1$d of %2$d workouts this week. Ready for the next one?</item>
@@ -682,4 +678,28 @@
         <item quantity="one">The exercise you picked will not be added.</item>
         <item quantity="other">The %d exercises you picked will not be added.</item>
     </plurals>
+
+    <!-- Focus mode -->
+    <string name="focus_use">Use</string>
+    <string name="focus_later">Do it later</string>
+    <string name="focus_show_list">Show all exercises</string>
+    <string name="focus_warmup">Warm-up</string>
+    <string name="focus_set_of">Set %1$d of %2$d</string>
+    <string name="focus_suggest_up">Time to go up: %1$s</string>
+    <string name="focus_last_time">Last time: %1$s</string>
+    <string name="focus_first_time">First time: pick a weight that feels doable for the reps.</string>
+    <string name="focus_reps_unit">reps</string>
+    <string name="focus_done">Done</string>
+    <string name="focus_rest">Rest</string>
+    <string name="focus_skip_rest">Skip</string>
+    <string name="focus_next">Next</string>
+    <string name="feel_title">How did that feel?</string>
+    <string name="feel_body">Your first time with this exercise. The next sets adjust to your answer.</string>
+    <string name="feel_easy">Easy</string>
+    <string name="feel_right">Just right</string>
+    <string name="feel_hard">Too hard</string>
+    <string name="focus_all_done">All sets done</string>
+    <string name="focus_all_done_body">Strong work. Finish to see your summary.</string>
+    <string name="focus_menu_list">Show the full list</string>
+    <string name="focus_menu_focus">One set at a time</string>
 </resources>

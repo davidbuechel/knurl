@@ -75,6 +75,12 @@ class AppPreferences(context: Context) {
 
     fun setLogRir(on: Boolean) = putBoolean(KEY_LOG_RIR, on, _logRir)
 
+    private val _workoutFocus = MutableStateFlow(prefs.getBoolean(KEY_WORKOUT_FOCUS, true))
+    /** The running workout shows one set at a time (focus) instead of the full set list. */
+    val workoutFocus: StateFlow<Boolean> = _workoutFocus.asStateFlow()
+
+    fun setWorkoutFocus(on: Boolean) = putBoolean(KEY_WORKOUT_FOCUS, on, _workoutFocus)
+
     private val _crashReports = MutableStateFlow(prefs.getBoolean(KEY_CRASH_REPORTS, false))
     /** Off until the person switches it on (DSGVO). */
     val crashReports: StateFlow<Boolean> = _crashReports.asStateFlow()
@@ -123,6 +129,7 @@ class AppPreferences(context: Context) {
         const val KEY_CRASH_REPORTS = "crashReports"
         const val KEY_INSTALL_ID = "installId"
         const val KEY_LOG_RIR = "logRir"
+        const val KEY_WORKOUT_FOCUS = "workout_focus"
         const val KEY_NOTIFICATIONS_ASKED = "notificationsAsked"
         const val KEY_HEALTH_WORKOUTS = "healthWorkouts"
         const val KEY_HEALTH_HEART_RATE = "healthHeartRate"
